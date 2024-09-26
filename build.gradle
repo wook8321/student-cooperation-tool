@@ -24,16 +24,34 @@ repositories {
 }
 
 dependencies {
+    //spring data jpa
 //    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    //spring security
 //    implementation 'org.springframework.boot:spring-boot-starter-security'
+    //spring mvc
     implementation 'org.springframework.boot:spring-boot-starter-web'
 //    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    //lombok
     compileOnly 'org.projectlombok:lombok'
-//    runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
+
+    // mysql
+//    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    //test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // WebSocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // STOMP
+    implementation 'org.webjars:stomp-websocket:2.3.4'
+
+    // SockJS
+    implementation 'org.webjars:sockjs-client:1.5.1'
 }
 
 tasks.named('test') {
