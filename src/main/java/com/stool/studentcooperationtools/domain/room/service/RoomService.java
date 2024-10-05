@@ -2,6 +2,7 @@ package com.stool.studentcooperationtools.domain.room.service;
 
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomAddResponse;
+import com.stool.studentcooperationtools.domain.room.controller.response.RoomSearchResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomsFindResponse;
 import org.springframework.stereotype.Service;
 
@@ -14,5 +15,9 @@ public class RoomService {
     public RoomAddResponse addRoom(final RoomAddRequest request) {
         return null;
 
+    }
+
+    public RoomSearchResponse searchRoom(final String title, final int page) {
+        return null;
     }
 }
