@@ -3,6 +3,7 @@ package com.stool.studentcooperationtools.docs.room;
 import com.stool.studentcooperationtools.docs.RestDocsSupport;
 import com.stool.studentcooperationtools.domain.room.controller.RoomApiController;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
+import com.stool.studentcooperationtools.domain.room.controller.request.RoomRemoveRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.*;
 import com.stool.studentcooperationtools.domain.room.service.RoomService;
 import org.junit.jupiter.api.Test;
@@ -194,6 +195,46 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
                                                 .description("방 주제"),
                                         fieldWithPath("data.rooms[].participationNum").type(NUMBER)
                                                 .description("방 참가자")
+                                )
+                        )
+                );
+
+    }
+
+    @Test
+    void removeRoom() throws Exception {
+        //given
+        RoomRemoveRequest request = RoomRemoveRequest.builder()
+                .roomId(1L)
+                .build();
+
+        String content = objectMapper.writeValueAsString(request);
+
+        Mockito.when(roomService.removeRoom(any(RoomRemoveRequest.class)))
+                        .thenReturn(true);
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/rooms")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("room-remove",
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
+                                requestFields(
+                                        fieldWithPath("roomId").type(NUMBER)
+                                                .description("제거할 방의 식별키")
+                                ),
+                                responseFields(
+                                        fieldWithPath("code").type(NUMBER)
+                                                .description("상태 코드"),
+                                        fieldWithPath("status").type(STRING)
+                                                .description("응답 상태"),
+                                        fieldWithPath("data").type(BOOLEAN)
+                                                .description("삭제 성공 여부")
                                 )
                         )
                 );
