@@ -108,3 +108,13 @@ include::{snippets}/room-password-valid/request-fields.adoc[]
 ==== HTTP Response
 include::{snippets}/room-password-valid/http-response.adoc[]
 include::{snippets}/room-password-valid/response-fields.adoc[]
+
+=== 방 주제 결정
+
+==== HTTP Request
+include::{snippets}/room-topic-update/http-request.adoc[]
+include::{snippets}/room-topic-update/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/room-topic-update/http-response.adoc[]
+include::{snippets}/room-topic-update/response-fields.adoc[]
