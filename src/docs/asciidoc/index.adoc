@@ -89,4 +89,13 @@ include::{snippets}/room-search/query-parameters.adoc[]
 include::{snippets}/room-search/http-response.adoc[]
 include::{snippets}/room-search/response-fields.adoc[]
 
+=== 방 삭제하기
+
+==== HTTP Request
+include::{snippets}/room-remove/http-request.adoc[]
+include::{snippets}/room-remove/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/room-remove/http-response.adoc[]
+include::{snippets}/room-remove/response-fields.adoc[]
 
