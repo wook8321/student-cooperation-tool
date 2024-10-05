@@ -19,6 +19,9 @@ public class Room extends BaseTimeEntity {
     @Column(unique = true,length = 20)
     private String title;
 
+    @Column(nullable = false, length = 20)
+    private String password;
+
     @Column
     private int participationNum;
 
