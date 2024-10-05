@@ -9,10 +9,10 @@ endif::[]
 :toclevels: 2
 :sectlinks:
 
-[[Product-API]]
+[[Member-API]]
 == Friend API
 
-[[product-create]]
+[[Member-find]]
 === 등록된 친구들 조회
 
 ==== HTTP Request
@@ -21,3 +21,26 @@ include::{snippets}/friend-find/http-request.adoc[]
 ==== HTTP Response
 include::{snippets}/friend-find/http-response.adoc[]
 include::{snippets}/friend-find/response-fields.adoc[]
+
+
+[[Member-search]]
+=== 친구 상태가 아닌 유저 검색 및 조회
+
+==== HTTP Request
+include::{snippets}/friend-search-NotFriend/http-request.adoc[]
+include::{snippets}/friend-search-NotFriend/query-parameters.adoc[]
+
+==== HTTP Response
+include::{snippets}/friend-search-NotFriend/http-response.adoc[]
+include::{snippets}/friend-search-NotFriend/response-fields.adoc[]
+
+[[Member-search]]
+=== 친구 상태인 유저 검색 및 조회
+
+==== HTTP Request
+include::{snippets}/friend-search/http-request.adoc[]
+include::{snippets}/friend-search/query-parameters.adoc[]
+
+==== HTTP Response
+include::{snippets}/friend-search/http-response.adoc[]
+include::{snippets}/friend-search/response-fields.adoc[]
