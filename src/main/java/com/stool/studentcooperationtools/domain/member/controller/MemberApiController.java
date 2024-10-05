@@ -1,14 +1,13 @@
 package com.stool.studentcooperationtools.domain.member.controller;
 
 import com.stool.studentcooperationtools.domain.api.ApiResponse;
+import com.stool.studentcooperationtools.domain.member.controller.request.MemberAddRequest;
 import com.stool.studentcooperationtools.domain.member.controller.response.MemberFindResponse;
 import com.stool.studentcooperationtools.domain.member.controller.response.MemberSearchResponse;
 import com.stool.studentcooperationtools.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,4 +30,9 @@ public class MemberApiController {
         return ApiResponse.of(HttpStatus.OK,response);
     }
 
+    @PostMapping("/api/v1/friends")
+    public ApiResponse<Boolean> addFriend(@RequestBody MemberAddRequest request){
+        Boolean result = memberService.addFriend(request);
+        return ApiResponse.of(HttpStatus.OK,result);
+    }
 }
