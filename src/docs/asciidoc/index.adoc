@@ -118,3 +118,17 @@ include::{snippets}/room-topic-update/request-fields.adoc[]
 ==== HTTP Response
 include::{snippets}/room-topic-update/http-response.adoc[]
 include::{snippets}/room-topic-update/response-fields.adoc[]
+
+
+[[Topic-API]]
+== Topic Api
+
+=== 해당 방에 속하는 주제들 조회
+
+==== HTTP Request
+include::{snippets}/Topic-find/http-request.adoc[]
+include::{snippets}/Topic-find/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/Topic-find/http-response.adoc[]
+include::{snippets}/Topic-find/response-fields.adoc[]
