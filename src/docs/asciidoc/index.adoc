@@ -62,9 +62,21 @@ include::{snippets}/friend-add/response-fields.adoc[]
 === 참가한 방찾기
 
 ==== HTTP Request
-include::{snippets}/rooms-find/http-request.adoc[]
-include::{snippets}/rooms-find/query-parameters.adoc[]
+include::{snippets}/room-find/http-request.adoc[]
+include::{snippets}/room-find/query-parameters.adoc[]
 
 ==== HTTP Response
-include::{snippets}/rooms-find/http-response.adoc[]
-include::{snippets}/rooms-find/response-fields.adoc[]
+include::{snippets}/room-find/http-response.adoc[]
+include::{snippets}/room-find/response-fields.adoc[]
+
+=== 방 생성하기
+
+==== HTTP Request
+include::{snippets}/room-add/http-request.adoc[]
+include::{snippets}/room-add/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/room-add/http-response.adoc[]
+include::{snippets}/room-add/response-fields.adoc[]
+
+
