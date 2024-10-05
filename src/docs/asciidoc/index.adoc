@@ -23,7 +23,7 @@ include::{snippets}/friend-find/http-response.adoc[]
 include::{snippets}/friend-find/response-fields.adoc[]
 
 
-[[Member-search]]
+[[Member-search-notFriend]]
 === 친구 상태가 아닌 유저 검색 및 조회
 
 ==== HTTP Request
@@ -44,3 +44,14 @@ include::{snippets}/friend-search/query-parameters.adoc[]
 ==== HTTP Response
 include::{snippets}/friend-search/http-response.adoc[]
 include::{snippets}/friend-search/response-fields.adoc[]
+
+[[Member-add]]
+=== 친구 추가
+
+==== HTTP Request
+include::{snippets}/friend-add/http-request.adoc[]
+include::{snippets}/friend-add/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/friend-add/http-response.adoc[]
+include::{snippets}/friend-add/response-fields.adoc[]
