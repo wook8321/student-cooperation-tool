@@ -3,6 +3,7 @@ package com.stool.studentcooperationtools.domain.room.service;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomPasswordValidRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomRemoveRequest;
+import com.stool.studentcooperationtools.domain.room.controller.request.RoomTopicUpdateRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomAddResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomSearchResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomsFindResponse;
@@ -28,6 +29,10 @@ public class RoomService {
     }
 
     public Boolean validRoomPassword(final RoomPasswordValidRequest request) {
+        return null;
+    }
+
+    public Boolean updateRoomTopic(final RoomTopicUpdateRequest request) {
         return null;
     }
 }
