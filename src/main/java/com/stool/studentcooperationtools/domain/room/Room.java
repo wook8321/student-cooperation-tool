@@ -1,7 +1,7 @@
 package com.stool.studentcooperationtools.domain.room;
 
 import com.stool.studentcooperationtools.domain.BaseTimeEntity;
-import com.stool.studentcooperationtools.domain.Topic.Topic;
+import com.stool.studentcooperationtools.domain.topic.Topic;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,10 +23,10 @@ public class Room extends BaseTimeEntity {
     private int participationNum;
 
     @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    private Topic topic;
+    private Topic mainTopic;
 
     public String getTopic(){
-        return this.topic.getTopic();
+        return this.mainTopic.getTopic();
     }
 
 }
