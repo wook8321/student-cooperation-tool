@@ -15,6 +15,9 @@ public class Member extends BaseTimeEntity {
     private Long id;
 
     @Column(nullable = false)
+    private String email;
+
+    @Column(nullable = false)
     private String nickName;
 
     @Column(nullable = false)
@@ -23,8 +26,9 @@ public class Member extends BaseTimeEntity {
     private Role role;
 
     @Builder
-    private Member(final String nickName, final String profile, final Role role) {
+    private Member(final String nickName,final String email, final String profile, final Role role) {
         this.nickName = nickName;
+        this.email = email;
         this.profile = profile;
         this.role = role;
     }
