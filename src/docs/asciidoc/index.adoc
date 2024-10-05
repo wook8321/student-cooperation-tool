@@ -79,4 +79,14 @@ include::{snippets}/room-add/request-fields.adoc[]
 include::{snippets}/room-add/http-response.adoc[]
 include::{snippets}/room-add/response-fields.adoc[]
 
+=== 방 검색하기
+
+==== HTTP Request
+include::{snippets}/room-search/http-request.adoc[]
+include::{snippets}/room-search/query-parameters.adoc[]
+
+==== HTTP Response
+include::{snippets}/room-search/http-response.adoc[]
+include::{snippets}/room-search/response-fields.adoc[]
+
 
