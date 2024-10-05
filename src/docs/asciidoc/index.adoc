@@ -99,3 +99,12 @@ include::{snippets}/room-remove/request-fields.adoc[]
 include::{snippets}/room-remove/http-response.adoc[]
 include::{snippets}/room-remove/response-fields.adoc[]
 
+=== 방 비밀 번호 검증
+
+==== HTTP Request
+include::{snippets}/room-password-valid/http-request.adoc[]
+include::{snippets}/room-password-valid/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/room-password-valid/http-response.adoc[]
+include::{snippets}/room-password-valid/response-fields.adoc[]
