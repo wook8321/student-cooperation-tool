@@ -4,6 +4,7 @@ import com.stool.studentcooperationtools.domain.api.ApiResponse;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomPasswordValidRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomRemoveRequest;
+import com.stool.studentcooperationtools.domain.room.controller.request.RoomTopicUpdateRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomAddResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomSearchResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomsFindResponse;
@@ -49,5 +50,11 @@ public class RoomApiController {
     public ApiResponse<Boolean> validRoomPassword(@Valid @RequestBody RoomPasswordValidRequest request){
         Boolean result = roomService.validRoomPassword(request);
         return ApiResponse.of(HttpStatus.OK, result);
+    }
+
+    @PostMapping("/api/v1/rooms/topics")
+    public ApiResponse<Boolean> updateRoomTopic(@Valid @RequestBody RoomTopicUpdateRequest request){
+        Boolean result = roomService.updateRoomTopic(request);
+        return ApiResponse.of(HttpStatus.OK,result);
     }
 }
