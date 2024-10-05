@@ -2,6 +2,7 @@ package com.stool.studentcooperationtools.docs.member;
 
 import com.stool.studentcooperationtools.docs.RestDocsSupport;
 import com.stool.studentcooperationtools.domain.member.controller.MemberApiController;
+import com.stool.studentcooperationtools.domain.member.controller.request.MemberAddRequest;
 import com.stool.studentcooperationtools.domain.member.controller.request.MemberSearchMemberDto;
 import com.stool.studentcooperationtools.domain.member.controller.response.MemberFindMemberDto;
 import com.stool.studentcooperationtools.domain.member.controller.response.MemberFindResponse;
@@ -18,8 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -27,15 +27,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class MemberApiControllerDocsTest extends RestDocsSupport {
 
-    private final MemberService memberService = mock(MemberService.class);
+        private final MemberService memberService = mock(MemberService.class);
 
-    @Override
-    protected Object initController() {
-        return new MemberApiController(memberService);
-    }
+        @Override
+        protected Object initController() {
+            return new MemberApiController(memberService);
+        }
 
-    @Test
-    void findFriend() throws Exception {
+        @Test
+        void findFriend() throws Exception {
         //given
         List<MemberFindMemberDto> memberDtoList = List.of(
                 MemberFindMemberDto.builder()
@@ -83,10 +83,10 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                         )
                     )
                 );
-    }
+        }
 
-    @Test
-    void searchNotFriend() throws Exception {
+        @Test
+        void searchNotFriend() throws Exception {
                 //given
                 List<MemberSearchMemberDto> memberDtoList = List.of(
                         MemberSearchMemberDto.builder()
@@ -141,10 +141,10 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                             )
                         );
 
-    }
+        }
 
-    @Test
-    void searchFriend() throws Exception {
+        @Test
+        void searchFriend() throws Exception {
                 //given
                 List<MemberSearchMemberDto> memberDtoList = List.of(
                         MemberSearchMemberDto.builder()
@@ -198,7 +198,45 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                                 )
                             )
                         );
-            }
+        }
+        @Test
+        void addFriend() throws Exception {
+            //given
+            MemberAddRequest request = MemberAddRequest.builder()
+                    .email("email@gmail.com")
+                    .build();
 
+            String content = objectMapper.writeValueAsString(request);
+
+            Mockito.when(memberService.addFriend(Mockito.any(MemberAddRequest.class)))
+                            .thenReturn(true);
+
+            //when
+            //then
+            mockMvc.perform(
+                    MockMvcRequestBuilders.post("/api/v1/friends")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(content)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andDo(document("friend-add",
+                                    preprocessRequest(prettyPrint()),
+                                    preprocessResponse(prettyPrint()),
+                                    requestFields(
+                                            fieldWithPath("email").type(STRING)
+                                                    .description("추가할 유저의 이메일")
+                                    ),
+                                    responseFields(
+                                            fieldWithPath("code").type(NUMBER)
+                                                    .description("상태 코드"),
+                                            fieldWithPath("status").type(STRING)
+                                                    .description("응답 상태"),
+                                            fieldWithPath("data").type(BOOLEAN)
+                                                    .description("친구 추가를 성공했는지 확인 여부")
+                                    )
+                                )
+                    );
+                }
 
 }
