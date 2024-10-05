@@ -55,3 +55,16 @@ include::{snippets}/friend-add/request-fields.adoc[]
 ==== HTTP Response
 include::{snippets}/friend-add/http-response.adoc[]
 include::{snippets}/friend-add/response-fields.adoc[]
+
+[[Room-API]]
+== Room Api
+
+=== 참가한 방찾기
+
+==== HTTP Request
+include::{snippets}/rooms-find/http-request.adoc[]
+include::{snippets}/rooms-find/query-parameters.adoc[]
+
+==== HTTP Response
+include::{snippets}/rooms-find/http-response.adoc[]
+include::{snippets}/rooms-find/response-fields.adoc[]
