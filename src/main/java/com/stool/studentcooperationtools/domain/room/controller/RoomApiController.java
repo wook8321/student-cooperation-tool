@@ -2,6 +2,7 @@ package com.stool.studentcooperationtools.domain.room.controller;
 
 import com.stool.studentcooperationtools.domain.api.ApiResponse;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
+import com.stool.studentcooperationtools.domain.room.controller.request.RoomRemoveRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomAddResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomSearchResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomsFindResponse;
@@ -35,5 +36,11 @@ public class RoomApiController {
             @RequestParam("page") int page){
         RoomSearchResponse response = roomService.searchRoom(title, page);
         return ApiResponse.of(HttpStatus.OK,response);
+    }
+
+    @DeleteMapping("/api/v1/rooms")
+    public ApiResponse<Boolean> removeRoom(@Valid @RequestBody RoomRemoveRequest request){
+        Boolean result = roomService.removeRoom(request);
+        return ApiResponse.of(HttpStatus.OK,result);
     }
 }
