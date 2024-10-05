@@ -5,6 +5,7 @@ import com.stool.studentcooperationtools.domain.room.controller.RoomApiControlle
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomPasswordValidRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomRemoveRequest;
+import com.stool.studentcooperationtools.domain.room.controller.request.RoomTopicUpdateRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.*;
 import com.stool.studentcooperationtools.domain.room.service.RoomService;
 import org.junit.jupiter.api.Test;
@@ -268,6 +269,49 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
                                 requestFields(
                                         fieldWithPath("password").type(STRING)
                                                 .description("들어갈 방의 비밀번호")
+                                ),
+                                responseFields(
+                                        fieldWithPath("code").type(NUMBER)
+                                                .description("상태 코드"),
+                                        fieldWithPath("status").type(STRING)
+                                                .description("응답 상태"),
+                                        fieldWithPath("data").type(BOOLEAN)
+                                                .description("인증 성공 여부")
+                                )
+                        )
+                );
+
+    }
+
+    @Test
+    void updateRoomTopic() throws Exception {
+        //given
+        RoomTopicUpdateRequest request = RoomTopicUpdateRequest.builder()
+                .roomId(1L)
+                .topicId(1L)
+                .build();
+
+        String content = objectMapper.writeValueAsString(request);
+
+        Mockito.when(roomService.updateRoomTopic(any(RoomTopicUpdateRequest.class)))
+                .thenReturn(true);
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/rooms/topics")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("room-topic-update",
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
+                                requestFields(
+                                        fieldWithPath("roomId").type(NUMBER)
+                                                .description("주제를 정할 방 식별키"),
+                                        fieldWithPath("topicId").type(NUMBER)
+                                                .description("메인 주제로 정해질 주제의 식별키")
                                 ),
                                 responseFields(
                                         fieldWithPath("code").type(NUMBER)
