@@ -3,6 +3,7 @@ package com.stool.studentcooperationtools.docs.room;
 import com.stool.studentcooperationtools.docs.RestDocsSupport;
 import com.stool.studentcooperationtools.domain.room.controller.RoomApiController;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
+import com.stool.studentcooperationtools.domain.room.controller.request.RoomPasswordValidRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomRemoveRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.*;
 import com.stool.studentcooperationtools.domain.room.service.RoomService;
@@ -235,6 +236,46 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
                                                 .description("응답 상태"),
                                         fieldWithPath("data").type(BOOLEAN)
                                                 .description("삭제 성공 여부")
+                                )
+                        )
+                );
+
+    }
+
+    @Test
+    void validRoomPassword() throws Exception {
+        //given
+        RoomPasswordValidRequest request = RoomPasswordValidRequest.builder()
+                .password("password")
+                .build();
+
+        String content = objectMapper.writeValueAsString(request);
+
+        Mockito.when(roomService.validRoomPassword(any(RoomPasswordValidRequest.class)))
+                .thenReturn(true);
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/rooms/valid-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("room-password-valid",
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
+                                requestFields(
+                                        fieldWithPath("password").type(STRING)
+                                                .description("들어갈 방의 비밀번호")
+                                ),
+                                responseFields(
+                                        fieldWithPath("code").type(NUMBER)
+                                                .description("상태 코드"),
+                                        fieldWithPath("status").type(STRING)
+                                                .description("응답 상태"),
+                                        fieldWithPath("data").type(BOOLEAN)
+                                                .description("인증 성공 여부")
                                 )
                         )
                 );
