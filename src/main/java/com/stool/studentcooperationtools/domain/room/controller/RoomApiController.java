@@ -3,6 +3,7 @@ package com.stool.studentcooperationtools.domain.room.controller;
 import com.stool.studentcooperationtools.domain.api.ApiResponse;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomAddResponse;
+import com.stool.studentcooperationtools.domain.room.controller.response.RoomSearchResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomsFindResponse;
 import com.stool.studentcooperationtools.domain.room.service.RoomService;
 import jakarta.validation.Valid;
@@ -25,6 +26,14 @@ public class RoomApiController {
     @PostMapping("/api/v1/rooms")
     public ApiResponse<RoomAddResponse> addRoom(@Valid @RequestBody RoomAddRequest request){
         RoomAddResponse response = roomService.addRoom(request);
+        return ApiResponse.of(HttpStatus.OK,response);
+    }
+
+    @GetMapping("/api/v1/rooms/search")
+    public ApiResponse<RoomSearchResponse> searchRoom(
+            @RequestParam("title") String title,
+            @RequestParam("page") int page){
+        RoomSearchResponse response = roomService.searchRoom(title, page);
         return ApiResponse.of(HttpStatus.OK,response);
     }
 }
