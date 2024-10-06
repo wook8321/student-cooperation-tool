@@ -156,3 +156,15 @@ include::{snippets}/part-find/http-request.adoc[]
 ==== HTTP Response
 include::{snippets}/part-find/http-response.adoc[]
 include::{snippets}/part-find/response-fields.adoc[]
+
+[[Part-API]]
+== Review Api
+
+=== 해당 자료의 평가들 조회
+
+==== HTTP Request
+include::{snippets}/review-find/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/review-find/http-response.adoc[]
+include::{snippets}/review-find/response-fields.adoc[]
