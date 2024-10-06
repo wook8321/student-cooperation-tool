@@ -1,6 +1,7 @@
-package com.stool.studentcooperationtools.docs;
+package com.stool.studentcooperationtools.docs.chat;
 
 
+import com.stool.studentcooperationtools.docs.RestDocsSupport;
 import com.stool.studentcooperationtools.domain.chat.controller.ChatApiController;
 import com.stool.studentcooperationtools.domain.chat.controller.response.ChatFindDto;
 import com.stool.studentcooperationtools.domain.chat.controller.response.ChatFindResponse;
@@ -21,7 +22,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.response
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class ChatApiControllerDocsTest extends RestDocsSupport{
+public class ChatApiControllerDocsTest extends RestDocsSupport {
 
     private final ChatService chatService = mock(ChatService.class);
     @Override
