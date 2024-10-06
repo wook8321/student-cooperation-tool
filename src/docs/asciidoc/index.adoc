@@ -132,3 +132,15 @@ include::{snippets}/Topic-find/request-fields.adoc[]
 ==== HTTP Response
 include::{snippets}/Topic-find/http-response.adoc[]
 include::{snippets}/Topic-find/response-fields.adoc[]
+
+[[Chat-API]]
+== Chat Api
+
+=== 해당 방에 채팅들 조회
+
+==== HTTP Request
+include::{snippets}/chat-find/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/chat-find/http-response.adoc[]
+include::{snippets}/chat-find/response-fields.adoc[]
