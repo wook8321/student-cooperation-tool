@@ -168,3 +168,15 @@ include::{snippets}/review-find/http-request.adoc[]
 ==== HTTP Response
 include::{snippets}/review-find/http-response.adoc[]
 include::{snippets}/review-find/response-fields.adoc[]
+
+
+=== 해당 자료에 평가 등록
+
+==== HTTP Request
+include::{snippets}/review-add/http-request.adoc[]
+include::{snippets}/review-add/request-fields.adoc[]
+
+
+==== HTTP Response
+include::{snippets}/review-add/http-response.adoc[]
+include::{snippets}/review-add/response-fields.adoc[]
