@@ -70,19 +70,19 @@ public class ChatApiControllerDocsTest extends RestDocsSupport {
                                 fieldWithPath("data").type(OBJECT)
                                         .description("응답 데이터"),
                                 fieldWithPath("data.num").type(NUMBER)
-                                        .description("데이터 개수"),
+                                        .description("조회된 채팅 개수"),
                                 fieldWithPath("data.chats[]").type(ARRAY)
-                                        .description("유저 정보 리스트"),
+                                        .description("채팅 정보 리스트"),
                                 fieldWithPath("data.chats[].chatId").type(NUMBER)
-                                        .description("유저 이메일"),
+                                        .description("채팅의 식별키"),
                                 fieldWithPath("data.chats[].createdTime").type(ARRAY)
-                                        .description("유저 닉네임"),
+                                        .description("채팅의 생성 날짜"),
                                 fieldWithPath("data.chats[].nickName").type(STRING)
+                                        .description("채팅을 작성한 유저의 닉네임"),
+                                fieldWithPath("data.chats[].profile").type(STRING)
                                         .description("유저 프로필"),
                                 fieldWithPath("data.chats[].content").type(STRING)
-                                        .description("유저 프로필"),
-                                fieldWithPath("data.chats[].profile").type(STRING)
-                                        .description("유저 프로필")
+                                        .description("채팅의 내용")
                         )
                 )
                 );
