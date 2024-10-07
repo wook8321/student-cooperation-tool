@@ -184,6 +184,8 @@ include::{snippets}/review-add/response-fields.adoc[]
 [[Presentation-API]]
 == Presentation API
 
+=== ppt 조회
+
 ==== HTTP Request
 include::{snippets}/presentation-find/http-request.adoc[]
 
@@ -191,3 +193,16 @@ include::{snippets}/presentation-find/http-request.adoc[]
 ==== HTTP Response
 include::{snippets}/presentation-find/http-response.adoc[]
 include::{snippets}/presentation-find/response-fields.adoc[]
+
+[[Slide-API]]
+== Slide API
+
+=== 슬라이드와 해당 슬라이드의 발표 스크립트 조회
+
+==== HTTP Request
+include::{snippets}/slide-find/http-request.adoc[]
+
+
+==== HTTP Response
+include::{snippets}/slide-find/http-response.adoc[]
+include::{snippets}/slide-find/response-fields.adoc[]
