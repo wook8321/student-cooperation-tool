@@ -29,4 +29,13 @@ public class Participation extends BaseTimeEntity {
         this.member = member;
         this.room = room;
     }
+
+    public Participation of(Member member, Room room){
+        Participation participation = Participation.builder()
+                .room(room)
+                .member(member)
+                .build();
+        room.addParticipation(participation);
+        return participation;
+    }
 }
