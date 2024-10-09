@@ -41,4 +41,8 @@ public class Part extends BaseTimeEntity {
         this.member = member;
     }
 
+    public void addFile(File file){
+        this.fileList.add(file);
+    }
+
 }
