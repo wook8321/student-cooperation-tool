@@ -5,6 +5,7 @@ import com.stool.studentcooperationtools.domain.topic.controller.TopicApiControl
 import com.stool.studentcooperationtools.domain.topic.controller.response.TopicFindDto;
 import com.stool.studentcooperationtools.domain.topic.controller.response.TopicFindResponse;
 import com.stool.studentcooperationtools.domain.topic.service.TopicService;
+import com.stool.studentcooperationtools.domain.vote.response.VoteFindDto;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -31,11 +32,20 @@ public class TopicApiControllerDocsTest extends RestDocsSupport {
     @Test
     void findTopics() throws Exception {
         //given
-        Long roomId = 1L;
+        String roomId = "1";
+
+        List<VoteFindDto> votes = List.of(
+                VoteFindDto.builder()
+                        .voteId(1L)
+                        .memberId(1L)
+                        .build()
+        );
+
         List<TopicFindDto> topicFindDtoList = List.of(
                 TopicFindDto.builder()
                         .topicId(1L)
-                        .voteCount(3)
+                        .voteNum(votes.size())
+                        .votes(votes)
                         .topic("주제")
                         .build()
         );
@@ -68,10 +78,16 @@ public class TopicApiControllerDocsTest extends RestDocsSupport {
                                                 .description("방 정보 리스트"),
                                         fieldWithPath("data.topics[].topicId").type(NUMBER)
                                                 .description("방 식별키"),
-                                        fieldWithPath("data.topics[].voteCount").type(NUMBER)
+                                        fieldWithPath("data.topics[].voteNum").type(NUMBER)
                                                 .description("방 제목"),
                                         fieldWithPath("data.topics[].topic").type(STRING)
-                                                .description("방 주제")
+                                                .description("방 주제"),
+                                        fieldWithPath("data.topics[].votes[]").type(ARRAY)
+                                                .description("주제의 투표 정보"),
+                                        fieldWithPath("data.topics[].votes[].memberId").type(NUMBER)
+                                                .description("주제를 투표한 유저의 식별키"),
+                                        fieldWithPath("data.topics[].votes[].voteId").type(NUMBER)
+                                                .description("주제의 투표 식별키")
                                 )
                         )
                 );
