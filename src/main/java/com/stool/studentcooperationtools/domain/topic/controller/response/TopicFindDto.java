@@ -2,26 +2,36 @@ package com.stool.studentcooperationtools.domain.topic.controller.response;
 
 
 import com.stool.studentcooperationtools.domain.topic.Topic;
+import com.stool.studentcooperationtools.domain.vote.response.VoteFindDto;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.List;
 
 @Getter
 public class TopicFindDto {
     private Long topicId;
-    private int voteCount;
     private String topic;
+    private int voteNum;
+    private List<VoteFindDto> votes;
 
     @Builder
-    private TopicFindDto(final Long topicId, final int voteCount, final String topic) {
+    private TopicFindDto(final Long topicId,final int voteNum, final List<VoteFindDto> votes, final String topic) {
         this.topicId = topicId;
-        this.voteCount = voteCount;
         this.topic = topic;
+        this.voteNum = voteNum;
+        this.votes = votes;
     }
 
     public static TopicFindDto of(Topic topic){
         return TopicFindDto.builder()
                 .topicId(topic.getId())
-                .voteCount(topic.getVoteCount())
+                .voteNum(topic.getVotes().size())
+                .votes(
+                        topic.getVotes().stream()
+                        .map(VoteFindDto::of)
+                                .toList()
+                )
                 .topic(topic.getTopic())
                 .build();
     }
