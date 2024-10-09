@@ -1,6 +1,6 @@
-package com.stool.studentcooperationtools.domain.presentaion.service;
+package com.stool.studentcooperationtools.domain.presentation.service;
 
-import com.stool.studentcooperationtools.domain.presentaion.controller.response.PresentationFindResponse;
+import com.stool.studentcooperationtools.domain.presentation.controller.response.PresentationFindResponse;
 import org.springframework.stereotype.Service;
 
 @Service

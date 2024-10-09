@@ -1,8 +1,8 @@
-package com.stool.studentcooperationtools.domain.presentaion.controller;
+package com.stool.studentcooperationtools.domain.presentation.controller;
 
 import com.stool.studentcooperationtools.domain.api.ApiResponse;
-import com.stool.studentcooperationtools.domain.presentaion.controller.response.PresentationFindResponse;
-import com.stool.studentcooperationtools.domain.presentaion.service.PresentationService;
+import com.stool.studentcooperationtools.domain.presentation.controller.response.PresentationFindResponse;
+import com.stool.studentcooperationtools.domain.presentation.service.PresentationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,4 @@
-package com.stool.studentcooperationtools.domain.presentaion.controller.response;
+package com.stool.studentcooperationtools.domain.presentation.controller.response;
 
 import lombok.AccessLevel;
 import lombok.Builder;

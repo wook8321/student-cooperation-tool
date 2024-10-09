@@ -1,4 +1,4 @@
-package com.stool.studentcooperationtools.domain.presentaion;
+package com.stool.studentcooperationtools.domain.presentation;
 
 import com.stool.studentcooperationtools.domain.BaseTimeEntity;
 import com.stool.studentcooperationtools.domain.room.Room;
