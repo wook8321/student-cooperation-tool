@@ -1,7 +1,7 @@
 package com.stool.studentcooperationtools.domain.script;
 
 import com.stool.studentcooperationtools.domain.BaseTimeEntity;
-import com.stool.studentcooperationtools.domain.presentaion.Presentation;
+import com.stool.studentcooperationtools.domain.presentation.Presentation;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

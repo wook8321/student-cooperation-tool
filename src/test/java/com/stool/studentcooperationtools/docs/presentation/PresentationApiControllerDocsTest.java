@@ -1,9 +1,9 @@
 package com.stool.studentcooperationtools.docs.presentation;
 
 import com.stool.studentcooperationtools.docs.RestDocsSupport;
-import com.stool.studentcooperationtools.domain.presentaion.controller.PresentationApiController;
-import com.stool.studentcooperationtools.domain.presentaion.controller.response.PresentationFindResponse;
-import com.stool.studentcooperationtools.domain.presentaion.service.PresentationService;
+import com.stool.studentcooperationtools.domain.presentation.controller.PresentationApiController;
+import com.stool.studentcooperationtools.domain.presentation.controller.response.PresentationFindResponse;
+import com.stool.studentcooperationtools.domain.presentation.service.PresentationService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
