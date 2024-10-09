@@ -28,9 +28,18 @@ public class Chat extends BaseTimeEntity {
     private Room room;
 
     @Builder
-    private Chat(final String content, final Member member) {
+    private Chat(final String content, final Member member, final Room room) {
         this.content = content;
         this.member = member;
+        this.room = room;
+    }
+
+    public static Chat of(final String content, final Member member, final Room room){
+        return Chat.builder()
+                .content(content)
+                .member(member)
+                .room(room)
+                .build();
     }
 
 }
