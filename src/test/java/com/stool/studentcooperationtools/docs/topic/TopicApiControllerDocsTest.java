@@ -44,6 +44,7 @@ public class TopicApiControllerDocsTest extends RestDocsSupport {
         List<TopicFindDto> topicFindDtoList = List.of(
                 TopicFindDto.builder()
                         .topicId(1L)
+                        .memberId(1L)
                         .voteNum(votes.size())
                         .votes(votes)
                         .topic("주제")
@@ -73,13 +74,15 @@ public class TopicApiControllerDocsTest extends RestDocsSupport {
                                         fieldWithPath("data").type(OBJECT)
                                                 .description("응답 데이터"),
                                         fieldWithPath("data.num").type(NUMBER)
-                                                .description("조회된 방 개수"),
+                                                .description("조회된 주제 개수"),
                                         fieldWithPath("data.topics[]").type(ARRAY)
-                                                .description("방 정보 리스트"),
+                                                .description("주제 리스트"),
+                                        fieldWithPath("data.topics[].memberId").type(NUMBER)
+                                                .description("주제를 생성한 유저의 식별키"),
                                         fieldWithPath("data.topics[].topicId").type(NUMBER)
-                                                .description("방 식별키"),
+                                                .description("주제의 식별키"),
                                         fieldWithPath("data.topics[].voteNum").type(NUMBER)
-                                                .description("방 제목"),
+                                                .description("투표 개수"),
                                         fieldWithPath("data.topics[].topic").type(STRING)
                                                 .description("방 주제"),
                                         fieldWithPath("data.topics[].votes[]").type(ARRAY)
