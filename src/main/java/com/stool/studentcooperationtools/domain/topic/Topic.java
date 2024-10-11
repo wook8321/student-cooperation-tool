@@ -1,6 +1,7 @@
 package com.stool.studentcooperationtools.domain.topic;
 
 import com.stool.studentcooperationtools.domain.BaseTimeEntity;
+import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.vote.Vote;
 import jakarta.persistence.*;
@@ -32,14 +33,17 @@ public class Topic extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Room room;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Member member;
+
     @Builder
-    private Topic(final String topic, final Room room) {
+    private Topic(final String topic, final Room room,final Member member) {
         this.topic = topic;
         this.room = room;
     }
 
-    public static Topic of(final String topic, final Room room){
-        return new Topic(topic,room);
+    public static Topic of(final String topic, final Room room,final Member member){
+        return new Topic(topic,room,member);
     }
 
     public void addVote(Vote vote){
