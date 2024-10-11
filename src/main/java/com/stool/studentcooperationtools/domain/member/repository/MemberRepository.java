@@ -19,7 +19,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("select m from Member m left join Friendship f on f.me.id = :memberId and f.friend.id = m.id where m.nickName like %:nickName% and f.me.id is null order by m.nickName asc")
     List<Member> findNonFriendsByMemberNickName(@Param("nickName") String nickName, @Param("memberId") Long memberId);
-
-    @Query("select m from Member m where m.email like %:findEmail%")
-    Optional<Member> findMemberByEmail(@Param("findEmail") String findEmail);
+    
+    Optional<Member> findMemberByEmail(String email);
+    
 }
