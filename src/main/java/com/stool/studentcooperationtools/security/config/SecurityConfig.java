@@ -17,23 +17,33 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests( authorize -> { // 정적 파일들은 접근 허락
                     authorize.requestMatchers("/*.html","/*.png","/*.ico","/static/**")
                             .permitAll();
                 })
-                .authorizeHttpRequests( authorize -> {
-                    authorize.requestMatchers("/","/api/test")
+                .authorizeHttpRequests( authorize -> { //인증 없이 접근가능한 url
+                    authorize.requestMatchers("/","/api/test","/login","/oauth/**","/logout")
                             .permitAll();
                 })
-                .formLogin(AbstractHttpConfigurer::disable)
+                .sessionManagement(session->session //세션 고정 공격 보호
+                        .sessionFixation().changeSessionId()
+                )
+                .formLogin(AbstractHttpConfigurer::disable) // form 로그인 불가능 설정
+                .authorizeHttpRequests( authorize -> { // 나머지 모든 url은 인증이 필요
+                    authorize.anyRequest().authenticated();
+                })
                 .oauth2Login((oauth)->oauth
-                        .authorizationEndpoint(authorizationEndpointConfig ->
-                                authorizationEndpointConfig.baseUri("/oauth2/authorize")
-                        )
                         .userInfoEndpoint((endPoint)->endPoint
                                 .userService(customOAuth2UserService)
                         )
                         .defaultSuccessUrl("/")
+                )
+                .logout(logout->logout //로그아웃 설정
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
                 )
                 .build();
     }
