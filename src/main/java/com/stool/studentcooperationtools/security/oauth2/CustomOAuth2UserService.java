@@ -3,6 +3,8 @@ package com.stool.studentcooperationtools.security.oauth2;
 import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.member.repository.MemberRepository;
 import com.stool.studentcooperationtools.security.oauth2.dto.OAuthAttributes;
+import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -18,7 +20,10 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService  {
 
+    public static final String SESSION_MEMBER_NAME = "member";
+
     private final MemberRepository memberRepository;
+    private final HttpSession httpSession;
 
     @Override
     public OAuth2User loadUser(final OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -37,6 +42,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService  {
         );
 
         Member member = saveOrUpdate(attributes);
+
+        httpSession.setAttribute("member",new SessionMember(member));
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(member.getRole())),
