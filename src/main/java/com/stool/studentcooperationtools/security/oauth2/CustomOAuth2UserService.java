@@ -43,7 +43,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService  {
 
         Member member = saveOrUpdate(attributes);
 
-        httpSession.setAttribute("member",new SessionMember(member));
+        httpSession.setAttribute("member",SessionMember.of(member));
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(member.getRole())),
