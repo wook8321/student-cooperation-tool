@@ -45,11 +45,7 @@ class MemberRepositoryTest {
         members.add(memberA);
         members.add(memberB);
         memberRepository.saveAll(members);
-        Friendship friendship = Friendship.builder()
-                .me(memberA)
-                .friend(memberB)
-                .build();
-        friendshipRepository.save(friendship);
+        friendshipRepository.save(Friendship.of(memberA, memberB));
         //when
         List<Member> friendList = memberRepository.findFriendsByMemberId(memberA.getId());
         //then
@@ -78,11 +74,7 @@ class MemberRepositoryTest {
         members.add(memberA);
         members.add(memberB);
         memberRepository.saveAll(members);
-        Friendship friendship = Friendship.builder()
-                .me(memberA)
-                .friend(memberB)
-                .build();
-        friendshipRepository.save(friendship);
+        friendshipRepository.save(Friendship.of(memberA, memberB));
         //when
         List<Member> friendList = memberRepository.findFriendsByMemberNickName(memberB.getNickName(),
                 memberA.getId());
@@ -140,11 +132,7 @@ class MemberRepositoryTest {
         members.add(memberA);
         members.add(memberB);
         memberRepository.saveAll(members);
-        Friendship friendship = Friendship.builder()
-                .me(memberA)
-                .friend(memberB)
-                .build();
-        friendshipRepository.save(friendship);
+        friendshipRepository.save(Friendship.of(memberA, memberB));
         //when
         List<Member> friendList = memberRepository.findFriendsByMemberNickName(invalidNickName,
                 memberA.getId());
@@ -202,11 +190,7 @@ class MemberRepositoryTest {
         members.add(memberA);
         members.add(memberB);
         memberRepository.saveAll(members);
-        Friendship friendship = Friendship.builder()
-                .me(memberA)
-                .friend(memberB)
-                .build();
-        friendshipRepository.save(friendship);
+        friendshipRepository.save(Friendship.of(memberA, memberB));
         //when
         List<Member> nonfriendList = memberRepository.findNonFriendsByMemberNickName(memberB.getNickName(),
                 memberA.getId());
@@ -236,11 +220,6 @@ class MemberRepositoryTest {
         members.add(memberA);
         members.add(memberB);
         memberRepository.saveAll(members);
-        Friendship friendship = Friendship.builder()
-                .me(memberA)
-                .friend(memberB)
-                .build();
-        friendshipRepository.save(friendship);
         //when
         List<Member> nonfriendList = memberRepository.findNonFriendsByMemberNickName(invalidNickName,
                 memberA.getId());
