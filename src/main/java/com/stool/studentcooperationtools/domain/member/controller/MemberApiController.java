@@ -5,6 +5,7 @@ import com.stool.studentcooperationtools.domain.member.controller.request.Member
 import com.stool.studentcooperationtools.domain.member.controller.response.MemberFindResponse;
 import com.stool.studentcooperationtools.domain.member.controller.response.MemberSearchResponse;
 import com.stool.studentcooperationtools.domain.member.service.MemberService;
+import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ public class MemberApiController {
     private final MemberService memberService;
 
     @GetMapping("/api/v1/friends")
-    public ApiResponse<MemberFindResponse> findFriends(){
+    public ApiResponse<MemberFindResponse> findFriends(SessionMember member){
         MemberFindResponse response = memberService.findFriends();
         return ApiResponse.of(HttpStatus.OK,response);
     }
@@ -24,8 +25,7 @@ public class MemberApiController {
     @GetMapping("/api/v1/friends/search")
     public ApiResponse<MemberSearchResponse> searchFriends(
             @RequestParam("relation") boolean relation,
-            @RequestParam("name") String name
-                                                           ){
+            @RequestParam("name") String name){
         MemberSearchResponse response = memberService.searchFriend(relation, name);
         return ApiResponse.of(HttpStatus.OK,response);
     }
