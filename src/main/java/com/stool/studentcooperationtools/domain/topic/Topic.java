@@ -40,6 +40,7 @@ public class Topic extends BaseTimeEntity {
     private Topic(final String topic, final Room room,final Member member) {
         this.topic = topic;
         this.room = room;
+        this.member = member;
     }
 
     public static Topic of(final String topic, final Room room,final Member member){
