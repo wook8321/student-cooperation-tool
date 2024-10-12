@@ -8,6 +8,9 @@ import com.stool.studentcooperationtools.domain.member.controller.response.Membe
 import com.stool.studentcooperationtools.domain.member.controller.response.MemberFindResponse;
 import com.stool.studentcooperationtools.domain.member.controller.response.MemberSearchResponse;
 import com.stool.studentcooperationtools.domain.member.service.MemberService;
+import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
+import jakarta.servlet.http.HttpSession;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
@@ -28,10 +31,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class MemberApiControllerDocsTest extends RestDocsSupport {
 
         private final MemberService memberService = mock(MemberService.class);
+        private final HttpSession httpSession = Mockito.mock(HttpSession.class);
 
         @Override
         protected Object initController() {
             return new MemberApiController(memberService);
+        }
+
+        @BeforeEach
+        void tearUp(){
+            SessionMember sessionMember = SessionMember.builder()
+                    .memberSeq(1L)
+                    .nickName("닉네임")
+                    .profile("프로필")
+                    .build();
+
+            Mockito.when(httpSession.getAttribute(Mockito.anyString()))
+                    .thenReturn(sessionMember);
         }
 
         @Test
