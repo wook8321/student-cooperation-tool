@@ -31,4 +31,9 @@ public class VoteService {
         voteRepository.save(vote);
         return VoteAddWebSocketResponse.of(vote,member);
     }
+
+    public Boolean deleteVote(final Long voteId) {
+        voteRepository.deleteById(voteId);
+        return true;
+    }
 }
