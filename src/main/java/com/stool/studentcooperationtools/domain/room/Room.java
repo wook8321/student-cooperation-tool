@@ -50,4 +50,12 @@ public class Room extends BaseTimeEntity {
     public void addParticipation(Participation participation){
         participationList.add(participation);
     }
+
+    public Boolean verifyPassword(String password){
+        return this.password.equals(password);
+    }
+
+    public void updateTopic(Topic topic){
+        this.mainTopic = topic;
+    }
 }
