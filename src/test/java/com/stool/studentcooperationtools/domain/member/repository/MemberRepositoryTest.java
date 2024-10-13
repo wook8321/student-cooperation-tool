@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
@@ -41,10 +40,7 @@ class MemberRepositoryTest {
                 .nickName("nickB")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(memberB);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(memberA, memberB));
         friendshipRepository.save(Friendship.of(memberA, memberB));
         //when
         List<Member> friendList = memberRepository.findFriendsByMemberId(memberA.getId());
@@ -70,10 +66,7 @@ class MemberRepositoryTest {
                 .nickName("nickB")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(memberB);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(memberA, memberB));
         friendshipRepository.save(Friendship.of(memberA, memberB));
         //when
         List<Member> friendList = memberRepository.findFriendsByMemberNickName(memberB.getNickName(),
@@ -99,10 +92,7 @@ class MemberRepositoryTest {
                 .nickName("nickB")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(memberB);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(memberA, memberB));
         //when
         List<Member> friendList = memberRepository.findFriendsByMemberNickName(memberB.getNickName(),
                 memberA.getId());
@@ -128,10 +118,7 @@ class MemberRepositoryTest {
                 .nickName("nickB")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(memberB);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(memberA, memberB));
         friendshipRepository.save(Friendship.of(memberA, memberB));
         //when
         List<Member> friendList = memberRepository.findFriendsByMemberNickName(invalidNickName,
@@ -158,10 +145,7 @@ class MemberRepositoryTest {
                 .nickName("nickB")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(memberB);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(memberA, memberB));
         //when
         List<Member> nonfriendList = memberRepository.findNonFriendsByMemberNickName(memberB.getNickName(),
                 memberA.getId());
@@ -186,10 +170,7 @@ class MemberRepositoryTest {
                 .nickName("nickB")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(memberB);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(memberA, memberB));
         friendshipRepository.save(Friendship.of(memberA, memberB));
         //when
         List<Member> nonfriendList = memberRepository.findNonFriendsByMemberNickName(memberB.getNickName(),
@@ -216,10 +197,7 @@ class MemberRepositoryTest {
                 .nickName("nickB")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(memberB);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(memberA, memberB));
         //when
         List<Member> nonfriendList = memberRepository.findNonFriendsByMemberNickName(invalidNickName,
                 memberA.getId());

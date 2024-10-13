@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -47,10 +46,7 @@ class MemberServiceTest{
                 .nickName("A")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(user);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(user, memberA));
         friendshipRepository.save(Friendship.of(user, memberA));
         SessionMember sessionMember = SessionMember.builder()
                         .memberSeq(user.getId())
@@ -79,10 +75,7 @@ class MemberServiceTest{
                 .nickName("A")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(user);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(user, memberA));
         friendshipRepository.save(Friendship.of(user, memberA));
         SessionMember sessionMember = SessionMember.builder()
                 .memberSeq(user.getId())
@@ -111,10 +104,7 @@ class MemberServiceTest{
                 .nickName("A")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(user);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(user, memberA));
         SessionMember sessionMember = SessionMember.builder()
                 .memberSeq(user.getId())
                 .nickName(user.getNickName())
@@ -143,10 +133,7 @@ class MemberServiceTest{
                 .nickName("A")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(user);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(user, memberA));
         friendshipRepository.save(Friendship.of(user, memberA));
         SessionMember sessionMember = SessionMember.builder()
                 .memberSeq(user.getId())
@@ -175,10 +162,7 @@ class MemberServiceTest{
                 .nickName("A")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(user);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(user, memberA));
         SessionMember sessionMember = SessionMember.builder()
                 .memberSeq(user.getId())
                 .nickName(user.getNickName())
@@ -207,10 +191,7 @@ class MemberServiceTest{
                 .nickName("nickA")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(user);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(user, memberA));
         friendshipRepository.save(Friendship.of(user, memberA));
         SessionMember sessionMember = SessionMember.builder()
                 .memberSeq(user.getId())
@@ -240,10 +221,7 @@ class MemberServiceTest{
                 .nickName("A")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(user);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(user, memberA));
         SessionMember sessionMember = SessionMember.builder()
                 .memberSeq(user.getId())
                 .nickName(user.getNickName())
@@ -271,10 +249,7 @@ class MemberServiceTest{
                 .nickName("A")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(user);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(user, memberA));
         SessionMember sessionMember = SessionMember.builder()
                 .memberSeq(user.getId())
                 .nickName(user.getNickName())
@@ -305,10 +280,7 @@ class MemberServiceTest{
                 .nickName("A")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(user);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(user, memberA));
         SessionMember sessionMember = SessionMember.builder()
                 .memberSeq(user.getId())
                 .nickName(user.getNickName())
