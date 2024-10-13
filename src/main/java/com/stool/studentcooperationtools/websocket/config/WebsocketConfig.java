@@ -1,4 +1,4 @@
-package com.stool.studentcooperationtools.websocket.controller;
+package com.stool.studentcooperationtools.websocket.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
