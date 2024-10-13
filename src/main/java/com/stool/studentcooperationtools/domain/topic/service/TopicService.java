@@ -8,6 +8,7 @@ import com.stool.studentcooperationtools.domain.topic.Topic;
 import com.stool.studentcooperationtools.domain.topic.controller.response.TopicFindResponse;
 import com.stool.studentcooperationtools.domain.topic.repository.TopicRepository;
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicAddSocketRequest;
+import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicDeleteSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.topic.response.TopicAddSocketResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -39,5 +40,11 @@ public class TopicService {
                 .build();
         topicRepository.save(topic);
         return TopicAddSocketResponse.of(topic);
+    }
+
+    @Transactional
+    public Boolean deleteTopic(final TopicDeleteSocketRequest request) {
+        topicRepository.deleteById(request.getTopicId());
+        return true;
     }
 }
