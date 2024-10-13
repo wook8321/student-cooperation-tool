@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -24,7 +26,8 @@ public class TopicService {
     private final TopicRepository topicRepository;
 
     public TopicFindResponse findTopics(final Long roomId) {
-        return null;
+        List<Topic> topics = topicRepository.findAllByRoomId(roomId);
+        return TopicFindResponse.of(topics);
     }
 
     @Transactional
