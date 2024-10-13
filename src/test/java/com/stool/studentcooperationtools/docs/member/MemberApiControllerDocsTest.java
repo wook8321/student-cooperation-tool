@@ -1,31 +1,20 @@
 package com.stool.studentcooperationtools.docs.member;
 
 import com.stool.studentcooperationtools.docs.RestDocsSupport;
-import com.stool.studentcooperationtools.domain.member.Member;
-import com.stool.studentcooperationtools.domain.member.Role;
 import com.stool.studentcooperationtools.domain.member.controller.MemberApiController;
 import com.stool.studentcooperationtools.domain.member.controller.request.MemberAddRequest;
 import com.stool.studentcooperationtools.domain.member.controller.request.MemberSearchMemberDto;
 import com.stool.studentcooperationtools.domain.member.controller.response.MemberFindMemberDto;
 import com.stool.studentcooperationtools.domain.member.controller.response.MemberFindResponse;
 import com.stool.studentcooperationtools.domain.member.controller.response.MemberSearchResponse;
-import com.stool.studentcooperationtools.domain.member.repository.MemberRepository;
 import com.stool.studentcooperationtools.domain.member.service.MemberService;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
-import jakarta.servlet.http.HttpSession;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
-
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockitoSession;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
