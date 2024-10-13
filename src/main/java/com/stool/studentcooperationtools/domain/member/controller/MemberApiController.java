@@ -18,21 +18,22 @@ public class MemberApiController {
 
     @GetMapping("/api/v1/friends")
     public ApiResponse<MemberFindResponse> findFriends(SessionMember member){
-        MemberFindResponse response = memberService.findFriends();
+        MemberFindResponse response = memberService.findFriends(member);
         return ApiResponse.of(HttpStatus.OK,response);
     }
 
     @GetMapping("/api/v1/friends/search")
     public ApiResponse<MemberSearchResponse> searchFriends(
             @RequestParam("relation") boolean relation,
-            @RequestParam("name") String name){
-        MemberSearchResponse response = memberService.searchFriend(relation, name);
+            @RequestParam("name") String name,
+            SessionMember member){
+        MemberSearchResponse response = memberService.searchFriend(member, relation, name);
         return ApiResponse.of(HttpStatus.OK,response);
     }
 
     @PostMapping("/api/v1/friends")
-    public ApiResponse<Boolean> addFriend(@RequestBody MemberAddRequest request){
-        Boolean result = memberService.addFriend(request);
+    public ApiResponse<Boolean> addFriend(SessionMember member, @RequestBody MemberAddRequest request){
+        Boolean result = memberService.addFriend(member, request);
         return ApiResponse.of(HttpStatus.OK,result);
     }
 }
