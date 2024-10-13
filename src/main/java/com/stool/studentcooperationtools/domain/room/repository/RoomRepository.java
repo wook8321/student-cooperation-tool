@@ -20,7 +20,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     Page<Room> findRoomsByTitleWithPage(@Param("memberId") Long memberId, @Param("title") String title, Pageable pageable);
 
     @Query("select r from Room r join Participation p on p.member.id = :memberId where p.room.id = :roomId")
-    Optional<Room> findByRoomId(@Param("memberId") Long memberId, @Param("roomId") Long roomId);
+    Optional<Room> findRoomByRoomId(@Param("memberId") Long memberId, @Param("roomId") Long roomId);
 
     @Query("select case when count(r) > 0 then true else false end from Room r join Participation p on p.member.id = :memberId where r.title like %:title%")
     Boolean existsByTitle(@Param("memberId") Long memberId, @Param("title") String title);

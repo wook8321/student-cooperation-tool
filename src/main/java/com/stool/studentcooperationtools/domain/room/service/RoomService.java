@@ -62,14 +62,14 @@ public class RoomService {
 
     @Transactional
     public Boolean removeRoom(SessionMember member, final RoomRemoveRequest request) {
-        roomRepository.findByRoomId(member.getMemberSeq(), request.getRoomId())
+        roomRepository.findRoomByRoomId(member.getMemberSeq(), request.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 방 정보입니다"));
         roomRepository.deleteById(request.getRoomId());
         return true;
     }
 
     public Boolean validRoomPassword(SessionMember member, final RoomPasswordValidRequest request) {
-        Room room = roomRepository.findByRoomId(member.getMemberSeq(), request.getRoomId())
+        Room room = roomRepository.findRoomByRoomId(member.getMemberSeq(), request.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 방 정보입니다"));
         if(!room.verifyPassword(request.getPassword())) {
             throw new IllegalArgumentException("올바르지 않은 비밀번호입니다");
@@ -79,7 +79,7 @@ public class RoomService {
 
     @Transactional
     public Boolean updateRoomTopic(SessionMember member, final RoomTopicUpdateRequest request) {
-        Room room = roomRepository.findByRoomId(member.getMemberSeq(), request.getRoomId())
+        Room room = roomRepository.findRoomByRoomId(member.getMemberSeq(), request.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 방 정보입니다"));
         room.updateTopic(topicRepository.findById(request.getTopicId())
                 .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 주제 정보입니다")));
