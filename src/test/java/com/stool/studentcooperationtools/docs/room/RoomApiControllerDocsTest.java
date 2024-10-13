@@ -8,6 +8,7 @@ import com.stool.studentcooperationtools.domain.room.controller.request.RoomRemo
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomTopicUpdateRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.*;
 import com.stool.studentcooperationtools.domain.room.service.RoomService;
+import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
@@ -50,7 +51,7 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
                 .num(findDtoList.size())
                 .rooms(findDtoList)
                 .build();
-        Mockito.when(roomService.findRooms(anyInt()))
+        Mockito.when(roomService.findRooms(any(SessionMember.class), anyInt()))
                 .thenReturn(roomsFindResponse);
         //when
         //then
@@ -108,7 +109,7 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
                 .title("방 제목")
                 .build();
 
-        Mockito.when(roomService.addRoom(any(RoomAddRequest.class)))
+        Mockito.when(roomService.addRoom(any(SessionMember.class), any(RoomAddRequest.class)))
                         .thenReturn(response);
 
         //when
@@ -161,7 +162,7 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
                 .num(findDtoList.size())
                 .rooms(findDtoList)
                 .build();
-        Mockito.when(roomService.searchRoom(anyString(),anyInt()))
+        Mockito.when(roomService.searchRoom(any(SessionMember.class),anyString(),anyInt()))
                 .thenReturn(roomsFindResponse);
         //when
         //then
@@ -212,7 +213,7 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
 
         String content = objectMapper.writeValueAsString(request);
 
-        Mockito.when(roomService.removeRoom(any(RoomRemoveRequest.class)))
+        Mockito.when(roomService.removeRoom(any(SessionMember.class), any(RoomRemoveRequest.class)))
                         .thenReturn(true);
 
         //when
@@ -252,7 +253,7 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
 
         String content = objectMapper.writeValueAsString(request);
 
-        Mockito.when(roomService.validRoomPassword(any(RoomPasswordValidRequest.class)))
+        Mockito.when(roomService.validRoomPassword(any(SessionMember.class), any(RoomPasswordValidRequest.class)))
                 .thenReturn(true);
 
         //when
@@ -293,7 +294,7 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
 
         String content = objectMapper.writeValueAsString(request);
 
-        Mockito.when(roomService.updateRoomTopic(any(RoomTopicUpdateRequest.class)))
+        Mockito.when(roomService.updateRoomTopic(any(SessionMember.class), any(RoomTopicUpdateRequest.class)))
                 .thenReturn(true);
 
         //when
