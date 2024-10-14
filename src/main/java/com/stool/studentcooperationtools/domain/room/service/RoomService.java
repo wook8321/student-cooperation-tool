@@ -84,7 +84,7 @@ public class RoomService {
         else{
             Member teammate = memberRepository.findById(member.getMemberSeq())
                     .orElseThrow(() -> new IllegalArgumentException("유저 정보가 올바르지 않습니다"));
-            participationRepository.delete(Participation.of(teammate, room));
+            participationRepository.deleteByMemberIdAndRoomId(teammate.getId(), room.getId());
         }
         return true;
     }
