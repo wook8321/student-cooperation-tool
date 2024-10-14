@@ -2,6 +2,8 @@ package com.stool.studentcooperationtools.domain.room.service;
 
 import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.member.repository.MemberRepository;
+import com.stool.studentcooperationtools.domain.participation.Participation;
+import com.stool.studentcooperationtools.domain.participation.repository.ParticipationRepository;
 import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomPasswordValidRequest;
@@ -21,6 +23,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -30,6 +34,7 @@ public class RoomService {
     private final int pageSize = 6;
     private final MemberRepository memberRepository;
     private final TopicRepository topicRepository;
+    private final ParticipationRepository participationRepository;
 
     public RoomsFindResponse findRooms(SessionMember member, final int page) {
         Pageable pageable = PageRequest.of(page, pageSize);
@@ -46,25 +51,39 @@ public class RoomService {
         Room room = Room.builder()
                 .password(request.getPassword())
                 .title(request.getTitle())
+                .leader(user)
                 .build();
         roomRepository.save(room);
+        participationRepository.save(Participation.of(user, room));
+        for(Long participation : request.getParticipation()){
+            Member teammate = memberRepository.findById(participation)
+                            .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 팀원 정보입니다"));
+            participationRepository.save(Participation.of(teammate, room));
+        }
         return RoomAddResponse.builder()
                 .roomId(room.getId())
                 .title(room.getTitle())
                 .build();
     }
 
-    public RoomSearchResponse searchRoom(SessionMember member, final String title, final int page) {
+    public RoomSearchResponse searchRoom(final String title, final int page) {
         Pageable pageable = PageRequest.of(page, pageSize);
-        Page<Room> rooms = roomRepository.findRoomsByTitleWithPage(member.getMemberSeq(), title, pageable);
+        Page<Room> rooms = roomRepository.findRoomsByTitleWithPage(title, pageable);
         return RoomSearchResponse.of(rooms.getContent());
     }
 
     @Transactional
     public Boolean removeRoom(SessionMember member, final RoomRemoveRequest request) {
-        roomRepository.findRoomByRoomId(member.getMemberSeq(), request.getRoomId())
-                .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 방 정보입니다"));
-        roomRepository.deleteById(request.getRoomId());
+        Room room = roomRepository.findRoomByRoomId(member.getMemberSeq(), request.getRoomId())
+                .orElseThrow(() -> new IllegalArgumentException("소속되지 않은 방 정보입니다"));
+        if(Objects.equals(member.getMemberSeq(), room.getLeader().getId())){
+            roomRepository.deleteById(request.getRoomId());
+        }
+        else{
+            Member teammate = memberRepository.findById(member.getMemberSeq())
+                    .orElseThrow(() -> new IllegalArgumentException("유저 정보가 올바르지 않습니다"));
+            participationRepository.delete(Participation.of(teammate, room));
+        }
         return true;
     }
 
@@ -73,6 +92,11 @@ public class RoomService {
                 .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 방 정보입니다"));
         if(!room.verifyPassword(request.getPassword())) {
             throw new IllegalArgumentException("올바르지 않은 비밀번호입니다");
+        }
+        Member user = memberRepository.findById(member.getMemberSeq())
+                .orElseThrow(() -> new IllegalArgumentException("유저 정보가 올바르지 않습니다"));
+        if(!participationRepository.existsByMemberIdAndRoomId(member.getMemberSeq(), room.getId())){
+            participationRepository.save(Participation.of(user, room));
         }
         return true;
     }
