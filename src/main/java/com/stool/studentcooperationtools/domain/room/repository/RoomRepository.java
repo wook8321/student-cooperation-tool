@@ -16,8 +16,8 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     @Query("select r from Room r join Participation p on p.member.id = :memberId and p.room.id = r.id order by r.id desc")
     Page<Room> findRoomsByMemberIdWithPage (@Param("memberId") Long memberId, Pageable pageable);
 
-    @Query("select r from Room r join Participation p on p.member.id = :memberId and p.room.id = r.id where r.title like %:title% order by r.id desc")
-    Page<Room> findRoomsByTitleWithPage(@Param("memberId") Long memberId, @Param("title") String title, Pageable pageable);
+    @Query("select r from Room r where r.title like %:title% order by r.id desc")
+    Page<Room> findRoomsByTitleWithPage(@Param("title") String title, Pageable pageable);
 
     @Query("select r from Room r join Participation p on p.member.id = :memberId where p.room.id = :roomId")
     Optional<Room> findRoomByRoomId(@Param("memberId") Long memberId, @Param("roomId") Long roomId);

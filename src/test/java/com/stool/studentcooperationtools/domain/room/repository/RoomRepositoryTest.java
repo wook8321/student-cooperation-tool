@@ -219,22 +219,9 @@ class RoomRepositoryTest {
                 .password("password")
                 .build();
         roomRepository.save(room);
-        Member user = Member.builder()
-                .role(Role.USER)
-                .email("email")
-                .profile("profile")
-                .nickName("nickName")
-                .build();
-        memberRepository.save(user);
-        SessionMember member = SessionMember.builder()
-                .profile(user.getProfile())
-                .nickName(user.getNickName())
-                .memberSeq(user.getId())
-                .build();
-        participationRepository.save(Participation.of(user, room));
         Pageable pageable = PageRequest.of(0, 1);
         //when
-        Page<Room> rooms = roomRepository.findRoomsByTitleWithPage(member.getMemberSeq(), room.getTitle(), pageable);
+        Page<Room> rooms = roomRepository.findRoomsByTitleWithPage(room.getTitle(), pageable);
         //then
         assertThat(rooms.getContent()).isNotEmpty();
     }
@@ -256,16 +243,9 @@ class RoomRepositoryTest {
                 .profile("profile")
                 .nickName("nickName")
                 .build();
-        memberRepository.save(user);
-        SessionMember member = SessionMember.builder()
-                .profile(user.getProfile())
-                .nickName(user.getNickName())
-                .memberSeq(user.getId())
-                .build();
-        participationRepository.save(Participation.of(user, room));
         Pageable pageable = PageRequest.of(0, 1);
         //when
-        Page<Room> rooms = roomRepository.findRoomsByTitleWithPage(member.getMemberSeq(), invalidTitle, pageable);
+        Page<Room> rooms = roomRepository.findRoomsByTitleWithPage(invalidTitle, pageable);
         //then
         assertThat(rooms.getContent()).isEmpty();
     }
