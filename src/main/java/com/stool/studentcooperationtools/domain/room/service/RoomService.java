@@ -78,7 +78,8 @@ public class RoomService {
         Room room = roomRepository.findRoomByRoomId(member.getMemberSeq(), request.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("소속되지 않은 방 정보입니다"));
         if(Objects.equals(member.getMemberSeq(), room.getLeader().getId())){
-            roomRepository.deleteById(request.getRoomId());
+            participationRepository.deleteByRoomId(room.getId());
+            roomRepository.deleteById(room.getId());
         }
         else{
             Member teammate = memberRepository.findById(member.getMemberSeq())
