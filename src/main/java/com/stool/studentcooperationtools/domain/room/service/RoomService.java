@@ -50,6 +50,7 @@ public class RoomService {
                 .orElseThrow(() -> new IllegalArgumentException("유저 정보가 등록되어 있지 않습니다"));
         Room room = Room.builder()
                 .password(request.getPassword())
+                .participationNum(0)
                 .title(request.getTitle())
                 .leader(user)
                 .build();
