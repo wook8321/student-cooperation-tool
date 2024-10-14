@@ -86,4 +86,38 @@ class ParticipationRepositoryTest {
         Assertions.assertThat(participationRepository.existsByRoomId(room.getId()))
                 .isFalse();
     }
+
+    @Test
+    @DisplayName("방에서 해당 유저의 참석 정보 삭제")
+    void deleteParticipationByUserIdAndRoomId() {
+        //given
+        Member member = Member.builder()
+                .email("email")
+                .profile("profile")
+                .role(Role.USER)
+                .nickName("nickName")
+                .build();
+        memberRepository.save(member);
+        Member member2 = Member.builder()
+                .email("email")
+                .profile("profile")
+                .role(Role.USER)
+                .nickName("nickName")
+                .build();
+        memberRepository.save(member2);
+        Room room = Room.builder()
+                .title("t")
+                .participationNum(1)
+                .leader(member)
+                .password("1234")
+                .build();
+        roomRepository.save(room);
+        participationRepository.save(Participation.of(member, room));
+        participationRepository.save(Participation.of(member2, room));
+        //when
+        //then
+        participationRepository.deleteByMemberIdAndRoomId(member.getId(), room.getId());
+        Assertions.assertThat(participationRepository.existsByMemberIdAndRoomId(member.getId(), room.getId()))
+                .isFalse();
+    }
 }
