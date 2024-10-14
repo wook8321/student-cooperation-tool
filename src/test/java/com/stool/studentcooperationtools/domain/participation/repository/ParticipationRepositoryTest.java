@@ -12,10 +12,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+@Transactional
 @SpringBootTest
 class ParticipationRepositoryTest {
 
@@ -49,5 +51,39 @@ class ParticipationRepositoryTest {
         //then
         Assertions.assertThat(participationRepository.existsByMemberIdAndRoomId(member.getId(), room.getId()))
                 .isTrue();
+    }
+
+    @Test
+    @DisplayName("방 id에 따라 해당 방의 모든 참석 정보 삭제")
+    void deleteParticipationByRoomId() {
+        //given
+        Member member = Member.builder()
+                .email("email")
+                .profile("profile")
+                .role(Role.USER)
+                .nickName("nickName")
+                .build();
+        memberRepository.save(member);
+        Member member2 = Member.builder()
+                .email("email")
+                .profile("profile")
+                .role(Role.USER)
+                .nickName("nickName")
+                .build();
+        memberRepository.save(member2);
+        Room room = Room.builder()
+                .title("t")
+                .participationNum(1)
+                .leader(member)
+                .password("1234")
+                .build();
+        roomRepository.save(room);
+        participationRepository.save(Participation.of(member, room));
+        participationRepository.save(Participation.of(member2, room));
+        //when
+        //then
+        participationRepository.deleteByRoomId(room.getId());
+        Assertions.assertThat(participationRepository.existsByRoomId(room.getId()))
+                .isFalse();
     }
 }
