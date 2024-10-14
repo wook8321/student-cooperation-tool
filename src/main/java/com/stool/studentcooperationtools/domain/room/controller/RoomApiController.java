@@ -36,9 +36,8 @@ public class RoomApiController {
     @GetMapping("/api/v1/rooms/search")
     public ApiResponse<RoomSearchResponse> searchRoom(
             @RequestParam("title") String title,
-            @RequestParam("page") int page,
-            SessionMember member){
-        RoomSearchResponse response = roomService.searchRoom(member, title, page);
+            @RequestParam("page") int page){
+        RoomSearchResponse response = roomService.searchRoom(title, page);
         return ApiResponse.of(HttpStatus.OK,response);
     }
 

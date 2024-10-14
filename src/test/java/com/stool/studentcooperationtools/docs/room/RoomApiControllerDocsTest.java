@@ -162,7 +162,7 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
                 .num(findDtoList.size())
                 .rooms(findDtoList)
                 .build();
-        Mockito.when(roomService.searchRoom(any(SessionMember.class),anyString(),anyInt()))
+        Mockito.when(roomService.searchRoom(anyString(),anyInt()))
                 .thenReturn(roomsFindResponse);
         //when
         //then
