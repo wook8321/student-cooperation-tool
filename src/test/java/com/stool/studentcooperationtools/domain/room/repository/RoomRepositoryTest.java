@@ -46,11 +46,7 @@ class RoomRepositoryTest {
                         .nickName("nickName")
                         .build();
         memberRepository.save(user);
-        SessionMember member = SessionMember.builder()
-                        .profile(user.getProfile())
-                        .nickName(user.getNickName())
-                        .memberSeq(user.getId())
-                        .build();
+        SessionMember member = SessionMember.of(user);
         roomRepository.save(room);
         participationRepository.save(Participation.of(user, room));
         Pageable pageable = PageRequest.of(0, 1);
@@ -71,11 +67,7 @@ class RoomRepositoryTest {
                 .nickName("nickName")
                 .build();
         memberRepository.save(user);
-        SessionMember member = SessionMember.builder()
-                .profile(user.getProfile())
-                .nickName(user.getNickName())
-                .memberSeq(user.getId())
-                .build();
+        SessionMember member = SessionMember.of(user);
         Pageable pageable = PageRequest.of(0, 1);
         Page<Room> rooms = roomRepository.findRoomsByMemberIdWithPage(member.getMemberSeq(), pageable);
         //when
@@ -104,11 +96,7 @@ class RoomRepositoryTest {
                 .nickName("nickName")
                 .build();
         memberRepository.save(user);
-        SessionMember member = SessionMember.builder()
-                .profile(user.getProfile())
-                .nickName(user.getNickName())
-                .memberSeq(user.getId())
-                .build();
+        SessionMember member = SessionMember.of(user);
         roomRepository.saveAll(List.of(room, room2));
         participationRepository.saveAll(List.of(Participation.of(user, room), Participation.of(user, room2)));
         Pageable pageable = PageRequest.of(0, 2);
@@ -138,11 +126,7 @@ class RoomRepositoryTest {
                 .nickName("nickName")
                 .build();
         memberRepository.save(user);
-        SessionMember member = SessionMember.builder()
-                .profile(user.getProfile())
-                .nickName(user.getNickName())
-                .memberSeq(user.getId())
-                .build();
+        SessionMember member = SessionMember.of(user);
         roomRepository.saveAll(List.of(room, room2));
         participationRepository.saveAll(List.of(Participation.of(user, room), Participation.of(user,room2)));
         Pageable pageable = PageRequest.of(1, 1);
@@ -169,11 +153,7 @@ class RoomRepositoryTest {
                 .nickName("nickName")
                 .build();
         memberRepository.save(user);
-        SessionMember member = SessionMember.builder()
-                .profile(user.getProfile())
-                .nickName(user.getNickName())
-                .memberSeq(user.getId())
-                .build();
+        SessionMember member = SessionMember.of(user);
         participationRepository.save(Participation.of(user, room));
         //when
         //then
@@ -198,11 +178,7 @@ class RoomRepositoryTest {
                 .nickName("nickName")
                 .build();
         memberRepository.save(user);
-        SessionMember member = SessionMember.builder()
-                .profile(user.getProfile())
-                .nickName(user.getNickName())
-                .memberSeq(user.getId())
-                .build();
+        SessionMember member = SessionMember.of(user);
         participationRepository.save(Participation.of(user, room));
         //when
         //then
@@ -267,11 +243,7 @@ class RoomRepositoryTest {
                 .nickName("nickName")
                 .build();
         memberRepository.save(user);
-        SessionMember member = SessionMember.builder()
-                .profile(user.getProfile())
-                .nickName(user.getNickName())
-                .memberSeq(user.getId())
-                .build();
+        SessionMember member = SessionMember.of(user);
         participationRepository.save(Participation.of(user, room));
         //when
         //then
@@ -297,11 +269,7 @@ class RoomRepositoryTest {
                 .nickName("nickName")
                 .build();
         memberRepository.save(user);
-        SessionMember member = SessionMember.builder()
-                .profile(user.getProfile())
-                .nickName(user.getNickName())
-                .memberSeq(user.getId())
-                .build();
+        SessionMember member = SessionMember.of(user);
         participationRepository.save(Participation.of(user, room));
         //when
         //then
