@@ -7,6 +7,7 @@ import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.domain.topic.Topic;
 import com.stool.studentcooperationtools.domain.topic.repository.TopicRepository;
+import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicAddSocketRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -50,9 +51,16 @@ class TopicServiceTest {
                 .topic("주제 제목")
                 .build();
         Long InvalidMemberId = 1L;
+
+        SessionMember sessionMember = SessionMember.builder()
+                .profile("profile")
+                .memberSeq(InvalidMemberId)
+                .nickName("닉네임")
+                .build();
+
         //when
         //then
-        assertThatThrownBy(() -> topicService.addTopic(request,InvalidMemberId))
+        assertThatThrownBy(() -> topicService.addTopic(request,sessionMember))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageMatching("해당 유저는 존재하지 않습니다");
     }
@@ -69,6 +77,12 @@ class TopicServiceTest {
                 .role(Role.USER)
                 .build();
 
+        SessionMember sessionMember = SessionMember.builder()
+                .profile("profile")
+                .memberSeq(1L)
+                .nickName("닉네임")
+                .build();
+
         memberRepository.save(member);
 
         TopicAddSocketRequest request = TopicAddSocketRequest.builder()
@@ -77,7 +91,7 @@ class TopicServiceTest {
                 .build();
         //when
         //then
-        assertThatThrownBy(() -> topicService.addTopic(request, member.getId()))
+        assertThatThrownBy(() -> topicService.addTopic(request, sessionMember))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageMatching("해당 방은 존재하지 않습니다.");
     }
@@ -103,13 +117,19 @@ class TopicServiceTest {
 
         roomRepository.save(room);
 
+        SessionMember sessionMember = SessionMember.builder()
+                .profile("profile")
+                .memberSeq(1L)
+                .nickName("닉네임")
+                .build();
+
 
         TopicAddSocketRequest request = TopicAddSocketRequest.builder()
                 .roomId(room.getId())
                 .topic("주제 제목")
                 .build();
         //when
-        topicService.addTopic(request, member.getId());
+        topicService.addTopic(request, sessionMember);
         List<Topic> topics = topicRepository.findAll();
         //then
         assertThat(topics).hasSize(1)

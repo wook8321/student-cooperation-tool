@@ -7,6 +7,7 @@ import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.domain.topic.Topic;
 import com.stool.studentcooperationtools.domain.topic.controller.response.TopicFindResponse;
 import com.stool.studentcooperationtools.domain.topic.repository.TopicRepository;
+import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicAddSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicDeleteSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.topic.response.TopicAddSocketResponse;
@@ -31,8 +32,8 @@ public class TopicService {
     }
 
     @Transactional
-    public TopicAddSocketResponse addTopic(final TopicAddSocketRequest request, final Long memberSeq) {
-        Member member = memberRepository.findById(memberSeq)
+    public TopicAddSocketResponse addTopic(final TopicAddSocketRequest request, final SessionMember sessionMember) {
+        Member member = memberRepository.findById(sessionMember.getMemberSeq())
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다"));
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 방은 존재하지 않습니다."));

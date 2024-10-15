@@ -20,7 +20,7 @@ public class TopicWebsocketController {
     private final SimpleMessageSendingUtils sendingUtils;
     @MessageMapping("/topics/add")
     public void addTopic(@Valid @RequestBody TopicAddSocketRequest request, SessionMember member){
-        TopicAddSocketResponse response = topicService.addTopic(request, member.getMemberSeq());
+        TopicAddSocketResponse response = topicService.addTopic(request, member);
         sendingUtils.convertAndSend(sendingUtils.createTopicDecisionSubUrl(request.getRoomId()), response);
     }
 
