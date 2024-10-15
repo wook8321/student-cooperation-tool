@@ -30,7 +30,7 @@ public class Topic extends BaseTimeEntity {
     @OneToMany(mappedBy = "topic")
     private List<Vote> votes = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Room room;
 
     @ManyToOne(fetch = FetchType.LAZY)
