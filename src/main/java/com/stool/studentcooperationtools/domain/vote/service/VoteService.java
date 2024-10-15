@@ -6,6 +6,7 @@ import com.stool.studentcooperationtools.domain.topic.Topic;
 import com.stool.studentcooperationtools.domain.topic.repository.TopicRepository;
 import com.stool.studentcooperationtools.domain.vote.Vote;
 import com.stool.studentcooperationtools.domain.vote.respository.VoteRepository;
+import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.vote.request.VoteAddWebSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.vote.response.VoteAddWebSocketResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +23,8 @@ public class VoteService {
     private final TopicRepository topicRepository;
 
     @Transactional
-    public VoteAddWebSocketResponse addVote(final VoteAddWebSocketRequest request, final Long memberSeq) {
-        Member member = memberRepository.findById(memberSeq)
+    public VoteAddWebSocketResponse addVote(final VoteAddWebSocketRequest request, final SessionMember sessionMember) {
+        Member member = memberRepository.findById(sessionMember.getMemberSeq())
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
         Topic topic = topicRepository.findById(request.getTopicId())
                 .orElseThrow(() -> new IllegalArgumentException("투표할 주제가 존재하지 않습니다."));

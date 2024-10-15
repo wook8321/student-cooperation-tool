@@ -21,14 +21,14 @@ public class VoteWebSocketController {
 
     @MessageMapping("/votes/add")
     public void addVote(@Valid @RequestBody VoteAddWebSocketRequest request, SessionMember member){
-        VoteAddWebSocketResponse response = voteService.addVote(request, member.getMemberSeq());
+        VoteAddWebSocketResponse response = voteService.addVote(request, member);
         sendingUtils.convertAndSend(sendingUtils.createTopicDecisionSubUrl(request.getRoomId()),response);
     }
 
     @MessageMapping("/votes/delete")
-    public void deleteVote(@Valid @RequestBody VoteDeleteSocketRequest request, SessionMember member){
+    public void deleteVote(@Valid @RequestBody VoteDeleteSocketRequest request){
         Boolean result = voteService.deleteVote(request.getVoteId());
-        sendingUtils.convertAndSend(sendingUtils.createTopicDecisionSubUrl(request.getRoomId()),request);
+        sendingUtils.convertAndSend(sendingUtils.createTopicDecisionSubUrl(request.getRoomId()),result);
     }
 
 }

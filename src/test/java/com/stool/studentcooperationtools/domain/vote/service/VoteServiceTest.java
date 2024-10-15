@@ -9,6 +9,7 @@ import com.stool.studentcooperationtools.domain.topic.Topic;
 import com.stool.studentcooperationtools.domain.topic.repository.TopicRepository;
 import com.stool.studentcooperationtools.domain.vote.Vote;
 import com.stool.studentcooperationtools.domain.vote.respository.VoteRepository;
+import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.vote.request.VoteAddWebSocketRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -49,9 +50,16 @@ class VoteServiceTest {
                 .roomId(1L)
                 .topicId(1L)
                 .build();
+
+        SessionMember sessionMember = SessionMember.builder()
+                .profile("profile")
+                .memberSeq(InvalidMemberId)
+                .nickName("닉네임")
+                .build();
+
         //when
         //then
-        assertThatThrownBy(() ->voteService.addVote(request,InvalidMemberId))
+        assertThatThrownBy(() ->voteService.addVote(request,sessionMember))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageMatching("해당 유저는 존재하지 않습니다.");
     }
@@ -70,13 +78,19 @@ class VoteServiceTest {
 
         memberRepository.save(member);
 
+        SessionMember sessionMember = SessionMember.builder()
+                .profile("profile")
+                .memberSeq(1L)
+                .nickName("닉네임")
+                .build();
+
         VoteAddWebSocketRequest request = VoteAddWebSocketRequest.builder()
                 .roomId(1L)
                 .topicId(1L)
                 .build();
         //when
         //then
-        assertThatThrownBy(() ->voteService.addVote(request, member.getId()))
+        assertThatThrownBy(() ->voteService.addVote(request, sessionMember))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageMatching("투표할 주제가 존재하지 않습니다.");
     }
@@ -111,12 +125,18 @@ class VoteServiceTest {
 
         topicRepository.save(topic);
 
+        SessionMember sessionMember = SessionMember.builder()
+                .profile("profile")
+                .memberSeq(1L)
+                .nickName("닉네임")
+                .build();
+
         VoteAddWebSocketRequest request = VoteAddWebSocketRequest.builder()
                 .roomId(room.getId())
                 .topicId(topic.getId())
                 .build();
         //when
-        voteService.addVote(request, member.getId());
+        voteService.addVote(request, sessionMember);
         List<Vote> votes = voteRepository.findAll();
         //then
         assertThat(votes).hasSize(1);
