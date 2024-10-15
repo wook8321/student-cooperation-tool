@@ -36,7 +36,7 @@ class RoomRepositoryTest {
         //given
         Room room = Room.builder()
                         .title("room")
-                        .participationNum(0)
+                        .participationNum(1)
                         .password("password")
                         .build();
         Member user = Member.builder()
@@ -81,12 +81,12 @@ class RoomRepositoryTest {
         //given
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .password("password")
                 .build();
         Room room2 = Room.builder()
                 .title("room2")
-                .participationNum(0)
+                .participationNum(1)
                 .password("password")
                 .build();
         Member user = Member.builder()
@@ -116,7 +116,7 @@ class RoomRepositoryTest {
                 .build();
         Room room2 = Room.builder()
                 .title("room2")
-                .participationNum(0)
+                .participationNum(1)
                 .password("password")
                 .build();
         Member user = Member.builder()
@@ -142,7 +142,7 @@ class RoomRepositoryTest {
         //given
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .password("password")
                 .build();
         roomRepository.save(room);
@@ -160,7 +160,7 @@ class RoomRepositoryTest {
         String invalidTitle = "invalidTitle";
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .password("password")
                 .build();
         roomRepository.save(room);
@@ -183,7 +183,7 @@ class RoomRepositoryTest {
         //given
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .password("password")
                 .build();
         roomRepository.save(room);
@@ -209,7 +209,7 @@ class RoomRepositoryTest {
         Long invalidRoomId = Long.MAX_VALUE;
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .password("password")
                 .build();
         roomRepository.save(room);
@@ -227,5 +227,4 @@ class RoomRepositoryTest {
         assertThrows(IllegalArgumentException.class, () -> roomRepository.findRoomByRoomId(member.getMemberSeq(), invalidRoomId)
                 .orElseThrow(() -> new IllegalArgumentException("방 정보 오류")));
     }
-
 }
