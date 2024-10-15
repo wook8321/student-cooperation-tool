@@ -239,6 +239,30 @@ class MemberRepositoryTest {
         //then
         assertThrows(IllegalArgumentException.class,
                 () -> memberRepository.findMemberByEmail(invalidEmail)
-                .orElseThrow(IllegalArgumentException::new));
+                        .orElseThrow(IllegalArgumentException::new));
+    }
+
+    @Test
+    @DisplayName("회원 id들이 담긴 리스트가 주어졌을 때 해당 회원들 조회")
+    void findMembersByMemberIdList() {
+        //given
+        Member memberA = Member.builder()
+                .email("emailA")
+                .profile("profileA")
+                .nickName("nickA")
+                .role(Role.USER)
+                .build();
+        memberRepository.save(memberA);
+        Member memberB = Member.builder()
+                .email("emailB")
+                .profile("profileB")
+                .nickName("nickB")
+                .role(Role.USER)
+                .build();
+        memberRepository.save(memberB);
+        //when
+        List<Member> members = memberRepository.findMembersByMemberIdList(List.of(memberA.getId(), memberB.getId()));
+        //then
+        assertThat(members.size()).isEqualTo(2);
     }
 }
