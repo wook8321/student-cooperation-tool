@@ -137,55 +137,6 @@ class RoomRepositoryTest {
     }
 
     @Test
-    @DisplayName("유효한 제목으로 방 존재여부 확인")
-    void checkRoomWithValidTitle() {
-        //given
-        Room room = Room.builder()
-                .title("room")
-                .participationNum(0)
-                .password("password")
-                .build();
-        roomRepository.save(room);
-        Member user = Member.builder()
-                .role(Role.USER)
-                .email("email")
-                .profile("profile")
-                .nickName("nickName")
-                .build();
-        memberRepository.save(user);
-        SessionMember member = SessionMember.of(user);
-        participationRepository.save(Participation.of(user, room));
-        //when
-        //then
-        assertThat(roomRepository.existsByTitle(member.getMemberSeq(), room.getTitle())).isTrue();
-    }
-
-    @Test
-    @DisplayName("유효하지 않은 제목으로 방 존재여부 확인")
-    void checkRoomWithInValidTitle() {
-        //given
-        String invalidTitle = "invalidTitle";
-        Room room = Room.builder()
-                .title("room")
-                .participationNum(0)
-                .password("password")
-                .build();
-        roomRepository.save(room);
-        Member user = Member.builder()
-                .role(Role.USER)
-                .email("email")
-                .profile("profile")
-                .nickName("nickName")
-                .build();
-        memberRepository.save(user);
-        SessionMember member = SessionMember.of(user);
-        participationRepository.save(Participation.of(user, room));
-        //when
-        //then
-        assertThat(roomRepository.existsByTitle(member.getMemberSeq(), invalidTitle)).isFalse();
-    }
-
-    @Test
     @DisplayName("유효한 제목으로 방 목록 조회")
     void findRoomsWithValidTitle() {
         //given
@@ -273,7 +224,8 @@ class RoomRepositoryTest {
         participationRepository.save(Participation.of(user, room));
         //when
         //then
-        assertThrows(IllegalArgumentException.class, () ->roomRepository.findRoomByRoomId(member.getMemberSeq(), invalidRoomId)
+        assertThrows(IllegalArgumentException.class, () -> roomRepository.findRoomByRoomId(member.getMemberSeq(), invalidRoomId)
                 .orElseThrow(() -> new IllegalArgumentException("방 정보 오류")));
     }
+
 }

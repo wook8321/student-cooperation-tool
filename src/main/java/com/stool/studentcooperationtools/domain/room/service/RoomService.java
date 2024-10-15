@@ -16,6 +16,7 @@ import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.domain.topic.repository.TopicRepository;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -44,8 +47,6 @@ public class RoomService {
 
     @Transactional
     public RoomAddResponse addRoom(SessionMember member, final RoomAddRequest request) {
-        if(roomRepository.existsByTitle(member.getMemberSeq(), request.getTitle()))
-            throw(new IllegalArgumentException("이미 존재하는 방 제목입니다"));
         Member user = memberRepository.findById(member.getMemberSeq())
                 .orElseThrow(() -> new IllegalArgumentException("유저 정보가 등록되어 있지 않습니다"));
         Room room = Room.builder()
@@ -54,13 +55,17 @@ public class RoomService {
                 .title(request.getTitle())
                 .leader(user)
                 .build();
-        roomRepository.save(room);
-        participationRepository.save(Participation.of(user, room));
-        for(Long participation : request.getParticipation()){
-            Member teammate = memberRepository.findById(participation)
-                            .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 팀원 정보입니다"));
-            participationRepository.save(Participation.of(teammate, room));
+        try {
+            roomRepository.save(room);
+        } catch (DataIntegrityViolationException e){
+            throw new IllegalArgumentException("방 정보 오류입니다");
         }
+        participationRepository.save(Participation.of(user, room));
+        List<Member> memberList = memberRepository.findMembersByMemberIdList(request.getParticipation());
+        List<Participation> participation = memberList.stream()
+                .map(findMember -> Participation.of(findMember, room))
+                .toList();
+        participationRepository.saveAll(participation);
         return RoomAddResponse.builder()
                 .roomId(room.getId())
                 .title(room.getTitle())
