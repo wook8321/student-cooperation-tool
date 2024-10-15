@@ -51,7 +51,7 @@ public class RoomService {
                 .orElseThrow(() -> new IllegalArgumentException("유저 정보가 등록되어 있지 않습니다"));
         Room room = Room.builder()
                 .password(request.getPassword())
-                .participationNum(0)
+                .participationNum(request.getParticipation().size())
                 .title(request.getTitle())
                 .leader(user)
                 .build();
@@ -94,19 +94,26 @@ public class RoomService {
         return true;
     }
 
+    @Transactional
     public Boolean validRoomPassword(SessionMember member, final RoomPasswordValidRequest request) {
-        Room room = roomRepository.findById(request.getRoomId())
-                .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 방 정보입니다"));
+        Room room = roomRepository.findRoomWithPLock(request.getRoomId())
+                .orElseThrow(()-> new IllegalArgumentException("방 id 오류"));
         if(!room.verifyPassword(request.getPassword())) {
             throw new IllegalArgumentException("올바르지 않은 비밀번호입니다");
         }
         Member user = memberRepository.findById(member.getMemberSeq())
                 .orElseThrow(() -> new IllegalArgumentException("유저 정보가 올바르지 않습니다"));
         if(!participationRepository.existsByMemberIdAndRoomId(member.getMemberSeq(), room.getId())){
+            room.addParticipant();
             participationRepository.save(Participation.of(user, room));
         }
         return true;
     }
+
+    @Transactional
+    public void addParticipation(Long roomId){
+    }
+
 
     @Transactional
     public Boolean updateRoomTopic(SessionMember member, final RoomTopicUpdateRequest request) {

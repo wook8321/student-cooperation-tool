@@ -17,19 +17,21 @@ import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.domain.topic.Topic;
 import com.stool.studentcooperationtools.domain.topic.repository.TopicRepository;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-@Transactional
 @SpringBootTest
 class RoomServiceTest {
 
@@ -42,7 +44,15 @@ class RoomServiceTest {
     @Autowired
     RoomService roomService;
     @Autowired
-    private TopicRepository topicRepository;
+    TopicRepository topicRepository;
+
+    @BeforeEach
+    void setUp(){
+        participationRepository.deleteAll();
+        memberRepository.deleteAll();
+        roomRepository.deleteAll();
+        topicRepository.deleteAll();
+    }
 
     @Test
     @DisplayName("방이 있을 때 방 목록 조회")
@@ -59,7 +69,7 @@ class RoomServiceTest {
         Room room = Room.builder()
                 .title("room")
                 .leader(user)
-                .participationNum(0)
+                .participationNum(1)
                 .password("password")
                 .build();
         roomRepository.save(room);
@@ -100,7 +110,7 @@ class RoomServiceTest {
         SessionMember member = SessionMember.of(user);
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .password("password")
                 .leader(user)
                 .build();
@@ -152,7 +162,7 @@ class RoomServiceTest {
         memberRepository.save(user);
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .leader(user)
                 .password("password")
                 .build();
@@ -198,7 +208,7 @@ class RoomServiceTest {
         memberRepository.save(leader);
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .leader(leader)
                 .password("password")
                 .build();
@@ -226,7 +236,7 @@ class RoomServiceTest {
         SessionMember member = SessionMember.of(user);
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .leader(user)
                 .password("password")
                 .build();
@@ -262,7 +272,7 @@ class RoomServiceTest {
         SessionMember member = SessionMember.of(user);
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .leader(leader)
                 .password("password")
                 .build();
@@ -293,7 +303,7 @@ class RoomServiceTest {
         SessionMember member = SessionMember.of(user);
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .leader(user)
                 .password("password")
                 .build();
@@ -322,7 +332,7 @@ class RoomServiceTest {
         SessionMember member = SessionMember.of(user);
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .leader(user)
                 .password("password")
                 .build();
@@ -358,7 +368,7 @@ class RoomServiceTest {
         memberRepository.save(leader);
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .leader(leader)
                 .password("password")
                 .build();
@@ -372,6 +382,7 @@ class RoomServiceTest {
         roomService.validRoomPassword(member, request);
         //then
         assertThat(participationRepository.existsByMemberIdAndRoomId(user.getId(), room.getId())).isTrue();
+        assertThat(roomRepository.findById(room.getId()).get().getParticipationNum()).isEqualTo(2);
     }
 
     @Test
@@ -388,7 +399,7 @@ class RoomServiceTest {
         SessionMember member = SessionMember.of(user);
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .leader(user)
                 .password("password")
                 .build();
@@ -417,7 +428,7 @@ class RoomServiceTest {
         SessionMember member = SessionMember.of(user);
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .leader(user)
                 .password("password")
                 .build();
@@ -453,7 +464,7 @@ class RoomServiceTest {
         SessionMember member = SessionMember.of(user);
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .leader(user)
                 .password("password")
                 .build();
@@ -496,7 +507,7 @@ class RoomServiceTest {
         memberRepository.save(leader);
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .leader(leader)
                 .password("password")
                 .build();
@@ -533,7 +544,7 @@ class RoomServiceTest {
         SessionMember member = SessionMember.of(user);
         Room room = Room.builder()
                 .title("room")
-                .participationNum(0)
+                .participationNum(1)
                 .leader(user)
                 .password("password")
                 .build();
@@ -553,6 +564,45 @@ class RoomServiceTest {
         roomService.updateRoomTopic(member, request);
         //then
         assertThat(room.getTopic()).isEqualTo(topic.getTopic());
+    }
+
+    @Test
+    @DisplayName("동시에 방 입장 동시성 제어")
+    void enterRoomConcurrencyControl() throws InterruptedException {
+        //given
+        Room room = Room.builder()
+                .title("room")
+                .participationNum(0)
+                .password("password")
+                .build();
+        roomRepository.save(room);
+        ExecutorService executorService = Executors.newFixedThreadPool(32);
+        CountDownLatch latch = new CountDownLatch(100);
+        for(int i = 0; i < 100; i++) {
+            executorService.execute(() -> {
+                try{
+                    Member member = Member.builder()
+                                    .email("e")
+                                    .profile("p")
+                                    .role(Role.USER)
+                                    .nickName("n")
+                                    .build();
+                    memberRepository.save(member);
+                    SessionMember sessionMember = SessionMember.of(member);
+                    RoomPasswordValidRequest request = RoomPasswordValidRequest
+                            .builder().roomId(room.getId()).password("password").build();
+                    roomService.validRoomPassword(sessionMember, request);
+                }finally{
+                    latch.countDown();
+                }
+            });
+        }
+        latch.await();
+        executorService.shutdown();
+        //when
+        Room findRoom = roomRepository.findById(room.getId()).get();
+        //then
+        assertThat(findRoom.getParticipationNum()).isEqualTo(100);
     }
 }
 
