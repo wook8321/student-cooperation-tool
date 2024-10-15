@@ -20,9 +20,6 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
@@ -51,7 +48,6 @@ class VoteWebSocketControllerTest {
     @BeforeEach
     void setUp() throws ExecutionException, InterruptedException, TimeoutException {
         URL = "ws://localhost:%d/ws-stomp".formatted(port);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         stompClient = new WebSocketStompClient(
                 new SockJsClient(List.of(new WebSocketTransport(new StandardWebSocketClient()))));
         MappingJackson2MessageConverter messageConverter = new MappingJackson2MessageConverter();
@@ -72,7 +68,6 @@ class VoteWebSocketControllerTest {
     }
 
     @DisplayName("투표할 주제를 받아 투표를 추가한다.")
-    @WithMockUser
     @Test
     void addVote() throws ExecutionException, InterruptedException, TimeoutException {
         //given
