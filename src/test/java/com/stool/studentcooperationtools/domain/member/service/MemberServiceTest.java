@@ -48,11 +48,7 @@ class MemberServiceTest{
                 .build();
         memberRepository.saveAll(List.of(user, memberA));
         friendshipRepository.save(Friendship.of(user, memberA));
-        SessionMember sessionMember = SessionMember.builder()
-                        .memberSeq(user.getId())
-                        .nickName(user.getNickName())
-                        .profile(user.getProfile())
-                        .build();
+        SessionMember sessionMember = SessionMember.of(user);
         //when
         MemberFindResponse response = memberService.findFriends(sessionMember);
         //then
@@ -77,11 +73,7 @@ class MemberServiceTest{
                 .build();
         memberRepository.saveAll(List.of(user, memberA));
         friendshipRepository.save(Friendship.of(user, memberA));
-        SessionMember sessionMember = SessionMember.builder()
-                .memberSeq(user.getId())
-                .nickName(user.getNickName())
-                .profile(user.getProfile())
-                .build();
+        SessionMember sessionMember = SessionMember.of(user);
         //when
         MemberSearchResponse response = memberService.searchFriend(sessionMember, true, memberA.getNickName());
         //then
@@ -105,11 +97,7 @@ class MemberServiceTest{
                 .role(Role.USER)
                 .build();
         memberRepository.saveAll(List.of(user, memberA));
-        SessionMember sessionMember = SessionMember.builder()
-                .memberSeq(user.getId())
-                .nickName(user.getNickName())
-                .profile(user.getProfile())
-                .build();
+        SessionMember sessionMember = SessionMember.of(user);
         //when
         MemberSearchResponse response = memberService.searchFriend(sessionMember, true, memberA.getNickName());
         //then
@@ -135,11 +123,7 @@ class MemberServiceTest{
                 .build();
         memberRepository.saveAll(List.of(user, memberA));
         friendshipRepository.save(Friendship.of(user, memberA));
-        SessionMember sessionMember = SessionMember.builder()
-                .memberSeq(user.getId())
-                .nickName(user.getNickName())
-                .profile(user.getProfile())
-                .build();
+        SessionMember sessionMember = SessionMember.of(user);
         //when
         MemberSearchResponse response = memberService.searchFriend(sessionMember, true, invalidNickName);
         //then
@@ -163,11 +147,7 @@ class MemberServiceTest{
                 .role(Role.USER)
                 .build();
         memberRepository.saveAll(List.of(user, memberA));
-        SessionMember sessionMember = SessionMember.builder()
-                .memberSeq(user.getId())
-                .nickName(user.getNickName())
-                .profile(user.getProfile())
-                .build();
+        SessionMember sessionMember = SessionMember.of(user);
         //when
         MemberSearchResponse response = memberService.searchFriend(sessionMember, false, memberA.getNickName());
         //then
@@ -193,11 +173,7 @@ class MemberServiceTest{
                 .build();
         memberRepository.saveAll(List.of(user, memberA));
         friendshipRepository.save(Friendship.of(user, memberA));
-        SessionMember sessionMember = SessionMember.builder()
-                .memberSeq(user.getId())
-                .nickName(user.getNickName())
-                .profile(user.getProfile())
-                .build();
+        SessionMember sessionMember = SessionMember.of(user);
         //when
         MemberSearchResponse response = memberService.searchFriend(sessionMember, false, memberA.getNickName());
         //then
@@ -222,11 +198,7 @@ class MemberServiceTest{
                 .role(Role.USER)
                 .build();
         memberRepository.saveAll(List.of(user, memberA));
-        SessionMember sessionMember = SessionMember.builder()
-                .memberSeq(user.getId())
-                .nickName(user.getNickName())
-                .profile(user.getProfile())
-                .build();
+        SessionMember sessionMember = SessionMember.of(user);
         //when
         MemberSearchResponse response = memberService.searchFriend(sessionMember, false, invalidNickName);
         //then
@@ -250,11 +222,7 @@ class MemberServiceTest{
                 .role(Role.USER)
                 .build();
         memberRepository.saveAll(List.of(user, memberA));
-        SessionMember sessionMember = SessionMember.builder()
-                .memberSeq(user.getId())
-                .nickName(user.getNickName())
-                .profile(user.getProfile())
-                .build();
+        SessionMember sessionMember = SessionMember.of(user);
         MemberAddRequest request = MemberAddRequest.builder()
                 .email(memberA.getEmail())
                 .build();
@@ -281,11 +249,7 @@ class MemberServiceTest{
                 .role(Role.USER)
                 .build();
         memberRepository.saveAll(List.of(user, memberA));
-        SessionMember sessionMember = SessionMember.builder()
-                .memberSeq(user.getId())
-                .nickName(user.getNickName())
-                .profile(user.getProfile())
-                .build();
+        SessionMember sessionMember = SessionMember.of(user);
         MemberAddRequest request = MemberAddRequest.builder()
                 .email(invalidEmail)
                 .build();
