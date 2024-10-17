@@ -1,0 +1,208 @@
+ifndef::snippets[]
+:snippets: ../build/generated-snippets
+endif::[]
+= Student Cooperation Tool REST API 문서
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+[[Member-API]]
+== Friend API
+
+[[Member-find]]
+=== 등록된 친구들 조회
+
+==== HTTP Request
+include::{snippets}/friend-find/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/friend-find/http-response.adoc[]
+include::{snippets}/friend-find/response-fields.adoc[]
+
+
+[[Member-search-notFriend]]
+=== 친구 상태가 아닌 유저 검색 및 조회
+
+==== HTTP Request
+include::{snippets}/friend-search-NotFriend/http-request.adoc[]
+include::{snippets}/friend-search-NotFriend/query-parameters.adoc[]
+
+==== HTTP Response
+include::{snippets}/friend-search-NotFriend/http-response.adoc[]
+include::{snippets}/friend-search-NotFriend/response-fields.adoc[]
+
+[[Member-search]]
+=== 친구 상태인 유저 검색 및 조회
+
+==== HTTP Request
+include::{snippets}/friend-search/http-request.adoc[]
+include::{snippets}/friend-search/query-parameters.adoc[]
+
+==== HTTP Response
+include::{snippets}/friend-search/http-response.adoc[]
+include::{snippets}/friend-search/response-fields.adoc[]
+
+[[Member-add]]
+=== 친구 추가
+
+==== HTTP Request
+include::{snippets}/friend-add/http-request.adoc[]
+include::{snippets}/friend-add/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/friend-add/http-response.adoc[]
+include::{snippets}/friend-add/response-fields.adoc[]
+
+[[Room-API]]
+== Room Api
+
+=== 참가한 방찾기
+
+==== HTTP Request
+include::{snippets}/room-find/http-request.adoc[]
+include::{snippets}/room-find/query-parameters.adoc[]
+
+==== HTTP Response
+include::{snippets}/room-find/http-response.adoc[]
+include::{snippets}/room-find/response-fields.adoc[]
+
+=== 방 생성하기
+
+==== HTTP Request
+include::{snippets}/room-add/http-request.adoc[]
+include::{snippets}/room-add/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/room-add/http-response.adoc[]
+include::{snippets}/room-add/response-fields.adoc[]
+
+=== 방 검색하기
+
+==== HTTP Request
+include::{snippets}/room-search/http-request.adoc[]
+include::{snippets}/room-search/query-parameters.adoc[]
+
+==== HTTP Response
+include::{snippets}/room-search/http-response.adoc[]
+include::{snippets}/room-search/response-fields.adoc[]
+
+=== 방 삭제하기
+
+==== HTTP Request
+include::{snippets}/room-remove/http-request.adoc[]
+include::{snippets}/room-remove/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/room-remove/http-response.adoc[]
+include::{snippets}/room-remove/response-fields.adoc[]
+
+=== 방 비밀 번호 검증
+
+==== HTTP Request
+include::{snippets}/room-password-valid/http-request.adoc[]
+include::{snippets}/room-password-valid/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/room-password-valid/http-response.adoc[]
+include::{snippets}/room-password-valid/response-fields.adoc[]
+
+=== 방 주제 결정
+
+==== HTTP Request
+include::{snippets}/room-topic-update/http-request.adoc[]
+include::{snippets}/room-topic-update/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/room-topic-update/http-response.adoc[]
+include::{snippets}/room-topic-update/response-fields.adoc[]
+
+
+[[Topic-API]]
+== Topic Api
+
+=== 해당 방에 속하는 주제들 조회
+
+==== HTTP Request
+include::{snippets}/Topic-find/http-request.adoc[]
+include::{snippets}/Topic-find/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/Topic-find/http-response.adoc[]
+include::{snippets}/Topic-find/response-fields.adoc[]
+
+[[Chat-API]]
+== Chat Api
+
+=== 해당 방에 채팅들 조회
+
+==== HTTP Request
+include::{snippets}/chat-find/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/chat-find/http-response.adoc[]
+include::{snippets}/chat-find/response-fields.adoc[]
+
+[[Part-API]]
+== Part Api
+
+=== 해당 방에 역할들 조회
+
+==== HTTP Request
+include::{snippets}/part-find/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/part-find/http-response.adoc[]
+include::{snippets}/part-find/response-fields.adoc[]
+
+[[Review-API]]
+== Review Api
+
+=== 해당 자료의 평가들 조회
+
+==== HTTP Request
+include::{snippets}/review-find/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/review-find/http-response.adoc[]
+include::{snippets}/review-find/response-fields.adoc[]
+
+
+=== 해당 자료에 평가 등록
+
+==== HTTP Request
+include::{snippets}/review-add/http-request.adoc[]
+include::{snippets}/review-add/request-fields.adoc[]
+
+
+==== HTTP Response
+include::{snippets}/review-add/http-response.adoc[]
+include::{snippets}/review-add/response-fields.adoc[]
+
+[[Presentation-API]]
+== Presentation API
+
+=== ppt 조회
+
+==== HTTP Request
+include::{snippets}/presentation-find/http-request.adoc[]
+
+
+==== HTTP Response
+include::{snippets}/presentation-find/http-response.adoc[]
+include::{snippets}/presentation-find/response-fields.adoc[]
+
+[[Slide-API]]
+== Slide API
+
+=== 슬라이드와 해당 슬라이드의 발표 스크립트 조회
+
+==== HTTP Request
+include::{snippets}/slide-find/http-request.adoc[]
+
+
+==== HTTP Response
+include::{snippets}/slide-find/http-response.adoc[]
+include::{snippets}/slide-find/response-fields.adoc[]

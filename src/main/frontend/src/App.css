@@ -36,3 +36,28 @@
     transform: rotate(360deg);
   }
 }
+
+.Login {
+  position: fixed;
+  top: 50%;
+  left: 45%;  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100px;
+}
+
+.Logout {
+  top: 0%;
+  left: 500%;  
+}
+
+.title {
+  font-family: arial;
+  font-size: 200px;
+  margin-top: 200px;
+  margin-left: 600px;
+  width: 500px;
+  height: 200px;
+  text-align: center;
+}
