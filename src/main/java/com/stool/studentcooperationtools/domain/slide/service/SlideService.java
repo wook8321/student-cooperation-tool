@@ -1,11 +1,19 @@
 package com.stool.studentcooperationtools.domain.slide.service;
 
+import com.stool.studentcooperationtools.domain.slide.Slide;
 import com.stool.studentcooperationtools.domain.slide.controller.response.SlideFindResponse;
+import com.stool.studentcooperationtools.domain.slide.repository.SlideRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
+@RequiredArgsConstructor
 public class SlideService {
+    private final SlideRepository slideRepository;
     public SlideFindResponse findSlides(final Long presentationId) {
-        return null;
+        List<Slide> slides = slideRepository.findByPresentationId(presentationId);
+        return SlideFindResponse.of(slides);
     }
 }
