@@ -20,7 +20,7 @@ public class Presentation extends BaseTimeEntity {
     @Column(nullable = false)
     private String presentationPath;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     private Room room;
 
     @Builder
