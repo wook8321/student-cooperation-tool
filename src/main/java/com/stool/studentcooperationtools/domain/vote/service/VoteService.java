@@ -33,8 +33,7 @@ public class VoteService {
         return VoteAddWebSocketResponse.of(vote,member);
     }
 
-    public Boolean deleteVote(final Long voteId) {
-        voteRepository.deleteById(voteId);
-        return true;
+    public Boolean deleteVote(final Long voteId,SessionMember member) {
+        return voteRepository.deleteVoteByIdAndDeleterId(voteId, member.getMemberSeq());
     }
 }
