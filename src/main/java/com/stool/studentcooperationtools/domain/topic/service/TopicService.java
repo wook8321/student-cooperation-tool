@@ -7,6 +7,7 @@ import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.domain.topic.Topic;
 import com.stool.studentcooperationtools.domain.topic.controller.response.TopicFindResponse;
 import com.stool.studentcooperationtools.domain.topic.repository.TopicRepository;
+import com.stool.studentcooperationtools.domain.vote.respository.VoteRepository;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicAddSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicDeleteSocketRequest;
@@ -25,6 +26,7 @@ public class TopicService {
     private final MemberRepository memberRepository;
     private final RoomRepository roomRepository;
     private final TopicRepository topicRepository;
+    private final VoteRepository voteRepository;
 
     public TopicFindResponse findTopics(final Long roomId) {
         List<Topic> topics = topicRepository.findAllByRoomId(roomId);
@@ -46,9 +48,13 @@ public class TopicService {
         return TopicAddSocketResponse.of(topic);
     }
 
-    @Transactional
-    public Boolean deleteTopic(final TopicDeleteSocketRequest request) {
-        topicRepository.deleteById(request.getTopicId());
+    @Transactional(rollbackFor = IllegalArgumentException.class)
+    public Boolean deleteTopic(final TopicDeleteSocketRequest request,SessionMember member) {
+        voteRepository.deleteAllByTopicId(request.getTopicId());
+        if(topicRepository.deleteTopicByLeaderOrOwner(request.getTopicId(), member.getMemberSeq()) == 0){
+            //본인,방장이 아닌 경우는 삭제를 할 수 없다.
+            throw new IllegalArgumentException("주제를 삭제할 수 없습니다.");
+        };
         return true;
     }
 }
