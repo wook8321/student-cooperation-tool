@@ -9,11 +9,13 @@ import com.stool.studentcooperationtools.domain.topic.Topic;
 import com.stool.studentcooperationtools.domain.topic.repository.TopicRepository;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicAddSocketRequest;
+import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicDeleteSocketRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -78,9 +80,9 @@ class TopicServiceTest {
                 .build();
 
         SessionMember sessionMember = SessionMember.builder()
-                .profile("profile")
-                .memberSeq(1L)
-                .nickName("닉네임")
+                .profile(member.getProfile())
+                .memberSeq(member.getId())
+                .nickName(member.getNickName())
                 .build();
 
         memberRepository.save(member);
@@ -118,11 +120,10 @@ class TopicServiceTest {
         roomRepository.save(room);
 
         SessionMember sessionMember = SessionMember.builder()
-                .profile("profile")
-                .memberSeq(1L)
-                .nickName("닉네임")
+                .profile(member.getProfile())
+                .memberSeq(member.getId())
+                .nickName(member.getNickName())
                 .build();
-
 
         TopicAddSocketRequest request = TopicAddSocketRequest.builder()
                 .roomId(room.getId())
@@ -135,5 +136,56 @@ class TopicServiceTest {
         assertThat(topics).hasSize(1)
                 .extracting("topic")
                 .containsExactlyInAnyOrder(request.getTopic());
+    }
+
+    @DisplayName("주제를 삭제할 때, 주제를 삭제할 권한(방장,본인)이 없다면 에러가 발생한다.")
+    @Transactional
+    @Test
+    void deleteTopic(){
+        //given
+        Member member = Member.builder()
+                .email("email")
+                .nickName("nickname")
+                .profile("profile")
+                .role(Role.USER)
+                .build();
+
+        memberRepository.save(member);
+
+        Room room = Room.builder()
+                .participationNum(0)
+                .title("방 제목")
+                .password("password")
+                .build();
+
+        roomRepository.save(room);
+
+        Long InvalidMemberId = 2L;
+        SessionMember sessionMember = SessionMember.builder()
+                .profile(member.getProfile())
+                .memberSeq(member.getId())
+                .nickName(member.getNickName())
+                .build();
+
+        String topicContent = "주제";
+        Topic topic = Topic.builder()
+                .room(room)
+                .member(member)
+                .topic(topicContent)
+                .build();
+
+        topicRepository.save(topic);
+
+        TopicDeleteSocketRequest request = TopicDeleteSocketRequest.builder()
+                .roomId(room.getId())
+                .topicId(topic.getId())
+                .build();
+        //when
+        List<Topic> topics = topicRepository.findAll();
+        //then
+        assertThatThrownBy(() -> topicService.deleteTopic(request, sessionMember))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageMatching("주제를 삭제할 수 없습니다.");
+        assertThat(topics).hasSize(1);
     }
 }
