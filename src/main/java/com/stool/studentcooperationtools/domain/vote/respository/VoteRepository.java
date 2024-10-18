@@ -10,6 +10,10 @@ public interface VoteRepository extends JpaRepository<Vote,Long> {
 
     @Modifying
     @Query(value = "delete from Vote v where v.voter.id = :deleterId and v.id = :voteId")
-    Boolean deleteVoteByIdAndDeleterId(@Param("voteId") Long voteId, @Param("deleterId") Long deleterId);
+    void deleteVoteByIdAndDeleterId(@Param("voteId") Long voteId, @Param("deleterId") Long deleterId);
+
+    @Modifying
+    @Query(value = "delete from Vote v where v.topic.id = :topicId")
+    void deleteAllByTopicId(@Param("topicId") Long topicId);
 
 }
