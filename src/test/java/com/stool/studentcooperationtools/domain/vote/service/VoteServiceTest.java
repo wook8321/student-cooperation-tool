@@ -79,9 +79,9 @@ class VoteServiceTest {
         memberRepository.save(member);
 
         SessionMember sessionMember = SessionMember.builder()
-                .profile("profile")
-                .memberSeq(1L)
-                .nickName("닉네임")
+                .profile(member.getProfile())
+                .memberSeq(member.getId())
+                .nickName(member.getNickName())
                 .build();
 
         VoteAddWebSocketRequest request = VoteAddWebSocketRequest.builder()
@@ -126,9 +126,9 @@ class VoteServiceTest {
         topicRepository.save(topic);
 
         SessionMember sessionMember = SessionMember.builder()
-                .profile("profile")
-                .memberSeq(1L)
-                .nickName("닉네임")
+                .profile(member.getProfile())
+                .memberSeq(member.getId())
+                .nickName(member.getNickName())
                 .build();
 
         VoteAddWebSocketRequest request = VoteAddWebSocketRequest.builder()
