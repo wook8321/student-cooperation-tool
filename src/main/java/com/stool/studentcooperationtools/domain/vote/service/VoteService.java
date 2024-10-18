@@ -33,7 +33,9 @@ public class VoteService {
         return VoteAddWebSocketResponse.of(vote,member);
     }
 
+    @Transactional
     public Boolean deleteVote(final Long voteId,SessionMember member) {
-        return voteRepository.deleteVoteByIdAndDeleterId(voteId, member.getMemberSeq());
+        voteRepository.deleteVoteByIdAndDeleterId(voteId, member.getMemberSeq());
+        return true;
     }
 }
