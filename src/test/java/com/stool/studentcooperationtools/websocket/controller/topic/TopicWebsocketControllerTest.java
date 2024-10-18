@@ -4,6 +4,7 @@ import com.stool.studentcooperationtools.domain.topic.service.TopicService;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.CustomSessionHandlerAdapter;
 import com.stool.studentcooperationtools.websocket.WebsocketTestSupport;
+import com.stool.studentcooperationtools.websocket.controller.request.WebsocketResponse;
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicAddSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicDeleteSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.topic.response.TopicAddSocketResponse;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import static com.stool.studentcooperationtools.websocket.WebsocketMessageType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -29,8 +31,8 @@ class TopicWebsocketControllerTest extends WebsocketTestSupport {
         //given
         Long roomId = 1L;
         String TopicDecisionSubUrl = "/sub/rooms/%d/topics".formatted(roomId);
-        CustomSessionHandlerAdapter<TopicAddSocketResponse> handler =
-                new CustomSessionHandlerAdapter<>(TopicAddSocketResponse.class);
+        CustomSessionHandlerAdapter<WebsocketResponse> handler =
+                new CustomSessionHandlerAdapter<>(WebsocketResponse.class);
         TopicAddSocketRequest request = TopicAddSocketRequest.builder()
                 .topic("주제")
                 .roomId(roomId)
@@ -47,12 +49,13 @@ class TopicWebsocketControllerTest extends WebsocketTestSupport {
         stompSession.subscribe(TopicDecisionSubUrl,handler);
         //when
         stompSession.send("/pub/topics/add",request);
-        TopicAddSocketResponse result = handler.get(1);
+        WebsocketResponse result = handler.get(1);
         //then
         assertThat(stompSession.isConnected()).isTrue();
-        assertThat(result).isNotNull()
+        assertThat(result.getMessageType()).isEqualTo(TOPIC_ADD);
+        assertThat(result.getData()).isNotNull()
                 .extracting("topicId","topic","memberId")
-                .containsExactly(1L,"주제",1L);
+                .containsExactly(1,"주제",1);
     }
 
     @DisplayName("웹 소켓으로 삭제할 주제를 받아 삭제한다.")
@@ -60,22 +63,23 @@ class TopicWebsocketControllerTest extends WebsocketTestSupport {
     void deleteTopic() throws ExecutionException, InterruptedException, TimeoutException {
         //given
         String TopicDecisionSubUrl = "/sub/rooms/%d/topics".formatted(1L);
-        CustomSessionHandlerAdapter<Boolean> handler =
-                new CustomSessionHandlerAdapter<>(Boolean.class);
+        CustomSessionHandlerAdapter<WebsocketResponse> handler =
+                new CustomSessionHandlerAdapter<>(WebsocketResponse.class);
         TopicDeleteSocketRequest request = TopicDeleteSocketRequest.builder()
                 .roomId(1L)
                 .topicId(1L)
                 .build();
-        Mockito.when(topicService.deleteTopic(Mockito.any(TopicDeleteSocketRequest.class)))
+        Mockito.when(topicService.deleteTopic(Mockito.any(TopicDeleteSocketRequest.class),Mockito.any(SessionMember.class)))
                 .thenReturn(true);
 
         stompSession.subscribe(TopicDecisionSubUrl,handler);
         //when
         stompSession.send("/pub/topics/delete",request);
-        boolean result = handler.get(3);
+        WebsocketResponse<Boolean> result = handler.get(3);
         //then
         assertThat(stompSession.isConnected()).isTrue();
-        assertThat(result).isTrue();
+        assertThat(result.getMessageType()).isEqualTo(TOPIC_DELETE);
+        assertThat(result.getData()).isTrue();
     }
 
 }
