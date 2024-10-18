@@ -4,6 +4,7 @@ import com.stool.studentcooperationtools.domain.vote.service.VoteService;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.CustomSessionHandlerAdapter;
 import com.stool.studentcooperationtools.websocket.WebsocketTestSupport;
+import com.stool.studentcooperationtools.websocket.controller.request.WebsocketResponse;
 import com.stool.studentcooperationtools.websocket.controller.vote.request.VoteAddWebSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.vote.request.VoteDeleteSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.vote.response.VoteAddWebSocketResponse;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import static com.stool.studentcooperationtools.websocket.WebsocketMessageType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -29,8 +31,8 @@ class VoteWebSocketControllerTest extends WebsocketTestSupport {
         //given
         Long roomId = 1L;
         String TopicDecisionSubUrl = "/sub/rooms/%d/topics".formatted(roomId);
-        CustomSessionHandlerAdapter<VoteAddWebSocketResponse> handler =
-                new CustomSessionHandlerAdapter<>(VoteAddWebSocketResponse.class);
+        CustomSessionHandlerAdapter<WebsocketResponse> handler =
+                new CustomSessionHandlerAdapter<>(WebsocketResponse.class);
 
         VoteAddWebSocketRequest request =VoteAddWebSocketRequest.builder()
                 .topicId(1L)
@@ -48,12 +50,13 @@ class VoteWebSocketControllerTest extends WebsocketTestSupport {
         stompSession.subscribe(TopicDecisionSubUrl,handler);
         //when
         stompSession.send("/pub/votes/add",request);
-        VoteAddWebSocketResponse result = handler.get(3);
+        WebsocketResponse result = handler.get(3);
         //then
         assertThat(stompSession.isConnected()).isTrue();
-        assertThat(result).isNotNull()
+        assertThat(result.getMessageType()).isEqualTo(VOTE_ADD);
+        assertThat(result.getData()).isNotNull()
                 .extracting("voteId","memberId")
-                .containsExactly(1L,1L);
+                .containsExactly(1,1);
     }
 
     @DisplayName("삭제할 투표 정보를 받아 투표를 삭제한다.")
@@ -62,23 +65,24 @@ class VoteWebSocketControllerTest extends WebsocketTestSupport {
         //given
         Long roomId = 1L;
         String TopicDecisionSubUrl = "/sub/rooms/%d/topics".formatted(roomId);
-        CustomSessionHandlerAdapter<Boolean> handler =
-                new CustomSessionHandlerAdapter<>(Boolean.class);
+        CustomSessionHandlerAdapter<WebsocketResponse> handler =
+                new CustomSessionHandlerAdapter<>(WebsocketResponse.class);
 
         VoteDeleteSocketRequest request =VoteDeleteSocketRequest.builder()
                 .voteId(1L)
                 .roomId(roomId)
                 .build();
 
-        Mockito.when(voteService.deleteVote(Mockito.anyLong()))
+        Mockito.when(voteService.deleteVote(Mockito.anyLong(),Mockito.any(SessionMember.class)))
                 .thenReturn(true);
 
         stompSession.subscribe(TopicDecisionSubUrl,handler);
         //when
         stompSession.send("/pub/votes/delete",request);
-        boolean result = handler.get(3);
+        WebsocketResponse<Boolean> result = handler.get(3);
         //then
         assertThat(stompSession.isConnected()).isTrue();
-        assertThat(result).isTrue();
+        assertThat(result.getMessageType()).isEqualTo(VOTE_DELETE);
+        assertThat(result.getData()).isTrue();
     }
 }
