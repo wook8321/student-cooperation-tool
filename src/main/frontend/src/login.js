@@ -26,7 +26,7 @@ const GoogleLogIn = () => {
 
   return (
     <>
-      <div className='title'>
+      <div className='login_title'>
         STOOL
       </div>
       <React.Fragment>

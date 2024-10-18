@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './login.js';
 import Main from './main.js';
+import Friend from './friend.js';
 
 const App = () => {
   return (
@@ -10,6 +11,7 @@ const App = () => {
         <Routes>
           <Route path = "/" element = {<Login />}></Route>
           <Route path = "/home" element = {<Main />}></Route>
+          <Route path = "/friend" element = {<Friend />}></Route>
           {/*일치하는 라우트가 없는경우 처리 
 					<Route path="/*" element={<NotFound />}></Route> */}
         </Routes>
