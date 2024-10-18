@@ -10,7 +10,6 @@ import com.stool.studentcooperationtools.domain.topic.repository.TopicRepository
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicAddSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicDeleteSocketRequest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
+@Transactional
 class TopicServiceTest {
 
     @Autowired
@@ -36,13 +36,6 @@ class TopicServiceTest {
 
     @Autowired
     TopicRepository topicRepository;
-
-    @BeforeEach
-    void tearUp(){
-        topicRepository.deleteAll();
-        roomRepository.deleteAll();
-        memberRepository.deleteAll();
-    }
 
     @DisplayName("주제를 등록할 때, 주제를 등록하는 유저가 조회가 안될 경우 에러가 발생한다.")
     @Test
@@ -78,14 +71,13 @@ class TopicServiceTest {
                 .profile("profile")
                 .role(Role.USER)
                 .build();
-
+        memberRepository.save(member);
         SessionMember sessionMember = SessionMember.builder()
                 .profile(member.getProfile())
                 .memberSeq(member.getId())
                 .nickName(member.getNickName())
                 .build();
 
-        memberRepository.save(member);
 
         TopicAddSocketRequest request = TopicAddSocketRequest.builder()
                 .roomId(1L)
@@ -139,7 +131,6 @@ class TopicServiceTest {
     }
 
     @DisplayName("주제를 삭제할 때, 주제를 삭제할 권한(방장,본인)이 없다면 에러가 발생한다.")
-    @Transactional
     @Test
     void deleteTopic(){
         //given
@@ -163,7 +154,7 @@ class TopicServiceTest {
         Long InvalidMemberId = 2L;
         SessionMember sessionMember = SessionMember.builder()
                 .profile(member.getProfile())
-                .memberSeq(member.getId())
+                .memberSeq(InvalidMemberId)
                 .nickName(member.getNickName())
                 .build();
 
