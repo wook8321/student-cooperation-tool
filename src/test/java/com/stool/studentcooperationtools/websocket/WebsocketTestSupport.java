@@ -3,6 +3,7 @@ package com.stool.studentcooperationtools.websocket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import com.stool.studentcooperationtools.websocket.controller.request.WebsocketResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,22 +40,14 @@ public abstract class WebsocketTestSupport {
     protected String URL;
     protected StompSession stompSession;
     protected WebSocketStompClient stompClient;
+    protected final CustomSessionHandlerAdapter<WebsocketResponse> resultHandler = new CustomSessionHandlerAdapter<>(WebsocketResponse.class);
 
 
     @BeforeEach
     void setUp() throws ExecutionException, InterruptedException, TimeoutException {
         URL = "ws://localhost:%d/ws-stomp".formatted(port);
-        stompClient = new WebSocketStompClient(
-                new SockJsClient(List.of(new WebSocketTransport(new StandardWebSocketClient()))));
-        MappingJackson2MessageConverter messageConverter = new MappingJackson2MessageConverter();
-        ObjectMapper objectMapper = messageConverter.getObjectMapper();
-        objectMapper.registerModules(new JavaTimeModule(), new ParameterNamesModule());
-        stompClient.setMessageConverter(messageConverter);
-        try (Connection conn = dataSource.getConnection()) {
-            ScriptUtils.executeSqlScript(conn, new ClassPathResource("sql/SpringSessionCreate.sql"));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        stompClient = createStompClient();
+        executeSql("sql/SpringSessionCreate.sql");
         StompHeaders stompHeaders = new StompHeaders();
         stompHeaders.add("JSESSIONID","testSession");
         stompSession = stompClient.connectAsync(URL,
@@ -69,9 +62,22 @@ public abstract class WebsocketTestSupport {
         if(stompSession.isConnected()){
             stompSession.disconnect();
         }
+        executeSql("sql/SpringSessionDelete.sql");
+    }
 
+    private WebSocketStompClient createStompClient(){
+        WebSocketStompClient webSocketStompClient = new WebSocketStompClient(
+                new SockJsClient(List.of(new WebSocketTransport(new StandardWebSocketClient()))));
+        MappingJackson2MessageConverter messageConverter = new MappingJackson2MessageConverter();
+        ObjectMapper objectMapper = messageConverter.getObjectMapper();
+        objectMapper.registerModules(new JavaTimeModule(), new ParameterNamesModule());
+        webSocketStompClient.setMessageConverter(messageConverter);
+        return webSocketStompClient;
+    }
+
+    private void executeSql(String sqlFilePath) {
         try (Connection conn = dataSource.getConnection()) {
-            ScriptUtils.executeSqlScript(conn, new ClassPathResource("sql/SpringSessionDelete.sql"));
+            ScriptUtils.executeSqlScript(conn, new ClassPathResource(sqlFilePath));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
