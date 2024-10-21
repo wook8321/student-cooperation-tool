@@ -4,8 +4,10 @@ import com.stool.studentcooperationtools.domain.member.Member;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.io.Serializable;
+
 @Getter
-public class SessionMember {
+public class SessionMember implements Serializable {
 
     private Long memberSeq;
     private String nickName;

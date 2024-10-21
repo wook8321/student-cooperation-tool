@@ -23,7 +23,7 @@ public class SecurityConfig {
                             .permitAll();
                 })
                 .authorizeHttpRequests( authorize -> { //인증 없이 접근가능한 url
-                    authorize.requestMatchers("/","/api/test","/login","/oauth/**","/logout")
+                    authorize.requestMatchers("/","/api/test","/login","/oauth/**","/logout","/ws-stomp/**")
                             .permitAll();
                 })
                 .sessionManagement(session->session //세션 고정 공격 보호
@@ -35,14 +35,14 @@ public class SecurityConfig {
                 })
                 .oauth2Login((oauth)->oauth
                         .userInfoEndpoint((endPoint)->endPoint
-                                .userService(customOAuth2UserService)
+                                .userService(customOAuth2UserService) // OAuth2유저의 정보의 EndPoint
                         )
-                        .defaultSuccessUrl("/")
+                        .defaultSuccessUrl("/")// 로그인이 성공했을 때 redirect url
                 )
                 .logout(logout->logout //로그아웃 설정
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")
-                        .invalidateHttpSession(true)
+                        .logoutUrl("/logout")// 로그아웃 url
+                        .logoutSuccessUrl("/")// 로그아웃 성공했을 때 redirect url
+                        .invalidateHttpSession(true)// 모든 session을 초기화하는 설정
                         .deleteCookies("JSESSIONID")
                 )
                 .build();
