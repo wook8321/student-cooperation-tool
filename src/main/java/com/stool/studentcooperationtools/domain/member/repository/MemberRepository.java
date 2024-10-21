@@ -21,5 +21,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findNonFriendsByMemberNickName(@Param("nickName") String nickName, @Param("memberId") Long memberId);
     
     Optional<Member> findMemberByEmail(String email);
-    
+    @Query("select m from Member m where m.id in :memberIds")
+    List<Member> findMembersByMemberIdList(@Param("memberIds") List<Long> memberIds);
 }

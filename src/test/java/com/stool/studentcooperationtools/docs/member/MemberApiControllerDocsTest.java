@@ -9,15 +9,11 @@ import com.stool.studentcooperationtools.domain.member.controller.response.Membe
 import com.stool.studentcooperationtools.domain.member.controller.response.MemberSearchResponse;
 import com.stool.studentcooperationtools.domain.member.service.MemberService;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
-import jakarta.servlet.http.HttpSession;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
 import java.util.List;
-
 import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
@@ -28,27 +24,16 @@ import static org.springframework.restdocs.request.RequestDocumentation.queryPar
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 public class MemberApiControllerDocsTest extends RestDocsSupport {
 
         private final MemberService memberService = mock(MemberService.class);
-        private final HttpSession httpSession = Mockito.mock(HttpSession.class);
 
         @Override
         protected Object initController() {
             return new MemberApiController(memberService);
         }
 
-        @BeforeEach
-        void tearUp(){
-            SessionMember sessionMember = SessionMember.builder()
-                    .memberSeq(1L)
-                    .nickName("닉네임")
-                    .profile("프로필")
-                    .build();
-
-            Mockito.when(httpSession.getAttribute(Mockito.anyString()))
-                    .thenReturn(sessionMember);
-        }
 
         @Test
         void findFriend() throws Exception {
@@ -64,8 +49,7 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                 .members(memberDtoList)
                 .num(memberDtoList.size())
                 .build();
-
-        Mockito.when(memberService.findFriends())
+        Mockito.when(memberService.findFriends(Mockito.any(SessionMember.class)))
                 .thenReturn(response);
 
         //when
@@ -116,7 +100,7 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                         .num(memberDtoList.size())
                         .build();
 
-                Mockito.when(memberService.searchFriend(Mockito.anyBoolean(),Mockito.anyString()))
+                Mockito.when(memberService.searchFriend(Mockito.any(SessionMember.class),Mockito.anyBoolean(),Mockito.anyString()))
                         .thenReturn(response);
 
                 //when
@@ -174,7 +158,7 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                         .num(memberDtoList.size())
                         .build();
 
-                Mockito.when(memberService.searchFriend(Mockito.anyBoolean(),Mockito.anyString()))
+                Mockito.when(memberService.searchFriend(Mockito.any(SessionMember.class), Mockito.anyBoolean(),Mockito.anyString()))
                         .thenReturn(response);
 
                 //when
@@ -224,7 +208,7 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
 
             String content = objectMapper.writeValueAsString(request);
 
-            Mockito.when(memberService.addFriend(Mockito.any(MemberAddRequest.class)))
+            Mockito.when(memberService.addFriend(Mockito.any(SessionMember.class), Mockito.any(MemberAddRequest.class)))
                             .thenReturn(true);
 
             //when
