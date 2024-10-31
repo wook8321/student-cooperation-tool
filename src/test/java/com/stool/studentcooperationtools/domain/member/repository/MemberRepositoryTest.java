@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
@@ -41,15 +40,8 @@ class MemberRepositoryTest {
                 .nickName("nickB")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(memberB);
-        memberRepository.saveAll(members);
-        Friendship friendship = Friendship.builder()
-                .me(memberA)
-                .friend(memberB)
-                .build();
-        friendshipRepository.save(friendship);
+        memberRepository.saveAll(List.of(memberA, memberB));
+        friendshipRepository.save(Friendship.of(memberA, memberB));
         //when
         List<Member> friendList = memberRepository.findFriendsByMemberId(memberA.getId());
         //then
@@ -74,15 +66,8 @@ class MemberRepositoryTest {
                 .nickName("nickB")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(memberB);
-        memberRepository.saveAll(members);
-        Friendship friendship = Friendship.builder()
-                .me(memberA)
-                .friend(memberB)
-                .build();
-        friendshipRepository.save(friendship);
+        memberRepository.saveAll(List.of(memberA, memberB));
+        friendshipRepository.save(Friendship.of(memberA, memberB));
         //when
         List<Member> friendList = memberRepository.findFriendsByMemberNickName(memberB.getNickName(),
                 memberA.getId());
@@ -107,10 +92,7 @@ class MemberRepositoryTest {
                 .nickName("nickB")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(memberB);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(memberA, memberB));
         //when
         List<Member> friendList = memberRepository.findFriendsByMemberNickName(memberB.getNickName(),
                 memberA.getId());
@@ -136,15 +118,8 @@ class MemberRepositoryTest {
                 .nickName("nickB")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(memberB);
-        memberRepository.saveAll(members);
-        Friendship friendship = Friendship.builder()
-                .me(memberA)
-                .friend(memberB)
-                .build();
-        friendshipRepository.save(friendship);
+        memberRepository.saveAll(List.of(memberA, memberB));
+        friendshipRepository.save(Friendship.of(memberA, memberB));
         //when
         List<Member> friendList = memberRepository.findFriendsByMemberNickName(invalidNickName,
                 memberA.getId());
@@ -170,10 +145,7 @@ class MemberRepositoryTest {
                 .nickName("nickB")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(memberB);
-        memberRepository.saveAll(members);
+        memberRepository.saveAll(List.of(memberA, memberB));
         //when
         List<Member> nonfriendList = memberRepository.findNonFriendsByMemberNickName(memberB.getNickName(),
                 memberA.getId());
@@ -198,15 +170,8 @@ class MemberRepositoryTest {
                 .nickName("nickB")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(memberB);
-        memberRepository.saveAll(members);
-        Friendship friendship = Friendship.builder()
-                .me(memberA)
-                .friend(memberB)
-                .build();
-        friendshipRepository.save(friendship);
+        memberRepository.saveAll(List.of(memberA, memberB));
+        friendshipRepository.save(Friendship.of(memberA, memberB));
         //when
         List<Member> nonfriendList = memberRepository.findNonFriendsByMemberNickName(memberB.getNickName(),
                 memberA.getId());
@@ -232,15 +197,7 @@ class MemberRepositoryTest {
                 .nickName("nickB")
                 .role(Role.USER)
                 .build();
-        List<Member> members = new ArrayList<>();
-        members.add(memberA);
-        members.add(memberB);
-        memberRepository.saveAll(members);
-        Friendship friendship = Friendship.builder()
-                .me(memberA)
-                .friend(memberB)
-                .build();
-        friendshipRepository.save(friendship);
+        memberRepository.saveAll(List.of(memberA, memberB));
         //when
         List<Member> nonfriendList = memberRepository.findNonFriendsByMemberNickName(invalidNickName,
                 memberA.getId());
@@ -282,6 +239,30 @@ class MemberRepositoryTest {
         //then
         assertThrows(IllegalArgumentException.class,
                 () -> memberRepository.findMemberByEmail(invalidEmail)
-                .orElseThrow(IllegalArgumentException::new));
+                        .orElseThrow(IllegalArgumentException::new));
+    }
+
+    @Test
+    @DisplayName("회원 id들이 담긴 리스트가 주어졌을 때 해당 회원들 조회")
+    void findMembersByMemberIdList() {
+        //given
+        Member memberA = Member.builder()
+                .email("emailA")
+                .profile("profileA")
+                .nickName("nickA")
+                .role(Role.USER)
+                .build();
+        memberRepository.save(memberA);
+        Member memberB = Member.builder()
+                .email("emailB")
+                .profile("profileB")
+                .nickName("nickB")
+                .role(Role.USER)
+                .build();
+        memberRepository.save(memberB);
+        //when
+        List<Member> members = memberRepository.findMembersByMemberIdList(List.of(memberA.getId(), memberB.getId()));
+        //then
+        assertThat(members.size()).isEqualTo(2);
     }
 }
