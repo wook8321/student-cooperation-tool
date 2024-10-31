@@ -7,7 +7,8 @@ import com.stool.studentcooperationtools.domain.participation.Participation;
 import com.stool.studentcooperationtools.domain.participation.repository.ParticipationRepository;
 import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
-import com.stool.studentcooperationtools.domain.room.controller.request.RoomPasswordValidRequest;
+import com.stool.studentcooperationtools.domain.room.controller.request.RoomEnterRequest;
+import com.stool.studentcooperationtools.domain.room.controller.request.RoomEnterRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomRemoveRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomTopicUpdateRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomAddResponse;
@@ -49,9 +50,9 @@ class RoomServiceTest {
     @BeforeEach
     void setUp(){
         participationRepository.deleteAll();
-        memberRepository.deleteAll();
-        roomRepository.deleteAll();
         topicRepository.deleteAll();
+        roomRepository.deleteAll();
+        memberRepository.deleteAll();
     }
 
     @Test
@@ -309,13 +310,13 @@ class RoomServiceTest {
                 .build();
         roomRepository.save(room);
         participationRepository.save(Participation.of(user, room));
-        RoomPasswordValidRequest request = RoomPasswordValidRequest.builder()
+        RoomEnterRequest request = RoomEnterRequest.builder()
                 .roomId(10L)
                 .password("password")
                 .build();
         //when
         //then
-        assertThrows(IllegalArgumentException.class, ()-> roomService.validRoomPassword(member, request));
+        assertThrows(IllegalArgumentException.class, ()-> roomService.enterRoom(member, request));
     }
 
     @Test
@@ -338,13 +339,13 @@ class RoomServiceTest {
                 .build();
         roomRepository.save(room);
         participationRepository.save(Participation.of(user, room));
-        RoomPasswordValidRequest request = RoomPasswordValidRequest.builder()
+        RoomEnterRequest request = RoomEnterRequest.builder()
                 .roomId(room.getId())
                 .password("123")
                 .build();
         //when
         //then
-        assertThrows(IllegalArgumentException.class, ()-> roomService.validRoomPassword(member, request));
+        assertThrows(IllegalArgumentException.class, ()-> roomService.enterRoom(member, request));
     }
 
     @Test
@@ -374,12 +375,12 @@ class RoomServiceTest {
                 .build();
         roomRepository.save(room);
         participationRepository.save(Participation.of(leader, room));
-        RoomPasswordValidRequest request = RoomPasswordValidRequest.builder()
+        RoomEnterRequest request = RoomEnterRequest.builder()
                 .roomId(room.getId())
                 .password(room.getPassword())
                 .build();
         //when
-        roomService.validRoomPassword(member, request);
+        roomService.enterRoom(member, request);
         //then
         assertThat(participationRepository.existsByMemberIdAndRoomId(user.getId(), room.getId())).isTrue();
         assertThat(roomRepository.findById(room.getId()).get().getParticipationNum()).isEqualTo(2);
@@ -405,13 +406,13 @@ class RoomServiceTest {
                 .build();
         roomRepository.save(room);
         participationRepository.save(Participation.of(user, room));
-        RoomPasswordValidRequest request = RoomPasswordValidRequest.builder()
+        RoomEnterRequest request = RoomEnterRequest.builder()
                 .roomId(room.getId())
                 .password(room.getPassword())
                 .build();
         //when
         //then
-        assertThat(roomService.validRoomPassword(member, request)).isTrue();
+        assertThat(roomService.enterRoom(member, request)).isTrue();
     }
 
     @Test
@@ -434,10 +435,10 @@ class RoomServiceTest {
                 .build();
         roomRepository.save(room);
         Topic topic = Topic.builder()
-                        .room(room)
-                        .topic("t")
-                        .member(user)
-                        .build();
+                .room(room)
+                .topic("t")
+                .member(user)
+                .build();
         participationRepository.save(Participation.of(user, room));
         topicRepository.save(topic);
         RoomTopicUpdateRequest request = RoomTopicUpdateRequest.builder()
@@ -582,16 +583,16 @@ class RoomServiceTest {
             executorService.execute(() -> {
                 try{
                     Member member = Member.builder()
-                                    .email("e")
-                                    .profile("p")
-                                    .role(Role.USER)
-                                    .nickName("n")
-                                    .build();
+                            .email("e")
+                            .profile("p")
+                            .role(Role.USER)
+                            .nickName("n")
+                            .build();
                     memberRepository.save(member);
                     SessionMember sessionMember = SessionMember.of(member);
-                    RoomPasswordValidRequest request = RoomPasswordValidRequest
+                    RoomEnterRequest request = RoomEnterRequest
                             .builder().roomId(room.getId()).password("password").build();
-                    roomService.validRoomPassword(sessionMember, request);
+                    roomService.enterRoom(sessionMember, request);
                 }finally{
                     latch.countDown();
                 }

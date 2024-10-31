@@ -35,16 +35,16 @@ class RoomRepositoryTest {
     void findAllByMemberIdWithRoom() {
         //given
         Room room = Room.builder()
-                        .title("room")
-                        .participationNum(1)
-                        .password("password")
-                        .build();
+                .title("room")
+                .participationNum(1)
+                .password("password")
+                .build();
         Member user = Member.builder()
-                        .role(Role.USER)
-                        .email("email")
-                        .profile("profile")
-                        .nickName("nickName")
-                        .build();
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickName")
+                .build();
         memberRepository.save(user);
         SessionMember member = SessionMember.of(user);
         roomRepository.save(room);
