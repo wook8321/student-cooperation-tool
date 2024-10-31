@@ -12,6 +12,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    public static final String SESSION_NAME = "SESSION";
+
     private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
@@ -43,7 +45,7 @@ public class SecurityConfig {
                         .logoutUrl("/logout")// 로그아웃 url
                         .logoutSuccessUrl("/")// 로그아웃 성공했을 때 redirect url
                         .invalidateHttpSession(true)// 모든 session을 초기화하는 설정
-                        .deleteCookies("JSESSIONID")
+                        .deleteCookies(SESSION_NAME)
                 )
                 .build();
     }
