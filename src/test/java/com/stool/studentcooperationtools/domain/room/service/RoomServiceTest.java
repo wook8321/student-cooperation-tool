@@ -23,6 +23,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -532,6 +533,7 @@ class RoomServiceTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("팀장이 선정된 주제를 업데이트")
     void updateRoomTopicByLeader() {
         //given
