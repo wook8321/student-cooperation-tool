@@ -2,7 +2,7 @@ package com.stool.studentcooperationtools.domain.room.controller;
 
 import com.stool.studentcooperationtools.domain.api.ApiResponse;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
-import com.stool.studentcooperationtools.domain.room.controller.request.RoomPasswordValidRequest;
+import com.stool.studentcooperationtools.domain.room.controller.request.RoomEnterRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomRemoveRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomTopicUpdateRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomAddResponse;
@@ -47,9 +47,9 @@ public class RoomApiController {
         return ApiResponse.of(HttpStatus.OK,result);
     }
 
-    @PostMapping("/api/v1/rooms/valid-password")
-    public ApiResponse<Boolean> validRoomPassword(SessionMember member, @Valid @RequestBody RoomPasswordValidRequest request){
-        Boolean result = roomService.validRoomPassword(member, request);
+    @PostMapping("/api/v1/rooms/enter-room")
+    public ApiResponse<Boolean> enterRoom(SessionMember member, @Valid @RequestBody RoomEnterRequest request){
+        Boolean result = roomService.enterRoom(member, request);
         return ApiResponse.of(HttpStatus.OK, result);
     }
 
