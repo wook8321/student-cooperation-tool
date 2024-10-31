@@ -11,14 +11,16 @@ import java.util.List;
 @Getter
 public class TopicFindDto {
     private Long topicId;
+    private Long memberId;
     private String topic;
     private int voteNum;
     private List<VoteFindDto> votes;
 
     @Builder
-    private TopicFindDto(final Long topicId,final int voteNum, final List<VoteFindDto> votes, final String topic) {
+    private TopicFindDto(final Long topicId,final int voteNum, final List<VoteFindDto> votes,final Long memberId, final String topic) {
         this.topicId = topicId;
         this.topic = topic;
+        this.memberId = memberId;
         this.voteNum = voteNum;
         this.votes = votes;
     }
@@ -26,6 +28,7 @@ public class TopicFindDto {
     public static TopicFindDto of(Topic topic){
         return TopicFindDto.builder()
                 .topicId(topic.getId())
+                .memberId(topic.getMember().getId())
                 .voteNum(topic.getVotes().size())
                 .votes(
                         topic.getVotes().stream()

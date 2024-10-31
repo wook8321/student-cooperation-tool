@@ -1,0 +1,1 @@
+insert into SPRING_SESSION values ("testSession","testSession",9999999999999,9999999999999,1800,9999999999999 ,"testSession")
