@@ -6,6 +6,7 @@ import com.stool.studentcooperationtools.domain.chat.controller.ChatApiControlle
 import com.stool.studentcooperationtools.domain.chat.controller.response.ChatFindDto;
 import com.stool.studentcooperationtools.domain.chat.controller.response.ChatFindResponse;
 import com.stool.studentcooperationtools.domain.chat.service.ChatService;
+import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -49,7 +50,7 @@ public class ChatApiControllerDocsTest extends RestDocsSupport {
                 .chats(chatFindDtoList)
                 .build();
 
-        Mockito.when(chatService.findChats(Mockito.anyLong()))
+        Mockito.when(chatService.findChats(Mockito.anyLong(),Mockito.any(SessionMember.class)))
                 .thenReturn(response);
 
         //when

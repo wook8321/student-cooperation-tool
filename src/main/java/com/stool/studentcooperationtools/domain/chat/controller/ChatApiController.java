@@ -3,6 +3,7 @@ package com.stool.studentcooperationtools.domain.chat.controller;
 import com.stool.studentcooperationtools.domain.api.ApiResponse;
 import com.stool.studentcooperationtools.domain.chat.controller.response.ChatFindResponse;
 import com.stool.studentcooperationtools.domain.chat.service.ChatService;
+import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +17,8 @@ public class ChatApiController {
     private final ChatService chatService;
 
     @GetMapping("/api/v1/rooms/{roomId}/chats")
-    public ApiResponse<ChatFindResponse> findChats(@PathVariable("roomId") Long roomId){
-        ChatFindResponse response = chatService.findChats(roomId);
+    public ApiResponse<ChatFindResponse> findChats(@PathVariable("roomId") Long roomId, SessionMember member){
+        ChatFindResponse response = chatService.findChats(roomId,member);
         return ApiResponse.of(HttpStatus.OK,response);
     }
 
