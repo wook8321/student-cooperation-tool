@@ -6,7 +6,7 @@ import com.stool.studentcooperationtools.domain.participation.Participation;
 import com.stool.studentcooperationtools.domain.participation.repository.ParticipationRepository;
 import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
-import com.stool.studentcooperationtools.domain.room.controller.request.RoomPasswordValidRequest;
+import com.stool.studentcooperationtools.domain.room.controller.request.RoomEnterRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomRemoveRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomTopicUpdateRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomAddResponse;
@@ -20,11 +20,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -95,23 +92,23 @@ public class RoomService {
     }
 
     @Transactional
-    public Boolean validRoomPassword(SessionMember member, final RoomPasswordValidRequest request) {
+    public boolean enterRoom(SessionMember member, final RoomEnterRequest request){
         Room room = roomRepository.findRoomWithPLock(request.getRoomId())
                 .orElseThrow(()-> new IllegalArgumentException("방 id 오류"));
         if(!room.verifyPassword(request.getPassword())) {
             throw new IllegalArgumentException("올바르지 않은 비밀번호입니다");
         }
+        addParticipation(member,room);
+        return true;
+    }
+
+    private void addParticipation(SessionMember member, Room room){
         Member user = memberRepository.findById(member.getMemberSeq())
                 .orElseThrow(() -> new IllegalArgumentException("유저 정보가 올바르지 않습니다"));
         if(!participationRepository.existsByMemberIdAndRoomId(member.getMemberSeq(), room.getId())){
             room.addParticipant();
             participationRepository.save(Participation.of(user, room));
         }
-        return true;
-    }
-
-    @Transactional
-    public void addParticipation(Long roomId){
     }
 
 
