@@ -1,5 +1,8 @@
 package com.stool.studentcooperationtools.domain.presentation.repository;
 
+import com.stool.studentcooperationtools.domain.member.Member;
+import com.stool.studentcooperationtools.domain.member.Role;
+import com.stool.studentcooperationtools.domain.member.repository.MemberRepository;
 import com.stool.studentcooperationtools.domain.presentation.Presentation;
 import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
@@ -20,13 +23,15 @@ class PresentationRepositoryTest {
     private PresentationRepository presentationRepository;
     @Autowired
     private RoomRepository roomRepository;
+    @Autowired
+    private MemberRepository memberRepository;
 
     @Test
     @DisplayName("방의 presentation 정보 찾기")
     void findPresentationByRoomId() {
         //given
         Room room = Room.builder()
-                        .participationNum(0)
+                        .participationNum(1)
                         .password("1234")
                         .title("t")
                         .build();
@@ -48,7 +53,7 @@ class PresentationRepositoryTest {
     void findInvalidPresentationByRoomId() {
         //given
         Room room = Room.builder()
-                .participationNum(0)
+                .participationNum(1)
                 .password("1234")
                 .title("t")
                 .build();
@@ -58,4 +63,74 @@ class PresentationRepositoryTest {
         assertThrows(IllegalArgumentException.class, () -> presentationRepository.findByRoomId(room.getId())
                 .orElseThrow(()->new IllegalArgumentException("잘못된 ppt 정보")));
     }
+
+    @Test
+    @DisplayName("방에 ppt가 있을 때 exist 조회")
+    void existPresentationByRoomId() {
+        //given
+        Room room = Room.builder()
+                .participationNum(1)
+                .password("1234")
+                .title("t")
+                .build();
+        roomRepository.save(room);
+        Presentation presentation = Presentation.builder()
+                .presentationPath("path")
+                .room(room)
+                .build();
+        presentationRepository.save(presentation);
+        //when
+        //then
+        assertThat(presentationRepository.existsByRoomId(room.getId())).isTrue();
+    }
+
+    @Test
+    @DisplayName("방에 ppt가 없을 때 exist 조회")
+    void existNoPresentationByRoomId() {
+        //given
+        Room room = Room.builder()
+                .participationNum(1)
+                .password("1234")
+                .title("t")
+                .build();
+        roomRepository.save(room);
+        //when
+        //then
+        assertThat(presentationRepository.existsByRoomId(room.getId())).isFalse();
+    }
+
+    @Test
+    @DisplayName("방장에 의한 방의 ppt 주소 변경")
+    void updatePresentation() {
+        //given
+        Member user = Member.builder()
+                .role(Role.USER)
+                .email("e")
+                .profile("p")
+                .nickName("n")
+                .build();
+        memberRepository.save(user);
+        Room room = Room.builder()
+                .participationNum(1)
+                .leader(user)
+                .password("1234")
+                .title("t")
+                .build();
+        roomRepository.save(room);
+        Presentation presentation = Presentation.builder()
+                .presentationPath("path")
+                .room(room)
+                .build();
+        presentationRepository.save(presentation);
+        //when
+        int cnt = presentationRepository.updatePresentationByLeader("newPath", user.getId());
+        Presentation updatedPresentation = presentationRepository.findById(presentation.getId())
+                .orElseThrow();
+        //then
+        assertAll(
+                ()->assertThat(cnt).isEqualTo(1),
+                ()->assertThat(updatedPresentation.getPresentationPath()).isEqualTo("newPath")
+                );
+    }
+
 }
