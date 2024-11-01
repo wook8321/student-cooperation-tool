@@ -43,7 +43,6 @@ class SlideServiceTest {
         Script script = Script.builder()
                 .script("script")
                 .presentation(presentation)
-                .thumbnail("thumbnail")
                 .build();
         scriptRepository.save(script);
         Slide slide = Slide.builder()

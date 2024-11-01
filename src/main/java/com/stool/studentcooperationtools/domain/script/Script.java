@@ -17,9 +17,6 @@ public class Script extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String thumbnail;
-
     @ManyToOne(fetch = FetchType.LAZY)
     private Presentation presentation;
 
@@ -28,9 +25,8 @@ public class Script extends BaseTimeEntity {
 
     @Builder
     private Script(
-            final String thumbnail, final Presentation presentation,
+            final Presentation presentation,
             final String script) {
-        this.thumbnail = thumbnail;
         this.presentation = presentation;
         this.script = script;
     }
