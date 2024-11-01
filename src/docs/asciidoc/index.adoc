@@ -140,6 +140,7 @@ include::{snippets}/Topic-find/response-fields.adoc[]
 
 ==== HTTP Request
 include::{snippets}/chat-find/http-request.adoc[]
+include::{snippets}/chat-find/query-parameters.adoc[]
 
 ==== HTTP Response
 include::{snippets}/chat-find/http-response.adoc[]
