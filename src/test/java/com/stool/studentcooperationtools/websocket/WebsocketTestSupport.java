@@ -29,6 +29,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static com.stool.studentcooperationtools.security.config.SecurityConfig.SESSION_NAME;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class WebsocketTestSupport {
 
@@ -49,7 +51,7 @@ public abstract class WebsocketTestSupport {
         stompClient = createStompClient();
         executeSql("sql/SpringSessionCreate.sql");
         StompHeaders stompHeaders = new StompHeaders();
-        stompHeaders.add("JSESSIONID","testSession");
+        stompHeaders.add(SESSION_NAME,"testSession");
         stompSession = stompClient.connectAsync(URL,
                 new WebSocketHttpHeaders(),
                 stompHeaders,

@@ -15,6 +15,8 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.stereotype.Component;
 
+import static com.stool.studentcooperationtools.security.config.SecurityConfig.SESSION_NAME;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -29,7 +31,7 @@ public class WebsocketSecurityInterceptor implements ChannelInterceptor {
             Authentication authentication = SecurityContextHolder.getContextHolderStrategy().getContext().getAuthentication();
             if(authentication == null){
                 // 웹소켓 연결 전에 인증하지 않은 경우 authentication는 조회되지 않음
-                String jsessionid = accessor.getFirstNativeHeader("JSESSIONID");
+                String jsessionid = accessor.getFirstNativeHeader(SESSION_NAME);
                 Object session = jdbcIndexedSessionRepository.findById(jsessionid);
                 if(session == null){
                     throw new SessionAuthenticationException("Authentication Failed");
