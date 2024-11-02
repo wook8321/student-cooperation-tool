@@ -9,7 +9,9 @@ import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.chat.request.ChatAddWebsocketRequest;
+import com.stool.studentcooperationtools.websocket.controller.chat.request.ChatDeleteWebsocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.chat.response.ChatAddWebsocketResponse;
+import com.stool.studentcooperationtools.websocket.controller.chat.response.ChatDeleteWebsocketResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -41,5 +43,20 @@ public class ChatService {
 
         Chat chat = Chat.of(request.getContent(), member,room);
         return ChatAddWebsocketResponse.of(chatRepository.save(chat));
+    }
+
+    @Transactional
+    public ChatDeleteWebsocketResponse deleteChat(final ChatDeleteWebsocketRequest request, final SessionMember member) {
+        Chat chat = chatRepository.findById(request.getChatId())
+                .orElseThrow(() -> new IllegalArgumentException("삭제할 채팅이 존재하지 않습니다."));
+        if(hasNotAuthorizationBy(member, chat)){
+            throw new IllegalArgumentException("채팅을 제거할 권한이 없습니다.");
+        }
+        chatRepository.deleteById(request.getChatId());
+        return new ChatDeleteWebsocketResponse(request.getChatId());
+    }
+
+    private static boolean hasNotAuthorizationBy(final SessionMember member, final Chat chat) {
+        return !chat.getMember().getId().equals(member.getMemberSeq());
     }
 }
