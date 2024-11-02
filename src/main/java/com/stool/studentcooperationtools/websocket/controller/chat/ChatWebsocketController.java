@@ -4,7 +4,9 @@ import com.stool.studentcooperationtools.domain.chat.service.ChatService;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.Utils.SimpleMessageSendingUtils;
 import com.stool.studentcooperationtools.websocket.controller.chat.request.ChatAddWebsocketRequest;
+import com.stool.studentcooperationtools.websocket.controller.chat.request.ChatDeleteWebsocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.chat.response.ChatAddWebsocketResponse;
+import com.stool.studentcooperationtools.websocket.controller.chat.response.ChatDeleteWebsocketResponse;
 import com.stool.studentcooperationtools.websocket.controller.request.WebsocketResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import static com.stool.studentcooperationtools.websocket.WebsocketMessageType.CHAT_ADD;
+import static com.stool.studentcooperationtools.websocket.WebsocketMessageType.CHAT_DELETE;
 
 @Controller
 @RequiredArgsConstructor
@@ -26,6 +29,15 @@ public class ChatWebsocketController {
         sendingUtils.convertAndSend(
                 sendingUtils.createChatRoomSubUrl(request.getRoomId()),
                 WebsocketResponse.of(CHAT_ADD,response)
+        );
+    }
+
+    @MessageMapping("/chats/delete")
+    public void deleteChat(@Valid @RequestBody ChatDeleteWebsocketRequest request, SessionMember member){
+        ChatDeleteWebsocketResponse result = chatService.deleteChat(request,member);
+        sendingUtils.convertAndSend(
+                sendingUtils.createChatRoomSubUrl(request.getRoomId()),
+                WebsocketResponse.of(CHAT_DELETE,result)
         );
     }
 
