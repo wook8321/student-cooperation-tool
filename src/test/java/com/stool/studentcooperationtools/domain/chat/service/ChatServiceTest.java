@@ -9,7 +9,9 @@ import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.chat.request.ChatAddWebsocketRequest;
+import com.stool.studentcooperationtools.websocket.controller.chat.request.ChatDeleteWebsocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.chat.response.ChatAddWebsocketResponse;
+import com.stool.studentcooperationtools.websocket.controller.chat.response.ChatDeleteWebsocketResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,4 +132,136 @@ class ChatServiceTest {
         //then
         assertThat(chats).hasSize(1);
     }
+
+    @DisplayName("삭제할 채팅의 식별키를 받아 채팅을 삭제한다.")
+    @Test
+    void deleteChat(){
+        //given
+        Member member = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+        memberRepository.save(member);
+
+        Room room = Room.builder()
+                .leader(member)
+                .password("password")
+                .participationNum(1)
+                .build();
+        roomRepository.save(room);
+
+        Chat chat = Chat.builder()
+                .room(room)
+                .member(member)
+                .content("댓글 내용")
+                .build();
+        chatRepository.save(chat);
+
+        ChatDeleteWebsocketRequest request = ChatDeleteWebsocketRequest.builder()
+                .chatId(chat.getId())
+                .roomId(room.getId())
+                .build();
+
+        SessionMember sessionMember =SessionMember.builder()
+                .memberSeq(member.getId())
+                .nickName("닉네임")
+                .profile("프로필")
+                .build();
+        //when
+        ChatDeleteWebsocketResponse response = chatService.deleteChat(request, sessionMember);
+        List<Chat> chats = chatRepository.findAll();
+        //then
+        assertThat(chats).hasSize(0);
+        assertThat(response).isNotNull();
+    }
+
+    @DisplayName("채팅을 삭제할 때, 삭제하는 유저가 존재하지 않으면 에러가 발생한다.")
+    @Test
+    void deleteChatWithNotExistChat(){
+        //given
+        Member member = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+        memberRepository.save(member);
+
+        Room room = Room.builder()
+                .leader(member)
+                .password("password")
+                .participationNum(1)
+                .build();
+        roomRepository.save(room);
+
+        Long invalidChatId = 1L;
+        ChatDeleteWebsocketRequest request = ChatDeleteWebsocketRequest.builder()
+                .chatId(invalidChatId)
+                .roomId(room.getId())
+                .build();
+
+        SessionMember sessionMember =SessionMember.builder()
+                .memberSeq(member.getId())
+                .nickName("닉네임")
+                .profile("프로필")
+                .build();
+        //when
+        //then
+        assertThatThrownBy(() -> chatService.deleteChat(request, sessionMember))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageMatching("삭제할 채팅이 존재하지 않습니다.");
+    }
+
+    @DisplayName("채팅을 삭제할 때, 삭제하는 유저가 존재하지 않으면 에러가 발생한다.")
+    @Test
+    void deleteChatWithNotExistUser(){
+        //given
+        Member chatWriter = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+        Member anotherMember = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+        memberRepository.saveAll(List.of(chatWriter,anotherMember));
+
+        Room room = Room.builder()
+                .leader(anotherMember)
+                .password("password")
+                .participationNum(1)
+                .build();
+        roomRepository.save(room);
+
+        Chat chat = Chat.builder()
+                .room(room)
+                .member(chatWriter)
+                .content("댓글 내용")
+                .build();
+        chatRepository.save(chat);
+
+
+        ChatDeleteWebsocketRequest request = ChatDeleteWebsocketRequest.builder()
+                .chatId(chat.getId())
+                .roomId(room.getId())
+                .build();
+
+        SessionMember sessionMember =SessionMember.builder()
+                .memberSeq(anotherMember.getId())
+                .nickName("닉네임")
+                .profile("프로필")
+                .build();
+        //when
+        //then
+        assertThatThrownBy(() -> chatService.deleteChat(request, sessionMember))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageMatching("채팅을 제거할 권한이 없습니다.");
+    }
+
 }
