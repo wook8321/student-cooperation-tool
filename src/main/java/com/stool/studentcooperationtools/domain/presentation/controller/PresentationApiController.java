@@ -15,7 +15,7 @@ public class PresentationApiController {
 
     private final PresentationService presentationService;
 
-    @GetMapping("/api/v1/rooms/{roomId}/presentations")
+    @GetMapping("/api/v1/rooms/{roomId}/presentation")
     public ApiResponse<PresentationFindResponse> findPresentation(@PathVariable("roomId") Long roomId){
         PresentationFindResponse response = presentationService.findPresentation(roomId);
         return ApiResponse.of(HttpStatus.OK,response);
