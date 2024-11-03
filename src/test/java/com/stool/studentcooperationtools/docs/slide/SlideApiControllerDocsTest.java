@@ -52,7 +52,7 @@ public class SlideApiControllerDocsTest extends RestDocsSupport {
 
         //when
         //then
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/presentations/"+ presentationId + "/slides"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/presentation/"+ presentationId + "/slides"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andDo(document("slide-find",
