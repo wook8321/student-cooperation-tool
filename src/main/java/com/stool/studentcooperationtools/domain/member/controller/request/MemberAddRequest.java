@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MemberAddRequest {
 
-    @Email(message = "옳바르지 않는 이메일 형식입니다.")
+    @Email(message = "올바르지 않은 이메일 형식입니다.")
     private String email;
 
     @Builder
