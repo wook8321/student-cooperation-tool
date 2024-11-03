@@ -1,25 +1,26 @@
-import React, {useEffect, useState} from "react";
-import axios from "axios";
+import React, { Component } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Login from './login.js';
+import Main from './main.js';
+import Friend from './friend.js';
+import Project from './project.js';
 
-const domain = "http://localhost:8080"
-
-function App() {
-  const [hello, setHello] = useState('');
-
-  useEffect(() => {
-    axios.get(domain + '/api/test')
-        .then(res => {
-          setHello(res.data);
-        })
-        .catch(error =>{
-            alert(JSON.stringify(error))
-        })
-  }, []);
+const App = () => {
   return (
-      <div className="App">
-        백엔드 데이터 : {hello}
-      </div>
+    <div>
+      <BrowserRouter>
+        <Routes>
+          <Route path = "/" element = {<Login />}></Route>
+          <Route path = "/home" element = {<Main />}></Route>
+          <Route path = "/friend" element = {<Friend />}></Route>
+          <Route path = "/project" element = {<Project />}></Route>
+          {/*일치하는 라우트가 없는경우 처리 
+					<Route path="/*" element={<NotFound />}></Route> */}
+        </Routes>
+      </BrowserRouter>
+    </div>
+
   );
-}
+};
 
 export default App;
