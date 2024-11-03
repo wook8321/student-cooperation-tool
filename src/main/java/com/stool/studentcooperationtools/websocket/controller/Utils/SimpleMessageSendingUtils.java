@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
 
+import static com.stool.studentcooperationtools.websocket.config.WebsocketConfig.CHAT_ROOM_URL_FORMAT;
 import static com.stool.studentcooperationtools.websocket.config.WebsocketConfig.TOPIC_DECISION_URL_FORMAT;
 
 /*
@@ -16,10 +17,17 @@ public class SimpleMessageSendingUtils {
     private final SimpMessageSendingOperations simpMessageSendingOperations;
 
     /*
-    주제 선정단계의 url을 이곳에서 생성하는 메소드이다
+    주제 선정단계의 sub url을 생성하는 메소드이다
      */
     public String createTopicDecisionSubUrl(final Long roomId){
         return String.format(TOPIC_DECISION_URL_FORMAT, roomId);
+    }
+
+    /*
+    채팅방 sub url을 생성하는 메소드이다.
+     */
+    public String createChatRoomSubUrl(final Long roomId){
+        return String.format(CHAT_ROOM_URL_FORMAT,roomId);
     }
 
     /*

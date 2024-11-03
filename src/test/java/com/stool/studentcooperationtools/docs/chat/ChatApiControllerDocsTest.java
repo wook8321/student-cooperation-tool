@@ -17,8 +17,9 @@ import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -34,6 +35,7 @@ public class ChatApiControllerDocsTest extends RestDocsSupport {
     void findChats() throws Exception {
         //given
         String roomId = "1";
+        int page = 1;
         List<ChatFindDto> chatFindDtoList = List.of(
                 ChatFindDto.builder()
                         .chatId(1L)
@@ -47,21 +49,25 @@ public class ChatApiControllerDocsTest extends RestDocsSupport {
         ChatFindResponse response = ChatFindResponse.builder()
                 .num(chatFindDtoList.size())
                 .chats(chatFindDtoList)
+                .hasNext(true)
                 .build();
 
-        Mockito.when(chatService.findChats(Mockito.anyLong()))
+        Mockito.when(chatService.findChats(Mockito.anyLong(),Mockito.anyInt()))
                 .thenReturn(response);
 
         //when
         //then
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/v1/rooms/"+ roomId + "/chats")
+                MockMvcRequestBuilders.get("/api/v1/rooms/"+ roomId + "/chats?page=" + page)
         )
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andDo(document("chat-find",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
+                        queryParameters(
+                                parameterWithName("page").description("조회할 채팅의 페이지")
+                        ),
                         responseFields(
                                 fieldWithPath("code").type(NUMBER)
                                         .description("상태 코드"),
@@ -71,6 +77,8 @@ public class ChatApiControllerDocsTest extends RestDocsSupport {
                                         .description("응답 데이터"),
                                 fieldWithPath("data.num").type(NUMBER)
                                         .description("조회된 채팅 개수"),
+                                fieldWithPath("data.hasNext").type(BOOLEAN)
+                                        .description("다음 조회할 채팅이 존재 하는지"),
                                 fieldWithPath("data.chats[]").type(ARRAY)
                                         .description("채팅 정보 리스트"),
                                 fieldWithPath("data.chats[].chatId").type(NUMBER)
