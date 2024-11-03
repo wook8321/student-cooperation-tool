@@ -14,6 +14,10 @@ import lombok.NoArgsConstructor;
 public class File extends BaseTimeEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
     private String fileName;
 
     @Enumerated(EnumType.STRING)
