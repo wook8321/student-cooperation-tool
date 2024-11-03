@@ -1,0 +1,99 @@
+.search_box {
+    width: 1000px;
+    height: 100px;
+    margin-top: 20px;
+    margin-left: 300px;
+}
+
+.friend_search_txt {
+    padding: 10px;
+    width: 800px;
+    height: 50px;
+    font-family: arial;
+    font-size: 25px;
+}
+
+.search_button {
+    width: 90px;
+    height: 90px;
+    margin-left: 20px;
+}
+
+  
+.modal_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.137);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+  
+.modal_content {
+    background-color: #f1f7fa;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    position: relative;
+}
+  
+.close_button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: black;
+    border: none;
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.add_friend {
+    background-color: #28a745; 
+    color: white; 
+    border: none;
+    border-radius: 0%; 
+    width: 100px; 
+    height: 50px; 
+    font-size: 20px; 
+    cursor: pointer;
+    margin-left: 50px;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+  
+.add_friend:hover {
+    background-color: #218838; 
+}
+
+.friend_list {
+    display: flex;
+    flex-direction: column;
+    margin-left: 300px;
+    padding: 10px;
+}
+  
+.friend_item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    border: none;
+}
+  
+.profile_icon {
+    width: 100px;
+    height: 100px;
+    margin-right: 10px;
+}
+  
+.friend_name {
+    font-size: 30px;
+}
+
