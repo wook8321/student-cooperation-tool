@@ -31,4 +31,8 @@ public class Script extends BaseTimeEntity {
         this.script = script;
     }
 
+    public void updateScript(String script){
+        this.script = script;
+    }
+
 }
