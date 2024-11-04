@@ -33,18 +33,20 @@ public class PresentationService {
     public PresentationUpdateSocketResponse updatePresentation(final PresentationUpdateSocketRequest request, SessionMember member) {
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(()->new IllegalArgumentException("해당 방은 존재하지 않습니다"));
-        Presentation presentation = Presentation.builder()
-                .room(room)
-                .presentationPath(request.getPresentationPath())
-                .build();
-        if(!presentationRepository.existsByRoomId(room.getId())) {
-            if(!room.getLeader().getId().equals(member.getMemberSeq())) {
-                throw new IllegalArgumentException("ppt를 추가할 수 없습니다");
-            }
-            presentationRepository.save(presentation);
+        if(!room.getLeader().getId().equals(member.getMemberSeq())){
+            throw new IllegalArgumentException("발표자료 변경 권한이 없습니다");
         }
-        else if(presentationRepository.updatePresentationByLeader(request.getPresentationPath(), member.getMemberSeq())==0)
-            throw new IllegalArgumentException("ppt를 변경할 수 없습니다");
-        return PresentationUpdateSocketResponse.of(presentation);
+        if(!presentationRepository.existsByRoomId(room.getId())) {
+            Presentation presentation = Presentation.builder()
+                    .room(room)
+                    .presentationPath(request.getPresentationPath())
+                    .build();
+            presentationRepository.save(presentation);
+            return PresentationUpdateSocketResponse.of(presentation);
+        }
+        Presentation updatingPpt = presentationRepository.findByRoomId(room.getId())
+                .orElseThrow(()->new IllegalArgumentException("발표자료가 존재하지 않습니다"));
+        updatingPpt.updatePath(request.getPresentationPath());
+        return PresentationUpdateSocketResponse.of(updatingPpt);
     }
 }

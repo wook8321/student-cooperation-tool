@@ -99,38 +99,4 @@ class PresentationRepositoryTest {
         assertThat(presentationRepository.existsByRoomId(room.getId())).isFalse();
     }
 
-    @Test
-    @DisplayName("방장에 의한 방의 ppt 주소 변경")
-    void updatePresentation() {
-        //given
-        Member user = Member.builder()
-                .role(Role.USER)
-                .email("e")
-                .profile("p")
-                .nickName("n")
-                .build();
-        memberRepository.save(user);
-        Room room = Room.builder()
-                .participationNum(1)
-                .leader(user)
-                .password("1234")
-                .title("t")
-                .build();
-        roomRepository.save(room);
-        Presentation presentation = Presentation.builder()
-                .presentationPath("path")
-                .room(room)
-                .build();
-        presentationRepository.save(presentation);
-        //when
-        int cnt = presentationRepository.updatePresentationByLeader("newPath", user.getId());
-        Presentation updatedPresentation = presentationRepository.findById(presentation.getId())
-                .orElseThrow();
-        //then
-        assertAll(
-                ()->assertThat(cnt).isEqualTo(1),
-                ()->assertThat(updatedPresentation.getPresentationPath()).isEqualTo("newPath")
-                );
-    }
-
 }

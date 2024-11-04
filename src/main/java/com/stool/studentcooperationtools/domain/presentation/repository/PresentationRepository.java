@@ -16,9 +16,4 @@ public interface PresentationRepository extends JpaRepository<Presentation, Long
 
     Boolean existsByRoomId(Long roomId);
 
-    @Modifying(clearAutomatically = true)
-    @Query(value = "update Presentation p set " +
-            "p.presentationPath = :presentationPath " +
-            "where p.room.leader.id = :updaterId")
-    int updatePresentationByLeader(@Param("presentationPath") String presentationPath, @Param("updaterId") Long updaterId);
 }

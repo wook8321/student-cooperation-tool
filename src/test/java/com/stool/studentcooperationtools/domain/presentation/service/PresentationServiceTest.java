@@ -35,7 +35,7 @@ class PresentationServiceTest {
     private MemberRepository memberRepository;
 
     @Test
-    @DisplayName("방의 발표 자료을 찾아 response 보내기")
+    @DisplayName("방의 발표 자료를 찾아 response 보내기")
     void findPresentation() {
         //given
         Room room = Room.builder()

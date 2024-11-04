@@ -28,4 +28,8 @@ public class Presentation extends BaseTimeEntity {
         this.presentationPath = presentationPath;
         this.room = room;
     }
+
+    public void updatePath(String presentationPath) {
+        this.presentationPath = presentationPath;
+    }
 }
