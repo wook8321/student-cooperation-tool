@@ -31,6 +31,7 @@ class ScriptServiceTest {
                 .build();
         scriptRepository.save(script);
         ScriptUpdateSocketRequest request = ScriptUpdateSocketRequest.builder()
+                .roomId(1L)
                 .scriptId(script.getId())
                 .script("new")
                 .build();
