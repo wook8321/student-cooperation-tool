@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,22 +44,31 @@ public class SlideService {
         Slides service = slidesFactory.createSlidesService(credential);
         Presentation response = service.presentations().get(presentationPath).execute();
         List<Page> slides = response.getSlides();
-        List<Slide> slideList = new ArrayList<>();
-        for (int i = 0; i < slides.size(); ++i) {
-            String objectId = slides.get(i).getObjectId();
-            Thumbnail thumbnail = service.presentations().pages().getThumbnail(presentationPath, objectId).execute();
-            Script script = Script.builder()
-                    .script("")
-                    .presentation(presentation)
-                    .build();
-            Slide slide = Slide.builder()
-                    .slideUrl(objectId)
-                    .presentation(presentation)
-                    .thumbnail(thumbnail.getContentUrl())
-                    .script(script)
-                    .build();
-            slideList.add(slide);
-        }
+        List<CompletableFuture<Slide>> futures = slides.stream()
+                .map(slide -> CompletableFuture.supplyAsync(() -> {
+                    String objectId = slide.getObjectId();
+                    Thumbnail thumbnail = null;
+                    try {
+                        thumbnail = service.presentations().pages().getThumbnail(presentationPath, objectId).execute();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    Script script = Script.builder()
+                            .script("")
+                            .presentation(presentation)
+                            .build();
+                    return Slide.builder()
+                            .slideUrl(objectId)
+                            .presentation(presentation)
+                            .thumbnail(thumbnail.getContentUrl())
+                            .script(script)
+                            .build();
+                }))
+                .toList();
+
+        List<Slide> slideList = futures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
         slideRepository.saveAll(slideList);
         return true;
     }
