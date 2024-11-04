@@ -6,6 +6,7 @@ import com.google.api.services.slides.v1.model.Page;
 import com.google.api.services.slides.v1.model.Presentation;
 import com.google.api.services.slides.v1.model.Thumbnail;
 import com.stool.studentcooperationtools.domain.presentation.repository.PresentationRepository;
+import com.stool.studentcooperationtools.domain.script.Script;
 import com.stool.studentcooperationtools.domain.slide.Slide;
 import com.stool.studentcooperationtools.domain.slide.SlidesFactory;
 import com.stool.studentcooperationtools.domain.slide.controller.response.SlideFindResponse;
@@ -32,6 +33,7 @@ public class SlideService {
         return SlideFindResponse.of(slides);
     }
 
+    @Transactional
     public boolean updateSlides(Long presentationId, Credential credential) throws IOException, GeneralSecurityException {
         com.stool.studentcooperationtools.domain.presentation.Presentation presentation =
                 presentationRepository.findById(presentationId)
@@ -44,10 +46,15 @@ public class SlideService {
         for (int i = 0; i < slides.size(); ++i) {
             String objectId = slides.get(i).getObjectId();
             Thumbnail thumbnail = service.presentations().pages().getThumbnail(presentationPath, objectId).execute();
+            Script script = Script.builder()
+                    .script("")
+                    .presentation(presentation)
+                    .build();
             Slide slide = Slide.builder()
                     .slideUrl(objectId)
                     .presentation(presentation)
                     .thumbnail(thumbnail.getContentUrl())
+                    .script(script)
                     .build();
             slideList.add(slide);
         }

@@ -14,5 +14,4 @@ public interface SlideRepository extends JpaRepository<Slide, Long> {
     @Query(value = "select s from Slide s join fetch s.script where s.presentation.id = :presentationId")
     List<Slide> findSlidesAndScriptsByPresentationId(@Param("presentationId") Long presentationId);
 
-    List<Slide> findByPresentationId(Long presentationId);
 }
