@@ -1,0 +1,18 @@
+div.images {
+    width: 20%;
+    height: 100px;
+    float: left;
+}
+  
+div.container {
+    width: 80%;
+    float: right;
+}
+
+.main_title {
+    font-family: arial;
+    font-size: 200px;
+    margin-top: 50px;
+    margin-bottom: 200px;
+    margin-left: 300px;
+}
