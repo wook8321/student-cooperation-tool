@@ -4,7 +4,9 @@ import com.stool.studentcooperationtools.domain.part.service.PartService;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.Utils.SimpleMessageSendingUtils;
 import com.stool.studentcooperationtools.websocket.controller.part.request.PartAddWebsocketRequest;
+import com.stool.studentcooperationtools.websocket.controller.part.request.PartDeleteWebsocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.part.response.PartAddWebsocketResponse;
+import com.stool.studentcooperationtools.websocket.controller.part.response.PartDeleteWebsocketResponse;
 import com.stool.studentcooperationtools.websocket.controller.request.WebsocketResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import static com.stool.studentcooperationtools.websocket.WebsocketMessageType.PART_ADD;
+import static com.stool.studentcooperationtools.websocket.WebsocketMessageType.PART_DELETE;
 
 @Controller
 @RequiredArgsConstructor
@@ -27,6 +30,15 @@ public class PartWebsocketController {
         sendingUtils.convertAndSend(
                 sendingUtils.creatPartResearchSubUrl(request.getRoomId()),
                 WebsocketResponse.of(PART_ADD,response)
+        );
+    }
+
+    @MessageMapping("/parts/delete")
+    public void deletePart(@Valid @RequestBody PartDeleteWebsocketRequest request, SessionMember member){
+        PartDeleteWebsocketResponse response = partService.deletePart(request,member);
+        sendingUtils.convertAndSend(
+                sendingUtils.creatPartResearchSubUrl(request.getRoomId()),
+                WebsocketResponse.of(PART_DELETE,response)
         );
     }
 
