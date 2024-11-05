@@ -10,11 +10,13 @@ import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.part.request.PartAddWebsocketRequest;
+import com.stool.studentcooperationtools.websocket.controller.part.request.PartDeleteWebsocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.part.response.PartAddWebsocketResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -172,5 +174,161 @@ class PartServiceTest {
         assertThat(response).isNotNull()
                 .extracting("partId","partName")
                 .containsExactlyInAnyOrder(result.get(0).getId(),partName);
+    }
+
+    @DisplayName("조사 자료 역할를 삭제할 때, 방장은 역할을 삭제할 수 있다.")
+    @Test
+    void deletePartWithLeader(){
+        //given
+        Member leader = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+
+        Member owner = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+
+        memberRepository.saveAll(List.of(leader,owner));
+        Room room = Room.builder()
+                .leader(leader)
+                .password("password")
+                .participationNum(2)
+                .build();
+        roomRepository.save(room);
+        Part part = Part.builder()
+                .room(room)
+                .partName("조사할 부분")
+                .member(owner)
+                .build();
+        partRepository.save(part);
+
+        PartDeleteWebsocketRequest request = PartDeleteWebsocketRequest.builder()
+                .partId(part.getId())
+                .roomId(room.getId())
+                .build();
+
+        //방장이 역할을 삭제하기 때문에 sessionMember도 방장의 정보를 넣음
+        SessionMember sessionMember = SessionMember.builder()
+                .memberSeq(leader.getId())
+                .profile(leader.getProfile())
+                .nickName(leader.getNickName())
+                .build();
+
+        //when
+        partService.deletePart(request,sessionMember);
+        List<Part> result = partRepository.findAll();
+        //then
+        assertThat(result).hasSize(0);
+    }
+
+
+    @DisplayName("조사 자료 역할를 삭제할 때, 역할을 만든 본인은 역할을 삭제할 수 있다.")
+    @Test
+    void deletePartWithOwner(){
+        //given
+        Member leader = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+
+        Member owner = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+
+        memberRepository.saveAll(List.of(leader,owner));
+        Room room = Room.builder()
+                .leader(leader)
+                .password("password")
+                .participationNum(2)
+                .build();
+        roomRepository.save(room);
+        Part part = Part.builder()
+                .room(room)
+                .partName("조사할 부분")
+                .member(owner)
+                .build();
+        partRepository.save(part);
+
+        PartDeleteWebsocketRequest request = PartDeleteWebsocketRequest.builder()
+                .partId(part.getId())
+                .roomId(room.getId())
+                .build();
+
+        //방장이 역할을 삭제하기 때문에 sessionMember도 방장의 정보를 넣음
+        SessionMember sessionMember = SessionMember.builder()
+                .memberSeq(owner.getId())
+                .profile(owner.getProfile())
+                .nickName(owner.getNickName())
+                .build();
+
+        //when
+        partService.deletePart(request,sessionMember);
+        List<Part> result = partRepository.findAll();
+        //then
+        assertThat(result).hasSize(0);
+    }
+
+
+    @DisplayName("조사 자료 역할를 삭제할 때, 역할을 만든 본인, 방장이 아닐 경우 에러가 발생한다.")
+    @Test
+    void deletePartWithAnother(){
+        //given
+        Member leader = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+
+        Member owner = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+
+        memberRepository.saveAll(List.of(leader,owner));
+        Room room = Room.builder()
+                .leader(leader)
+                .password("password")
+                .participationNum(2)
+                .build();
+        roomRepository.save(room);
+        Part part = Part.builder()
+                .room(room)
+                .partName("조사할 부분")
+                .member(owner)
+                .build();
+        partRepository.save(part);
+
+        PartDeleteWebsocketRequest request = PartDeleteWebsocketRequest.builder()
+                .partId(part.getId())
+                .roomId(room.getId())
+                .build();
+
+        //방장이 역할을 삭제하기 때문에 sessionMember도 방장의 정보를 넣음
+        Long InvalidMemberId = 2024L;
+        SessionMember sessionMember = SessionMember.builder()
+                .memberSeq(InvalidMemberId)
+                .profile(owner.getProfile())
+                .nickName(owner.getNickName())
+                .build();
+
+        //when
+        //then
+        assertThatThrownBy(() -> partService.deletePart(request,sessionMember))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageMatching("역할을 삭제할 권한이 없습니다.");
     }
 }
