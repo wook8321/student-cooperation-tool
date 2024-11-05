@@ -88,4 +88,82 @@ class PartRepositoryTest {
                 .extracting("originalName","fileName")
                 .containsExactly(tuple(originalName,fileName));
     }
+
+    @DisplayName("역할의 id와 방장 id를 받아 역할을 삭제한다.")
+    @Test
+    void deletePartByLeader(){
+        //given
+        Member leader = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+
+        Member owner = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+
+        memberRepository.saveAll(List.of(leader,owner));
+        Room room = Room.builder()
+                .leader(leader)
+                .password("password")
+                .participationNum(2)
+                .build();
+        roomRepository.save(room);
+        Part part = Part.builder()
+                .room(room)
+                .partName("조사할 부분")
+                .member(owner)
+                .build();
+        partRepository.save(part);
+
+        //when
+        partRepository.deletePartByLeaderOrOwner(part.getId(), leader.getId());
+        List<Part> result = partRepository.findAll();
+        //then
+        assertThat(result).hasSize(0);
+    }
+
+    @DisplayName("역할의 id와 역할을 만든 본인의 id를 받아 역할을 삭제한다.")
+    @Test
+    void deletePartByOwner(){
+        //given
+        Member leader = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+
+        Member owner = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+
+        memberRepository.saveAll(List.of(leader,owner));
+        Room room = Room.builder()
+                .leader(leader)
+                .password("password")
+                .participationNum(2)
+                .build();
+        roomRepository.save(room);
+        Part part = Part.builder()
+                .room(room)
+                .partName("조사할 부분")
+                .member(owner)
+                .build();
+        partRepository.save(part);
+
+        //when
+        partRepository.deletePartByLeaderOrOwner(part.getId(), owner.getId());
+        List<Part> result = partRepository.findAll();
+        //then
+        assertThat(result).hasSize(0);
+    }
 }
