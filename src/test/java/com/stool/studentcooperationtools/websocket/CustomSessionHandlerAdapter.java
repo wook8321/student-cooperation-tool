@@ -31,6 +31,6 @@ public class CustomSessionHandlerAdapter<T> implements StompFrameHandler {
     }
 
     public T get(long time) throws ExecutionException, InterruptedException, TimeoutException {
-        return this.completableFuture.get(1, TimeUnit.SECONDS);
+        return this.completableFuture.get(time, TimeUnit.SECONDS);
     }
 }
