@@ -24,19 +24,18 @@ public class GoogleCredentialProvider {
     private final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private final List<String> SCOPES = Collections.singletonList(SlidesScopes.PRESENTATIONS_READONLY);
 
-    private final String credentialsFilePath;
+    @Value("${google.slides.credentials-file-path}")
+    private String credentialsFilePath;
 
-    private final String tokensDirectoryPath;
+    @Value("${google.slides.tokens-directory-path}")
+    private String tokensDirectoryPath;
 
-    private final String userId;
+    @Value("${google.slides.user-id}")
+    private String userId;
 
     private Credential credential;
 
-    public GoogleCredentialProvider(@Value("${google.slides.credentials-file-path}") String credentialsFilePath
-    ,  @Value("${google.slides.tokens-directory-path}") String tokensDirectoryPath,  @Value("${google.slides.user-id}") String userId) throws IOException {
-        this.credentialsFilePath = credentialsFilePath;
-        this.tokensDirectoryPath = tokensDirectoryPath;
-        this.userId = userId;
+    public GoogleCredentialProvider() throws IOException {
         this.credential = authorize();
     }
 
