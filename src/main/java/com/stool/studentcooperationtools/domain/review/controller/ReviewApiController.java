@@ -5,6 +5,8 @@ import com.stool.studentcooperationtools.domain.review.controller.request.Review
 import com.stool.studentcooperationtools.domain.review.controller.response.ReviewAddResponse;
 import com.stool.studentcooperationtools.domain.review.controller.response.ReviewFindResponse;
 import com.stool.studentcooperationtools.domain.review.service.ReviewService;
+import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +24,10 @@ public class ReviewApiController {
     }
 
     @PostMapping("/api/v1/parts/review")
-    public ApiResponse<ReviewAddResponse> addReviews(@RequestBody ReviewAddRequest request){
-        ReviewAddResponse response = reviewService.addReview(request);
+    public ApiResponse<ReviewAddResponse> addReviews(
+            @Valid @RequestBody ReviewAddRequest request, SessionMember sessionMember
+    ){
+        ReviewAddResponse response = reviewService.addReview(request,sessionMember);
         return ApiResponse.of(HttpStatus.OK, response);
     }
 
