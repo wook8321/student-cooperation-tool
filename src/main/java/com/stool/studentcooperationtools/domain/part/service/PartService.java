@@ -10,8 +10,10 @@ import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.part.request.PartAddWebsocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.part.request.PartDeleteWebsocketRequest;
+import com.stool.studentcooperationtools.websocket.controller.part.request.PartUpdateWebsocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.part.response.PartAddWebsocketResponse;
 import com.stool.studentcooperationtools.websocket.controller.part.response.PartDeleteWebsocketResponse;
+import com.stool.studentcooperationtools.websocket.controller.part.response.PartUpdateWebsocketResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -56,5 +58,32 @@ public class PartService {
             throw new AccessDeniedException("역할을 삭제할 권한이 없습니다.");
         }
         return PartDeleteWebsocketResponse.of(request.getPartId());
+    }
+
+    @Transactional
+    public PartUpdateWebsocketResponse updatePart(final PartUpdateWebsocketRequest request, final SessionMember member) {
+        Part part = partRepository.findById(request.getPartId())
+                .orElseThrow(() -> new IllegalArgumentException("수정할 역할이 존재하지 않습니다."));
+        if(isNotLeader(member.getMemberSeq(), part.getRoom().getLeader().getId())){
+            //방장이 아닌 경우
+            throw new AccessDeniedException("역할을 수정할 권한이 없습니다.");
+        }
+
+        if(isChangeMember(request.getMemberId(), part.getMember().getId())){
+            //조사 역할의 인원이 바뀌었을 경우
+            Member newMember = memberRepository.findById(request.getMemberId())
+                    .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
+            part.changeMember(newMember);
+        }
+        part.update(request.getPartName());
+        return PartUpdateWebsocketResponse.of(part);
+    }
+
+    private static boolean isChangeMember(final Long request, final Long part) {
+        return !request.equals(part);
+    }
+
+    private static boolean isNotLeader(final Long leaderId, final Long memberId) {
+        return !leaderId.equals(memberId);
     }
 }
