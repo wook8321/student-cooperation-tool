@@ -7,6 +7,7 @@ import com.stool.studentcooperationtools.domain.part.Part;
 import com.stool.studentcooperationtools.domain.part.repository.PartRepository;
 import com.stool.studentcooperationtools.domain.review.Review;
 import com.stool.studentcooperationtools.domain.review.controller.request.ReviewAddRequest;
+import com.stool.studentcooperationtools.domain.review.controller.request.ReviewDeleteRequest;
 import com.stool.studentcooperationtools.domain.review.controller.response.ReviewAddResponse;
 import com.stool.studentcooperationtools.domain.review.controller.response.ReviewFindResponse;
 import com.stool.studentcooperationtools.domain.review.repository.ReviewRepository;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -261,4 +263,66 @@ class ReviewServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageMatching("평가를 등록할 역할이 존재하지 않습니다.");
     }
+
+    @DisplayName("리뷰를 삭제할 때, 본인이 작성한 리뷰가 아니면 삭제할 수 없다.")
+    @Test
+    void deleteReviewByNotOwner(){
+        //given
+        Member leader = Member.builder()
+                .email("email")
+                .nickName("닉네임")
+                .profile("profile")
+                .role(Role.USER)
+                .build();
+        Member owner = Member.builder()
+                .email("email")
+                .nickName("닉네임")
+                .profile("profile")
+                .role(Role.USER)
+                .build();
+        memberRepository.saveAll(List.of(leader,owner));
+
+        Room room = Room.builder()
+                .password("password")
+                .title("제목")
+                .leader(leader)
+                .participationNum(3)
+                .build();
+        roomRepository.save(room);
+
+        String content = "조사할 부분";
+        Part part = Part.builder()
+                .partName(content)
+                .room(room)
+                .member(leader)
+                .build();
+        partRepository.save(part);
+
+        Review review = Review.builder()
+                .content("평가 내용")
+                .member(owner)
+                .part(part)
+                .build();
+        reviewRepository.save(review);
+
+        ReviewDeleteRequest request = ReviewDeleteRequest.builder()
+                .reviewId(review.getId())
+                .build();
+
+        Long invalidMemberId = 2024L;
+        String invalidNickName = "invalidNickName";
+        String invalidProfile = "invalidProfile";
+        SessionMember sessionMember = SessionMember.builder()
+                .memberSeq(invalidMemberId)
+                .nickName(invalidNickName)
+                .profile(invalidProfile)
+                .build();
+        //when
+        //then
+        assertThatThrownBy(() -> reviewService.deleteReview(request, sessionMember))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageMatching("평가를 제거할 권한이 없습니다.");
+    }
+
+
 }
