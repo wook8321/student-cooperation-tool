@@ -6,10 +6,13 @@ import com.stool.studentcooperationtools.domain.member.repository.MemberReposito
 import com.stool.studentcooperationtools.domain.part.Part;
 import com.stool.studentcooperationtools.domain.part.repository.PartRepository;
 import com.stool.studentcooperationtools.domain.review.Review;
+import com.stool.studentcooperationtools.domain.review.controller.request.ReviewAddRequest;
+import com.stool.studentcooperationtools.domain.review.controller.response.ReviewAddResponse;
 import com.stool.studentcooperationtools.domain.review.controller.response.ReviewFindResponse;
 import com.stool.studentcooperationtools.domain.review.repository.ReviewRepository;
 import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
+import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -114,4 +116,149 @@ class ReviewServiceTest {
                 );
     }
 
+    @DisplayName("리뷰를 등록할 때, 등록하는 유저의 정보가 유효하지 않을 경우 에러가 발생한다")
+    @Test
+    void addReviewWithNotExistMember(){
+        //given
+        Member member = Member.builder()
+                .email("email")
+                .nickName("닉네임")
+                .profile("profile")
+                .role(Role.USER)
+                .build();
+        memberRepository.save(member);
+
+        Room room = Room.builder()
+                .password("password")
+                .title("제목")
+                .leader(member)
+                .participationNum(1)
+                .build();
+        roomRepository.save(room);
+
+        String content = "조사할 부분";
+        Part part = Part.builder()
+                .partName(content)
+                .room(room)
+                .member(member)
+                .build();
+        partRepository.save(part);
+
+        ReviewAddRequest request = ReviewAddRequest.builder()
+                .partId(1L)
+                .content("평가 내용")
+                .build();
+
+        Long invalidMemberId = 2024L;
+        String invalidNickName = "invalidNickName";
+        String invalidProfile = "invalidProfile";
+
+        SessionMember sessionMember = SessionMember.builder()
+                .memberSeq(invalidMemberId)
+                .nickName(invalidNickName)
+                .profile(invalidProfile)
+                .build();
+        //when
+        //then
+        assertThatThrownBy(() -> reviewService.addReview(request, sessionMember))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageMatching("해당 유저는 존재하지 않습니다.");
+    }
+
+
+    @DisplayName("리뷰를 등록 요청 값들을 받아 리뷰를 등록한다.")
+    @Test
+    void addReview(){
+        //given
+        Member member = Member.builder()
+                .email("email")
+                .nickName("닉네임")
+                .profile("profile")
+                .role(Role.USER)
+                .build();
+        memberRepository.save(member);
+
+        Room room = Room.builder()
+                .password("password")
+                .title("제목")
+                .leader(member)
+                .participationNum(1)
+                .build();
+        roomRepository.save(room);
+
+        String content = "조사할 부분";
+        Part part = Part.builder()
+                .partName(content)
+                .room(room)
+                .member(member)
+                .build();
+        partRepository.save(part);
+
+        ReviewAddRequest request = ReviewAddRequest.builder()
+                .partId(part.getId())
+                .content("평가 내용")
+                .build();
+
+        SessionMember sessionMember = SessionMember.builder()
+                .memberSeq(member.getId())
+                .nickName(member.getNickName())
+                .profile(member.getProfile())
+                .build();
+        //when
+        ReviewAddResponse response = reviewService.addReview(request, sessionMember);
+
+        //then
+        assertThat(response).isNotNull()
+                .extracting("content","nickName","profile")
+                .containsExactlyInAnyOrder(
+                        request.getContent(),member.getNickName(),member.getProfile()
+                );
+    }
+
+    @DisplayName("리뷰를 등록할 때, 등록할 역할이 존재하지 않을 경우 에러가 발생한다")
+    @Test
+    void addReviewWithNotExistPart(){
+        //given
+        Member member = Member.builder()
+                .email("email")
+                .nickName("닉네임")
+                .profile("profile")
+                .role(Role.USER)
+                .build();
+        memberRepository.save(member);
+
+        Room room = Room.builder()
+                .password("password")
+                .title("제목")
+                .leader(member)
+                .participationNum(1)
+                .build();
+        roomRepository.save(room);
+
+        String content = "조사할 부분";
+        Part part = Part.builder()
+                .partName(content)
+                .room(room)
+                .member(member)
+                .build();
+        partRepository.save(part);
+
+
+        Long invalidPartId = 2024L;
+        ReviewAddRequest request = ReviewAddRequest.builder()
+                .partId(invalidPartId)
+                .content("평가 내용")
+                .build();
+
+        SessionMember sessionMember = SessionMember.builder()
+                .memberSeq(member.getId())
+                .nickName(member.getNickName())
+                .profile(member.getProfile())
+                .build();
+        //when
+        //then
+        assertThatThrownBy(() -> reviewService.addReview(request, sessionMember))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageMatching("평가를 등록할 역할이 존재하지 않습니다.");
+    }
 }
