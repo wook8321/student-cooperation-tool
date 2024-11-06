@@ -56,37 +56,6 @@ class PresentationServiceTest {
     }
 
     @Test
-    @DisplayName("ppt가 없던 방에 방장이 ppt 등록")
-    void updatePresentationInNonPptRoom(){
-        //given
-        Member user = Member.builder()
-                .role(Role.USER)
-                .email("e")
-                .profile("p")
-                .nickName("n")
-                .build();
-        Room room = Room.builder()
-                .participationNum(1)
-                .password("1234")
-                .title("t")
-                .leader(user)
-                .build();
-        roomRepository.save(room);
-        memberRepository.save(user);
-        SessionMember member = SessionMember.of(user);
-        PresentationUpdateSocketRequest request = PresentationUpdateSocketRequest.builder()
-                .roomId(room.getId())
-                .presentationPath("path")
-                .build();
-        //when
-        presentationService.updatePresentation(request, member);
-        Presentation presentation = presentationRepository.findByRoomId(room.getId())
-                .orElseThrow(()->new IllegalArgumentException("방에 ppt가 존재하지 않습니다."));
-        //then
-        Assertions.assertEquals(presentation.getPresentationPath(), "path");
-    }
-
-    @Test
     @DisplayName("방장이 ppt를 변경")
     void updatePresentation(){
         //given
@@ -109,6 +78,7 @@ class PresentationServiceTest {
                 .presentationPath("path")
                 .room(room)
                 .build();
+        presentationRepository.save(presentation);
         PresentationUpdateSocketRequest request = PresentationUpdateSocketRequest.builder()
                 .roomId(room.getId())
                 .presentationPath("newPath")
