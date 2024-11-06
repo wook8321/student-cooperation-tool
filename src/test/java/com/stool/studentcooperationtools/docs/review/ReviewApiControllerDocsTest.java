@@ -7,6 +7,7 @@ import com.stool.studentcooperationtools.domain.review.controller.response.Revie
 import com.stool.studentcooperationtools.domain.review.controller.response.ReviewFindDto;
 import com.stool.studentcooperationtools.domain.review.controller.response.ReviewFindResponse;
 import com.stool.studentcooperationtools.domain.review.service.ReviewService;
+import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
@@ -112,7 +113,7 @@ public class ReviewApiControllerDocsTest extends RestDocsSupport {
                 .createdTime(LocalDate.of(2024,10,6))
                 .build();
 
-        Mockito.when(reviewService.addReview(Mockito.any(ReviewAddRequest.class)))
+        Mockito.when(reviewService.addReview(Mockito.any(ReviewAddRequest.class),Mockito.any(SessionMember.class)))
                 .thenReturn(response);
 
         //when
