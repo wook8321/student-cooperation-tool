@@ -104,4 +104,55 @@ class ReviewRepositoryTest {
                 .containsExactly(content3,content2,content1);
     }
 
+    @DisplayName("제거할 리뷰의 id와 제거하는 유저의 id로 리뷰를 삭제한다.")
+    @Test
+    void deleteReviewByMemberIdAndReviewId(){
+        //given
+        Member member = Member.builder()
+                .email("email")
+                .nickName("닉네임")
+                .profile("profile")
+                .role(Role.USER)
+                .build();
+
+        Member owner = Member.builder()
+                .email("평가자 이메일")
+                .nickName("평가자")
+                .profile("평가자 프로필")
+                .role(Role.USER)
+                .build();
+
+        memberRepository.saveAll(List.of(owner,member));
+        Room room = Room.builder()
+                .password("password")
+                .title("제목")
+                .leader(member)
+                .participationNum(2)
+                .build();
+        roomRepository.save(room);
+
+        String content = "조사할 부분";
+        Part part = Part.builder()
+                .partName(content)
+                .room(room)
+                .member(member)
+                .build();
+        partRepository.save(part);
+
+        Review review = Review.builder()
+                .content("평가 댓글")
+                .member(owner)
+                .part(part)
+                .build();
+
+        reviewRepository.save(review);
+
+        //when
+        int result = reviewRepository.deleteReviewByMemberIdAndReviewId(review.getId(), owner.getId());
+        List<Review> reviews = reviewRepository.findAll();
+        //then
+        assertThat(result).isEqualTo(1);
+        assertThat(reviews).isEmpty();
+    }
+
 }
