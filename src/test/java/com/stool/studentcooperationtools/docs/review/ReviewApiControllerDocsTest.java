@@ -3,6 +3,7 @@ package com.stool.studentcooperationtools.docs.review;
 import com.stool.studentcooperationtools.docs.RestDocsSupport;
 import com.stool.studentcooperationtools.domain.review.controller.ReviewApiController;
 import com.stool.studentcooperationtools.domain.review.controller.request.ReviewAddRequest;
+import com.stool.studentcooperationtools.domain.review.controller.request.ReviewDeleteRequest;
 import com.stool.studentcooperationtools.domain.review.controller.response.ReviewAddResponse;
 import com.stool.studentcooperationtools.domain.review.controller.response.ReviewFindDto;
 import com.stool.studentcooperationtools.domain.review.controller.response.ReviewFindResponse;
@@ -151,6 +152,47 @@ public class ReviewApiControllerDocsTest extends RestDocsSupport {
                                 fieldWithPath("data.createdTime").type(ARRAY)
                                         .description("평가가 생성된 시점")
                         )
+                        )
+                );
+
+    }
+    @Test
+    void deleteReviews() throws Exception {
+        //given
+        String partId = "1";
+        Long reviewId = 1L;
+        ReviewDeleteRequest request = ReviewDeleteRequest.builder()
+                .reviewId(reviewId)
+                .build();
+
+        String content = objectMapper.writeValueAsString(request);
+
+        Mockito.when(reviewService.deleteReview(Mockito.any(ReviewDeleteRequest.class),Mockito.any(SessionMember.class)))
+                .thenReturn(true);
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/parts/review")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("review-delete",
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
+                                requestFields(
+                                        fieldWithPath("reviewId").type(NUMBER)
+                                                .description("제거할 평가의 id")
+                                ),
+                                responseFields(
+                                        fieldWithPath("code").type(NUMBER)
+                                                .description("상태 코드"),
+                                        fieldWithPath("status").type(STRING)
+                                                .description("응답 상태"),
+                                        fieldWithPath("data").type(BOOLEAN)
+                                                .description("응답 데이터")
+                                )
                         )
                 );
 
