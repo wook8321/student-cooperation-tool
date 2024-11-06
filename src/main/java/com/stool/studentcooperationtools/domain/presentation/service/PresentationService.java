@@ -1,16 +1,30 @@
 package com.stool.studentcooperationtools.domain.presentation.service;
 
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.Permission;
+import com.google.api.services.drive.model.PermissionList;
+import com.google.common.base.VerifyException;
 import com.stool.studentcooperationtools.domain.presentation.Presentation;
 import com.stool.studentcooperationtools.domain.presentation.controller.response.PresentationFindResponse;
 import com.stool.studentcooperationtools.domain.presentation.repository.PresentationRepository;
 import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
+import com.stool.studentcooperationtools.domain.slide.SlidesFactory;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
+import com.stool.studentcooperationtools.websocket.controller.presentation.request.PresentationCreateSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.presentation.request.PresentationUpdateSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.presentation.response.PresentationUpdateSocketResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +33,9 @@ public class PresentationService {
 
     private final PresentationRepository presentationRepository;
     private final RoomRepository roomRepository;
+    private final SlidesFactory slidesFactory;
+    @Value("${google.slides.folder-path}")
+    private String folderPath;
 
     public PresentationFindResponse findPresentation(final Long roomId) {
         Presentation presentation = presentationRepository.findByRoomId(roomId)
@@ -36,17 +53,60 @@ public class PresentationService {
         if(!room.getLeader().getId().equals(member.getMemberSeq())){
             throw new IllegalArgumentException("발표자료 변경 권한이 없습니다");
         }
-        if(!presentationRepository.existsByRoomId(room.getId())) {
-            Presentation presentation = Presentation.builder()
-                    .room(room)
-                    .presentationPath(request.getPresentationPath())
-                    .build();
-            presentationRepository.save(presentation);
-            return PresentationUpdateSocketResponse.of(presentation);
-        }
         Presentation updatingPpt = presentationRepository.findByRoomId(room.getId())
                 .orElseThrow(()->new IllegalArgumentException("발표자료가 존재하지 않습니다"));
         updatingPpt.updatePath(request.getPresentationPath());
         return PresentationUpdateSocketResponse.of(updatingPpt);
+    }
+
+    @Transactional
+    public PresentationUpdateSocketResponse createPresentation(PresentationCreateSocketRequest request,
+                                                               HttpRequestInitializer requestInitializer,
+                                                               SessionMember member) throws IOException, GeneralSecurityException {
+        String fileId;
+        Drive dservice = slidesFactory.createDriveService(requestInitializer);
+        File fileMetadata = new File();
+        fileMetadata.setName(request.getPresentationName());
+        fileMetadata.setMimeType("application/vnd.google-apps.presentation");
+        fileMetadata.setParents(Collections.singletonList(folderPath));
+
+        // Drive에서 프레젠테이션 파일을 해당 폴더에 저장
+        try {
+
+            File file = dservice.files().create(fileMetadata)
+                    .setFields("id")
+                    .execute();
+            fileId = file.getId();  // pptPath 반환
+        } catch (GoogleJsonResponseException e) {
+
+            throw new VerifyException("파일 저장에 실패했습니다");
+        }
+        Permission permission = new Permission()
+                .setType("anyone")
+                .setRole("writer");
+        dservice.permissions().create(fileId, permission).execute();
+        PermissionList permissions = dservice.permissions().list(fileId).execute();
+        if(!permissions.isEmpty()) {
+            for (Permission p : permissions.getPermissions()) {
+                if ("user".equals(p.getType()) && "writer".equals(p.getRole())) {
+                    try {
+                        dservice.permissions().delete(fileId, p.getId()).execute();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+        Room room = roomRepository.findById(request.getRoomId())
+                .orElseThrow(()->new IllegalArgumentException("해당 방은 존재하지 않습니다"));
+        if(!room.getLeader().getId().equals(member.getMemberSeq())){
+            throw new IllegalArgumentException("발표자료 변경 권한이 없습니다");
+        }
+        Presentation presentation = Presentation.builder()
+                .room(room)
+                .presentationPath(fileId)
+                .build();
+        presentationRepository.save(presentation);
+        return PresentationUpdateSocketResponse.of(presentation);
     }
 }
