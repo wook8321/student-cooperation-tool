@@ -11,7 +11,9 @@ import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.part.request.PartAddWebsocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.part.request.PartDeleteWebsocketRequest;
+import com.stool.studentcooperationtools.websocket.controller.part.request.PartUpdateWebsocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.part.response.PartAddWebsocketResponse;
+import com.stool.studentcooperationtools.websocket.controller.part.response.PartUpdateWebsocketResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -189,9 +191,9 @@ class PartServiceTest {
 
         Member owner = Member.builder()
                 .role(Role.USER)
-                .email("email")
-                .profile("profile")
-                .nickName("nickname")
+                .email("OwnerEmail")
+                .profile("OwnerProfile")
+                .nickName("OwnerNickname")
                 .build();
 
         memberRepository.saveAll(List.of(leader,owner));
@@ -241,9 +243,9 @@ class PartServiceTest {
 
         Member owner = Member.builder()
                 .role(Role.USER)
-                .email("email")
-                .profile("profile")
-                .nickName("nickname")
+                .email("OwnerEmail")
+                .profile("OwnerProfile")
+                .nickName("OwnerNickname")
                 .build();
 
         memberRepository.saveAll(List.of(leader,owner));
@@ -330,5 +332,305 @@ class PartServiceTest {
         assertThatThrownBy(() -> partService.deletePart(request,sessionMember))
                 .isInstanceOf(AccessDeniedException.class)
                 .hasMessageMatching("역할을 삭제할 권한이 없습니다.");
+    }
+
+    @DisplayName("역할을 수정할 때, 수정할 역할이 없다면 예외가 발생한다.")
+    @Test
+    void updatePartWithNotExistPart(){
+        //given
+        String newPartName = "newPartName";
+        Long invalidPartId = 1L;
+
+        Member leader = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+
+        Member oldMember = Member.builder()
+                .role(Role.USER)
+                .email("oldMemberEmail")
+                .profile("oldMemberProfile")
+                .nickName("oldMemberNickname")
+                .build();
+
+        Member newMember = Member.builder()
+                .role(Role.USER)
+                .email("newMemberEmail")
+                .profile("newMemberProfile")
+                .nickName("newMemberNickname")
+                .build();
+
+        memberRepository.saveAll(List.of(leader,oldMember,newMember));
+        Room room = Room.builder()
+                .leader(leader)
+                .password("password")
+                .participationNum(2)
+                .build();
+        roomRepository.save(room);
+
+        SessionMember sessionMember = SessionMember.builder()
+                .memberSeq(leader.getId())
+                .profile(leader.getProfile())
+                .nickName(leader.getNickName())
+                .build();
+
+        PartUpdateWebsocketRequest request = PartUpdateWebsocketRequest.builder()
+                .memberId(newMember.getId())
+                .partId(invalidPartId)
+                .partName(newPartName)
+                .build();
+
+        //when
+        //then
+        assertThatThrownBy(() -> partService.updatePart(request,sessionMember))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageMatching("수정할 역할이 존재하지 않습니다.");
+    }
+
+    @DisplayName("역할을 수정할 때, 역할을 맡은 유저가 바뀌었다면 수정한다.")
+    @Test
+    void updatePartWithChangeMember(){
+        //given
+        String oldPartName = "oldPartName";
+        String newPartName = "newPartName";
+
+        Member leader = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+
+        Member oldMember = Member.builder()
+                .role(Role.USER)
+                .email("oldMemberEmail")
+                .profile("oldMemberProfile")
+                .nickName("oldMemberNickname")
+                .build();
+
+        Member newMember = Member.builder()
+                .role(Role.USER)
+                .email("newMemberEmail")
+                .profile("newMemberProfile")
+                .nickName("newMemberNickname")
+                .build();
+
+        memberRepository.saveAll(List.of(leader,oldMember,newMember));
+        Room room = Room.builder()
+                .leader(leader)
+                .password("password")
+                .participationNum(3)
+                .build();
+        roomRepository.save(room);
+        Part part = Part.builder()
+                .room(room)
+                .partName(oldPartName)
+                .member(oldMember)
+                .build();
+        partRepository.save(part);
+
+        SessionMember sessionMember = SessionMember.builder()
+                .memberSeq(leader.getId())
+                .profile(leader.getProfile())
+                .nickName(leader.getNickName())
+                .build();
+
+        PartUpdateWebsocketRequest request = PartUpdateWebsocketRequest.builder()
+                .memberId(newMember.getId())
+                .partId(part.getId())
+                .partName(newPartName)
+                .build();
+
+        //when
+        PartUpdateWebsocketResponse response = partService.updatePart(request, sessionMember);
+
+        //then
+        assertThat(response).isNotNull()
+                .extracting("partId","partName","nickName","profile")
+                .containsExactlyInAnyOrder(
+                        part.getId(),
+                        newPartName,
+                        newMember.getNickName(),
+                        newMember.getProfile());
+    }
+
+    @DisplayName("역할을 수정할 때, 역할을 맡은 유저가 바뀌지 않고 역할 이름만 바꿨다면 수정한다.")
+    @Test
+    void updatePartWithOnlyChangePartName(){
+        //given
+        String oldPartName = "oldPartName";
+        String newPartName = "newPartName";
+
+        Member leader = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+
+        Member oldMember = Member.builder()
+                .role(Role.USER)
+                .email("oldMemberEmail")
+                .profile("oldMemberProfile")
+                .nickName("oldMemberNickname")
+                .build();
+
+        memberRepository.saveAll(List.of(leader,oldMember));
+        Room room = Room.builder()
+                .leader(leader)
+                .password("password")
+                .participationNum(2)
+                .build();
+        roomRepository.save(room);
+        Part part = Part.builder()
+                .room(room)
+                .partName(oldPartName)
+                .member(oldMember)
+                .build();
+        partRepository.save(part);
+
+        SessionMember sessionMember = SessionMember.builder()
+                .memberSeq(leader.getId())
+                .profile(leader.getProfile())
+                .nickName(leader.getNickName())
+                .build();
+
+        PartUpdateWebsocketRequest request = PartUpdateWebsocketRequest.builder()
+                .memberId(oldMember.getId())
+                .partId(part.getId())
+                .partName(newPartName)
+                .build();
+
+        //when
+        PartUpdateWebsocketResponse response = partService.updatePart(request, sessionMember);
+
+        //then
+        assertThat(response).isNotNull()
+                .extracting("partId","partName","nickName","profile")
+                .containsExactlyInAnyOrder(
+                        part.getId(),
+                        newPartName,
+                        oldMember.getNickName(),
+                        oldMember.getProfile()
+                );
+    }
+
+    @DisplayName("역할을 수정할 때, 방장이 아닌 유저가 수정할 경우 에러가 발생한다..")
+    @Test
+    void updatePartWithNotLeader(){
+        //given
+        String oldPartName = "oldPartName";
+        String newPartName = "newPartName";
+
+        Member leader = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+
+        Member oldMember = Member.builder()
+                .role(Role.USER)
+                .email("oldMemberEmail")
+                .profile("oldMemberProfile")
+                .nickName("oldMemberNickname")
+                .build();
+
+        Member newMember = Member.builder()
+                .role(Role.USER)
+                .email("newMemberEmail")
+                .profile("newMemberProfile")
+                .nickName("newMemberNickname")
+                .build();
+
+        memberRepository.saveAll(List.of(leader,oldMember,newMember));
+        Room room = Room.builder()
+                .leader(leader)
+                .password("password")
+                .participationNum(3)
+                .build();
+        roomRepository.save(room);
+        Part part = Part.builder()
+                .room(room)
+                .partName(oldPartName)
+                .member(oldMember)
+                .build();
+        partRepository.save(part);
+
+        SessionMember sessionMember = SessionMember.builder()
+                .memberSeq(oldMember.getId())
+                .profile(oldMember.getProfile())
+                .nickName(oldMember.getNickName())
+                .build();
+
+        PartUpdateWebsocketRequest request = PartUpdateWebsocketRequest.builder()
+                .memberId(newMember.getId())
+                .partId(part.getId())
+                .partName(newPartName)
+                .build();
+
+        //when
+        //then
+        assertThatThrownBy(() -> partService.updatePart(request,sessionMember))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageMatching("역할을 수정할 권한이 없습니다.");
+    }
+
+    @DisplayName("역할을 수정할 때, 역할을 맡은 유저가 존재하지 않는다면 에러가 발생한다.")
+    @Test
+    void updatePartWithNotExistMember(){
+        //given
+        String oldPartName = "oldPartName";
+        String newPartName = "newPartName";
+
+        Member leader = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+
+        Member oldMember = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickname")
+                .build();
+
+        Long invalidMemberId = 2024L;
+
+        memberRepository.saveAll(List.of(leader,oldMember));
+        Room room = Room.builder()
+                .leader(leader)
+                .password("password")
+                .participationNum(3)
+                .build();
+        roomRepository.save(room);
+        Part part = Part.builder()
+                .room(room)
+                .partName(oldPartName)
+                .member(oldMember)
+                .build();
+        partRepository.save(part);
+
+        SessionMember sessionMember = SessionMember.builder()
+                .memberSeq(leader.getId())
+                .profile(leader.getProfile())
+                .nickName(leader.getNickName())
+                .build();
+
+        PartUpdateWebsocketRequest request = PartUpdateWebsocketRequest.builder()
+                .memberId(invalidMemberId)
+                .partId(part.getId())
+                .partName(newPartName)
+                .build();
+
+        //when
+        //then
+        assertThatThrownBy(() -> partService.updatePart(request,sessionMember))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageMatching("해당 유저는 존재하지 않습니다.");
     }
 }
