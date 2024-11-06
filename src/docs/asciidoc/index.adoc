@@ -182,6 +182,17 @@ include::{snippets}/review-add/request-fields.adoc[]
 include::{snippets}/review-add/http-response.adoc[]
 include::{snippets}/review-add/response-fields.adoc[]
 
+=== 해당 자료에 평가 삭제
+
+==== HTTP Request
+include::{snippets}/review-delete/http-request.adoc[]
+include::{snippets}/review-delete/request-fields.adoc[]
+
+
+==== HTTP Response
+include::{snippets}/review-delete/http-response.adoc[]
+include::{snippets}/review-delete/response-fields.adoc[]
+
 [[Presentation-API]]
 == Presentation API
 
