@@ -70,7 +70,7 @@ public class GoogleCredentialProvider {
     }
 
     private HttpRequestInitializer getHttpRequestInitializer() throws IOException {
-        InputStream in = GoogleCredentialProvider.class.getResourceAsStream(credentialsFilePath);
+        InputStream in = GoogleCredentialProvider.class.getResourceAsStream(credentialsforupdateFilePath);
         GoogleCredentials credentials = GoogleCredentials.fromStream(in)
                 .createScoped(List.of(DriveScopes.DRIVE_FILE));
         return new HttpCredentialsAdapter(
