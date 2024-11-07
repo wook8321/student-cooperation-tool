@@ -37,9 +37,9 @@ public class GoogleCredentialProvider {
 
     private final String credentialsforupdateFilePath;
 
-    private Credential credential;
+    private final Credential credential;
 
-    private HttpRequestInitializer requestInitializer;
+    private final HttpCredentialsAdapter credentialsAdapter;
 
     public GoogleCredentialProvider(@Value("${google.slides.credentials-file-path}") String credentialsFilePath,
                                     @Value("${google.slides.tokens-directory-path}") String tokensDirectoryPath,
@@ -50,7 +50,7 @@ public class GoogleCredentialProvider {
         this.userId = userId;
         this.credentialsforupdateFilePath = credentialsforupdateFilePath;
         this.credential = authorize();
-        this.requestInitializer = getHttpRequestInitializer();
+        this.credentialsAdapter = (HttpCredentialsAdapter) getHttpRequestInitializer();
     }
 
     private Credential authorize() throws IOException {

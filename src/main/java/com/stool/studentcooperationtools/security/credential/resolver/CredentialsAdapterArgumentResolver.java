@@ -1,8 +1,9 @@
 package com.stool.studentcooperationtools.security.credential.resolver;
 
-import com.google.api.client.http.HttpRequestInitializer;
+import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.common.base.VerifyException;
 import com.stool.studentcooperationtools.security.credential.GoogleCredentialProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -11,30 +12,24 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import java.io.IOException;
-
 @Component
-public class GoogleRequestInitializerArgumentResolver implements HandlerMethodArgumentResolver {
+@RequiredArgsConstructor
+public class CredentialsAdapterArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Autowired
     private final GoogleCredentialProvider googleCredentialProvider;
 
-    @Autowired
-    public GoogleRequestInitializerArgumentResolver(GoogleCredentialProvider googleCredentialProvider) {
-        this.googleCredentialProvider = googleCredentialProvider;
-    }
-
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.getParameterType().equals(HttpRequestInitializer.class);
+        return parameter.getParameterType().equals(HttpCredentialsAdapter.class);
     }
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-        HttpRequestInitializer requestInitializer = googleCredentialProvider.getRequestInitializer();
-        if (requestInitializer == null) {
-            return new VerifyException("Initializer가 생성되지 않았습니다");
+        HttpCredentialsAdapter credentialsAdapter = googleCredentialProvider.getCredentialsAdapter();
+        if (credentialsAdapter == null) {
+            return new VerifyException("credential adapter가 생성되지 않았습니다");
         }
-        return requestInitializer;
+        return credentialsAdapter;
     }
 }

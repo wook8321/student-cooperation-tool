@@ -6,6 +6,7 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.Permission;
 import com.google.api.services.drive.model.PermissionList;
+import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.common.base.VerifyException;
 import com.stool.studentcooperationtools.domain.presentation.Presentation;
 import com.stool.studentcooperationtools.domain.presentation.controller.response.PresentationFindResponse;
@@ -61,10 +62,10 @@ public class PresentationService {
 
     @Transactional
     public PresentationUpdateSocketResponse createPresentation(PresentationCreateSocketRequest request,
-                                                               HttpRequestInitializer requestInitializer,
+                                                               HttpCredentialsAdapter credentialsAdapter,
                                                                SessionMember member) throws IOException, GeneralSecurityException {
         String fileId;
-        Drive dservice = slidesFactory.createDriveService(requestInitializer);
+        Drive dservice = slidesFactory.createDriveService(credentialsAdapter);
         File fileMetadata = new File();
         fileMetadata.setName(request.getPresentationName());
         fileMetadata.setMimeType("application/vnd.google-apps.presentation");

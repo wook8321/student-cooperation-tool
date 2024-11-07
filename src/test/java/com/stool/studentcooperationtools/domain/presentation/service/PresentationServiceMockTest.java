@@ -6,6 +6,7 @@ import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.Permission;
 import com.google.api.services.drive.model.PermissionList;
 import com.google.api.services.slides.v1.Slides;
+import com.google.auth.http.HttpCredentialsAdapter;
 import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.member.Role;
 import com.stool.studentcooperationtools.domain.member.repository.MemberRepository;
@@ -50,7 +51,7 @@ class PresentationServiceMockTest {
     Drive driveService;
 
     @Mock
-    HttpRequestInitializer requestInitializer;
+    HttpCredentialsAdapter credentialsAdapter;
 
     @Mock
     RoomRepository roomRepository;
@@ -99,7 +100,7 @@ class PresentationServiceMockTest {
                 .presentationName("new")
                 .roomId(1L)
                 .build();
-        when(slidesFactory.createDriveService(requestInitializer)).thenReturn(driveService);
+        when(slidesFactory.createDriveService(credentialsAdapter)).thenReturn(driveService);
         when(driveService.files()).thenReturn(files);
         when(files.create(any(File.class))).thenReturn(filesCreate);
         when(filesCreate.setFields(anyString())).thenReturn(filesCreate);
@@ -116,7 +117,7 @@ class PresentationServiceMockTest {
         when(member.getMemberSeq()).thenReturn(memberId);
         //when
         PresentationUpdateSocketResponse response = presentationService.createPresentation(request,
-                requestInitializer, member);
+                credentialsAdapter, member);
         //then
         assertNotNull(response);
         assertEquals(response.getPresentationPath(), "abc");

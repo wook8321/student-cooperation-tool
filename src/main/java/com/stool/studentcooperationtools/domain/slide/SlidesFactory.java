@@ -22,8 +22,6 @@ import java.util.List;
 
 @Component
 public class SlidesFactory {
-    @Value("${google.slides.credentials-forupdate-file-path}")
-    private String credentialsFilePath;
 
     public Slides createSlidesService(Credential credential) throws GeneralSecurityException, IOException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
@@ -32,11 +30,11 @@ public class SlidesFactory {
                 .build();
     }
 
-    public Drive createDriveService(HttpRequestInitializer requestInitializer) throws GeneralSecurityException, IOException {
+    public Drive createDriveService(HttpCredentialsAdapter credentialsAdapter) throws GeneralSecurityException, IOException {
         return new Drive.Builder(new NetHttpTransport(),
                 GsonFactory.getDefaultInstance(),
-                requestInitializer)
-                .setApplicationName("Drive samples")
+                credentialsAdapter)
+                .setApplicationName("Google Drive API")
                 .build();
     }
 }
