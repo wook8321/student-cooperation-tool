@@ -33,27 +33,26 @@ public class GoogleCredentialProvider {
 
     private final String tokensDirectoryPath;
 
-    private final String userId;
-
     private final String credentialsforupdateFilePath;
 
-    private final Credential credential;
+    private Credential credential;
 
     private final HttpCredentialsAdapter credentialsAdapter;
 
     public GoogleCredentialProvider(@Value("${google.slides.credentials-file-path}") String credentialsFilePath,
                                     @Value("${google.slides.tokens-directory-path}") String tokensDirectoryPath,
-                                    @Value("${google.slides.user-id}") String userId,
                                     @Value("${google.slides.credentials-forupdate-file-path}") String credentialsforupdateFilePath) throws IOException {
         this.credentialsFilePath = credentialsFilePath;
         this.tokensDirectoryPath = tokensDirectoryPath;
-        this.userId = userId;
         this.credentialsforupdateFilePath = credentialsforupdateFilePath;
-        this.credential = authorize();
         this.credentialsAdapter = (HttpCredentialsAdapter) getHttpRequestInitializer();
     }
 
-    private Credential authorize() throws IOException {
+    public void initializeCredential(String userId) throws IOException {
+        this.credential = authorize(userId);
+    }
+
+    private Credential authorize(String userId) throws IOException {
         InputStream in = GoogleCredentialProvider.class.getResourceAsStream(credentialsFilePath);
         if (in == null) {
             throw new FileNotFoundException("Resource not found: " + credentialsFilePath);
