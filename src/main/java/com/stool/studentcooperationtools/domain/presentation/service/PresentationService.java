@@ -143,4 +143,16 @@ public class PresentationService {
             throw new VerifyException(e.getMessage());
         }
     }
+
+    public Boolean deletePresentation(HttpCredentialsAdapter credentialsAdapter, Long roomId) throws GeneralSecurityException, IOException {
+        Presentation presentation = presentationRepository.findById(roomId)
+                .orElse(null);
+        if(presentation == null){
+            return true;
+        }
+        String fileId = presentation.getPresentationPath();
+        Drive driveService = slidesFactory.createDriveService(credentialsAdapter);
+        driveService.files().delete(fileId).execute();
+        return true;
+    }
 }
