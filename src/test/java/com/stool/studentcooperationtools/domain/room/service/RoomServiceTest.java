@@ -25,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -226,7 +228,7 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("팀장이 방 삭제 요청 시 방을 삭제")
-    void removeRoomByLeader() {
+    void removeRoomByLeader() throws GeneralSecurityException, IOException {
         //given
         Member user = Member.builder()
                 .role(Role.USER)
@@ -255,7 +257,7 @@ class RoomServiceTest {
 
     @Test
     @DisplayName("팀원이 방 삭제 요청 시 방 참여 인원에서 삭제")
-    void removeRoomByTeamMate() {
+    void removeRoomByTeamMate() throws GeneralSecurityException, IOException {
         //given
         Member user = Member.builder()
                 .role(Role.USER)
