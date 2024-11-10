@@ -1,7 +1,6 @@
 package com.stool.studentcooperationtools.domain.presentation.service;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.Permission;
@@ -23,7 +22,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 
@@ -109,5 +110,37 @@ public class PresentationService {
                 .build();
         presentationRepository.save(presentation);
         return PresentationUpdateSocketResponse.of(presentation);
+    }
+
+    public ByteArrayOutputStream exportPdf(HttpCredentialsAdapter credentialsAdapter, Long presentationId) throws IOException, GeneralSecurityException {
+        Presentation presentation = presentationRepository.findById(presentationId)
+                .orElseThrow(()->new IllegalArgumentException("해당하는 발표자료가 없습니다"));
+        String fileId = presentation.getPresentationPath();
+        Drive driveService = slidesFactory.createDriveService(credentialsAdapter);
+        OutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            driveService.files().export(fileId, "application/pdf")
+                    .executeMediaAndDownloadTo(outputStream);
+
+            return (ByteArrayOutputStream) outputStream;
+        } catch (GoogleJsonResponseException e) {
+            throw new VerifyException(e.getMessage());
+        }
+    }
+
+    public ByteArrayOutputStream exportPpt(HttpCredentialsAdapter credentialsAdapter, Long presentationId) throws IOException, GeneralSecurityException {
+        Presentation presentation = presentationRepository.findById(presentationId)
+                .orElseThrow(()->new IllegalArgumentException("해당하는 발표자료가 없습니다"));
+        String fileId = presentation.getPresentationPath();
+        Drive driveService = slidesFactory.createDriveService(credentialsAdapter);
+        OutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            driveService.files().export(fileId, "application/vnd.openxmlformats-officedocument.presentationml.presentation")
+                    .executeMediaAndDownloadTo(outputStream);
+
+            return (ByteArrayOutputStream) outputStream;
+        } catch (GoogleJsonResponseException e) {
+            throw new VerifyException(e.getMessage());
+        }
     }
 }
