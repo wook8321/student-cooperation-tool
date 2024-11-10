@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
 
+
+import static com.stool.studentcooperationtools.websocket.config.WebsocketConfig.PRESENTATION_MANAGE_URL_FORMAT;
 import static com.stool.studentcooperationtools.websocket.config.WebsocketConfig.CHAT_ROOM_URL_FORMAT;
 import static com.stool.studentcooperationtools.websocket.config.WebsocketConfig.TOPIC_DECISION_URL_FORMAT;
 
@@ -23,6 +25,13 @@ public class SimpleMessageSendingUtils {
         return String.format(TOPIC_DECISION_URL_FORMAT, roomId);
     }
 
+    /*
+    발표자료 관리 단계의 url을 이곳에서 생성하는 메소드이다
+     */
+    public String createPresentationManageSubUrl(final Long roomId){
+        return String.format(PRESENTATION_MANAGE_URL_FORMAT, roomId);
+    }
+  
     /*
     채팅방 sub url을 생성하는 메소드이다.
      */
