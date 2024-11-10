@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -175,8 +176,8 @@ class TopicServiceTest {
         List<Topic> topics = topicRepository.findAll();
         //then
         assertThatThrownBy(() -> topicService.deleteTopic(request, sessionMember))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageMatching("주제를 삭제할 수 없습니다.");
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageMatching("주제를 삭제할 권한이 없습니다.");
         assertThat(topics).hasSize(1);
     }
 }
