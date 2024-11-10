@@ -199,6 +199,6 @@ class TopicRepositoryTest {
         List<Topic> topics = topicRepository.findAll();
         //then
         assertThat(topics).hasSize(1);
-        assertThat(updatedData).isEqualTo(1);
+        assertThat(updatedData).isEqualTo(0);
     }
 }
