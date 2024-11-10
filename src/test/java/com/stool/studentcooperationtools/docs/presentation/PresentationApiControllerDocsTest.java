@@ -44,7 +44,7 @@ public class PresentationApiControllerDocsTest extends RestDocsSupport {
                 .thenReturn(response);
         //when
         //then
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/rooms/" + roomId + "/presentations"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/rooms/" + roomId + "/presentation"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andDo(document("presentation-find",

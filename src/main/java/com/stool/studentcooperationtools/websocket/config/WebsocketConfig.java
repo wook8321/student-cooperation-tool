@@ -15,6 +15,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @RequiredArgsConstructor
 public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
     public static final String TOPIC_DECISION_URL_FORMAT = "/sub/rooms/%d/topics";
+    public static final String PRESENTATION_MANAGE_URL_FORMAT = "/sub/rooms/%d/presentation";
     public static final String CHAT_ROOM_URL_FORMAT = "/sub/rooms/%d/chat";
     public static final String PART_RESEARCH_URL_FORMAT = "/sub/rooms/%d/part";
 

@@ -1,9 +1,11 @@
 package com.stool.studentcooperationtools.domain.room.service;
 
+import com.google.auth.http.HttpCredentialsAdapter;
 import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.member.repository.MemberRepository;
 import com.stool.studentcooperationtools.domain.participation.Participation;
 import com.stool.studentcooperationtools.domain.participation.repository.ParticipationRepository;
+import com.stool.studentcooperationtools.domain.presentation.service.PresentationService;
 import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomEnterRequest;
@@ -13,7 +15,9 @@ import com.stool.studentcooperationtools.domain.room.controller.response.RoomAdd
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomSearchResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomsFindResponse;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
+import com.stool.studentcooperationtools.domain.slide.SlidesFactory;
 import com.stool.studentcooperationtools.domain.topic.repository.TopicRepository;
+import com.stool.studentcooperationtools.security.credential.GoogleCredentialProvider;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -23,6 +27,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,6 +43,9 @@ public class RoomService {
     private final MemberRepository memberRepository;
     private final TopicRepository topicRepository;
     private final ParticipationRepository participationRepository;
+    private final PresentationService presentationService;
+    private final SlidesFactory slidesFactory;
+    private final GoogleCredentialProvider googleCredentialProvider;
 
     public RoomsFindResponse findRooms(SessionMember member, final int page) {
         Pageable pageable = PageRequest.of(page, pageSize);
@@ -77,7 +87,7 @@ public class RoomService {
     }
 
     @Transactional
-    public Boolean removeRoom(SessionMember member, final RoomRemoveRequest request) {
+    public Boolean removeRoom(SessionMember member, final RoomRemoveRequest request) throws GeneralSecurityException, IOException {
         Room room = roomRepository.findRoomByRoomId(member.getMemberSeq(), request.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("소속되지 않은 방 정보입니다"));
         if(Objects.equals(member.getMemberSeq(), room.getLeader().getId())){
@@ -89,6 +99,8 @@ public class RoomService {
                     .orElseThrow(() -> new IllegalArgumentException("유저 정보가 올바르지 않습니다"));
             participationRepository.deleteByMemberIdAndRoomId(teammate.getId(), room.getId());
         }
+        HttpCredentialsAdapter credentialsAdapter = googleCredentialProvider.getCredentialsAdapter();
+        presentationService.deletePresentation(credentialsAdapter, request.getRoomId());
         return true;
     }
 

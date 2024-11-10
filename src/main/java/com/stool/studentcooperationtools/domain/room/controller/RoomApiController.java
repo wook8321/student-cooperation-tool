@@ -15,6 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 @RestController
 @RequiredArgsConstructor
 public class RoomApiController {
@@ -42,7 +45,7 @@ public class RoomApiController {
     }
 
     @DeleteMapping("/api/v1/rooms")
-    public ApiResponse<Boolean> removeRoom(SessionMember member, @Valid @RequestBody RoomRemoveRequest request){
+    public ApiResponse<Boolean> removeRoom(SessionMember member, @Valid @RequestBody RoomRemoveRequest request) throws GeneralSecurityException, IOException {
         Boolean result = roomService.removeRoom(member, request);
         return ApiResponse.of(HttpStatus.OK,result);
     }
