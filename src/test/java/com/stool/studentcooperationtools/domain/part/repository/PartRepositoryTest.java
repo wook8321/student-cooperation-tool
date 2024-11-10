@@ -70,8 +70,7 @@ class PartRepositoryTest {
                 .part(part)
                 .originalName(originalName)
                 .fileName(fileName)
-                .filePath(filePath)
-                .fileType(FileType.IMAGE)
+                .fileType(FileType.JPG)
                 .build();
         part.addFile(file);
         partRepository.save(part);
