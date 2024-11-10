@@ -218,3 +218,16 @@ include::{snippets}/slide-find/http-request.adoc[]
 ==== HTTP Response
 include::{snippets}/slide-find/http-response.adoc[]
 include::{snippets}/slide-find/response-fields.adoc[]
+
+[[File-API]]
+== File API
+
+=== 파일 다운로드
+
+==== HTTP Request
+include::{snippets}/file-download/http-request.adoc[]
+include::{snippets}/file-download/query-parameters.adoc[]
+
+==== HTTP Request
+include::{snippets}/file-download/http-response.adoc[]
+include::{snippets}/file-download/response-fields.adoc[]
