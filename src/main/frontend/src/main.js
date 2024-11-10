@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from "axios";
-import friendImage from './images/friends.png';
-import projectImage from './images/project.png';
+import friendImage from './images/friends.svg';
+import projectImage from './images/archive.svg';
 import './main.css'
 
 const domain = "http://localhost:8080"

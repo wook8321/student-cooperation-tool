@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from "axios";
-import friendImage from './images/friends.png';
-import projectImage from './images/project.png';
+import friendImage from './images/friends.svg';
+import projectImage from './images/archive.svg';
 import "./project.css";
 
 const domain = "http://localhost:8080"
@@ -14,6 +14,7 @@ const Project = () => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
+    const [enterModal, setenterModal] = useState(false);
     const [password, setPassword] = useState('1234');
     const [inputPassword, setInputPassword] = useState('');
     const [error, setError] = useState(false);
@@ -197,10 +198,14 @@ const Project = () => {
             </div>                
         )}
 
-        {error && <p className="error_message">비밀번호가 틀렸습니다. 다시 시도해 주세요.</p>}
-            <button className='check_password_button' onClick={handlePasswordCheck}>
-                확인
-            </button>
+        {error && (
+            <div>
+                <p className="error_message">비밀번호가 틀렸습니다. 다시 시도해 주세요.</p>
+                    <button className='check_password_button' onClick={handlePasswordCheck}>
+                        확인
+                    </button>
+            </div>
+        )}
     </>
     )
 }

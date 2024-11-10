@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from "axios";
-import friendImage from './images/friends.png';
-import projectImage from './images/project.png';
-import userImage from './images/user.png';
-import searchIcon from './images/search-icon.png'; // 돋보기 아이콘 추가
+import friendImage from './images/friends.svg';
+import projectImage from './images/archive.svg';
+import userImage from './images/user.svg';
+import searchIcon from './images/search.svg';
 import './friend.css';
 
 const domain = "http://localhost:8080"
@@ -15,7 +15,7 @@ const FriendsList = () => {
     useEffect(() => {
         axios.get(domain + '/api/v1/friends')
             .then((res) => {
-                setFriends(res.data); // 친구 목록 데이터 설정
+                setFriends(res.data);
             })
             .catch(() => {
                 console.log('failed to load friends');
@@ -45,7 +45,7 @@ const Friend = () => {
     const [friendData, setFriendData] = useState(null);
 
     const handleSearchClick = () => {
-        axios.get(`${domain}/api/v1/friends/search?relation=false&name=${searchText}`)
+        axios.get(domain + `/api/v1/friends/search?relation=false&name=${searchText}`)
             .then((res) => {
                 setFriendData(res.data);
                 setModalOpen(true);
