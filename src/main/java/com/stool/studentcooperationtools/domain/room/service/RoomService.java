@@ -20,6 +20,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -111,7 +112,6 @@ public class RoomService {
         }
     }
 
-
     @Transactional
     public Boolean updateRoomTopic(SessionMember member, final RoomTopicUpdateRequest request) {
         Room room = roomRepository.findRoomByRoomId(member.getMemberSeq(), request.getRoomId())
@@ -122,5 +122,12 @@ public class RoomService {
         room.updateTopic(topicRepository.findById(request.getTopicId())
                 .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 주제 정보입니다")));
         return true;
+    }
+
+    //해당 방에 참여한 인원인지 확인하고, 아니라면 접근 제한 예외 발생
+    public void validParticipationInRoom(final Long roomId, final SessionMember sessionMember) {
+        if(!roomRepository.existMemberInRoom(sessionMember.getMemberSeq(),roomId)){
+            throw new AccessDeniedException("해당 방에 참여하지 않아 권한이 없습니다.");
+        }
     }
 }
