@@ -1,82 +1,86 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from "axios";
-import friendImage from './images/friends.png';
-import projectImage from './images/project.png';
+import friendImage from './images/friends.svg';
+import projectImage from './images/archive.svg';
 import "./project.css";
 
 const domain = "http://localhost:8080"
 
 const Project = () => {
-    const [searchText, setSearchText] = useState('');
-    const [searchmodal, setSearchModalOpen] = useState(false);
     const [createmodal, setCreateModal] = useState(false);
-    const [roomData, setRoomData] = useState(null);
+    const [roomData, setRoomData] = useState([]);
+    const [searchTitle, setSearchTitle] = useState('');
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
-    const handleSearchClick = () => {
-        axios.get(domain + `/api/v1/rooms/search?title=””&page=””&name=${searchText}`)
+    const [enterModal, setenterModal] = useState(false);
+    const [password, setPassword] = useState('1234');
+    const [inputPassword, setInputPassword] = useState('');
+    const [error, setError] = useState(false);
+
+    const handleSearch = () => {
+        axios.get(`${domain}/api/v1/rooms/search?title=${searchTitle}&page=1`)
             .then((res) => {
-                setRoomData(res.data);
-                setSearchModalOpen(true);  
+                setRoomData(JSON.stringify(res.data));
             })
             .catch(() => {
-                console.log('failed to search project.');
-                setSearchModalOpen(true);  
+                console.log('Failed to search project.');
             });
     };
 
     const handleCreateClick = () => {
-        axios.post(domain + `/api/v1/rooms`)
+        axios.post(`${domain}/api/v1/rooms`)
             .then((res) => {
-                setRoomData(res.data);
+                setRoomData(JSON.stringify(res.data));
                 setCreateModal(true);  
             })
             .catch(() => {
-                console.log('failed to search project.');
-                setCreateModal(true);  
+                console.log('Failed to create project.'); 
             });
     };
 
-    const closeSearchModal = () => {
-        setSearchModalOpen(false);
-        setRoomData(null);  // 모달창 닫을 때 데이터 초기화
-    };
 
     const closeCreateModal = () => {
         setCreateModal(false);
-        setRoomData(null);  
+        setRoomData([]);  
+    };
+
+    const handleDeleteRoom = (roomId) => {
+        axios.delete(`${domain}/api/v1/rooms`)
+            .then(() => {
+                console.log('Successed to delete room');
+            })
+            .catch(() => {
+                console.log('Failed to delete room');
+            });
+    };
+
+
+    const handlePasswordCheck = () => {
+        if (inputPassword === password) {
+            <Link to='/subject'>
+                
+            </Link> 
+        } else {
+            setError(true);
+        }
     };
 
     return (
     <> 
-        <div className="images">
-            <Link to = "/friend">
-                <button className="friend_image" onClick={() => {
-                    axios.get(domain + '/api/v1/friends')
-                    .then((res) => {
-                        console.log(res.data)
-                    })
-                    .catch(() => {
-                        console.log('failed to load friends')
-                    })
-                }}>
-                    <img src={friendImage}/>
-                </button>
-            </Link>
-            <br></br>
-            <Link to = "/project">
-                <button className="project_image" onClick={() => {
-                    axios.get(domain + '/api/v1/rooms?page=1')
-                    .then((res) => {
-                        console.log(res.data)
-                    })
-                    .catch(() => {
-                        console.log('failed to load projects')
-                    })
-                }}>
-                    <img src={projectImage}/>
-                </button>
-            </Link>
+       <div className="images">
+                <Link to="/friend">
+                    <button className="friend_image">
+                        <img src={friendImage} alt="친구 이미지" />
+                    </button>
+                </Link>
+                <br />
+                <Link to="/project">
+                    <button className="project_image">
+                        <img src={projectImage} alt="프로젝트 이미지" />
+                    </button>
+                </Link>
         </div>
         
         <div className='container'>
@@ -85,17 +89,19 @@ const Project = () => {
                     className='project_search_txt'
                     type="text"
                     placeholder="프로젝트 이름을 입력하세요."
-                    value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
+                    value={searchTitle}
+                    onChange={(e) => setSearchTitle(e.target.value)}
                 />
                 <button
                     className='search_button'
                     type="submit"
-                    onClick={handleSearchClick}
+                    onClick={handleSearch}
                 >
                     검색
                 </button>
             </form>
+
+            
 
             <form className='create_box' onSubmit={(e) => e.preventDefault()}>
                 <button
@@ -106,80 +112,101 @@ const Project = () => {
                     프로젝트 생성
                 </button>
             </form>
-            
-            {searchmodal && (
-                <div className="modal">
-                    <div className='modal_overlay'>
-                        <div className="modal_content">
-                            <h3>검색 결과</h3> <button className="close_button" onClick={closeSearchModal}>X</button>
-                            {roomData ? (
-                                <p>
-                                    {roomData.name}
-                                    
-                                    <button className='add_room'onClick={() => {
-                                        axios.get(domain + '/api/v1/rooms/search?title=””&page=””')
-                                            .then((res) => {
-                                                console.log(res.data)
-                                            })
-                                            .catch(() => {
-                                                console.log('failed to add room.')
-                                            })
-                                            }}>
-                                            친구 추가
-                                    </button>
-                                </p>
-                            ) : (
-                                <p>검색 결과가 없습니다.</p>
-                            )}
-                            
-                        </div>
-                    </div>
-                </div>
-            )}
 
+            <div className="room_grid">
+                {roomData.map((room) => (
+                    <div key={room.id} className="room_card">
+                        <h4>{room.title}</h4>
+                        <button onClick={() => handleDeleteRoom(room.id)}>X</button>
+                        <div className="process_flow">
+                            <div className="process_step">주제선정</div>
+                            <div className="arrow">→</div>
+                            <div className="process_step">자료 조사</div>
+                            <div className="arrow">→</div>
+                            <div className="process_step">발표 자료</div>
+                            <div className="arrow">→</div>
+                            <div className="process_step">발표 준비</div>
+                        </div>
+                        
+                    </div>
+                ))}
+            </div>
+            
+            {/*
+            
+            <div className="pagination">
+                <button onClick={() => {
+                    const newPage = Math.max(page - 1, 1);
+                    setPage(newPage);
+                }} disabled={page === 1}>이전</button>
+
+                <span>{page} / {totalPages}</span>
+
+                <button onClick={() => {
+                    const newPage = Math.min(page + 1, totalPages);
+                    setPage(newPage);
+                }} disabled={page === totalPages}>다음</button>
+            </div>
+            
+            */}
+            
             {createmodal && (
                 <div className='add_project_container'>
                     <div className="modal_overlay">
                         <div className="modal_content">
                             <button className="close_button" onClick={closeCreateModal}>X</button>
-                                <div className="modal_body">
-                                    <div className="modal_section">
-                                        <label className="modal_label">방 제목</label>
-                                        <input
-                                            className="modal_input"
-                                            type="text"
-                                        />
-                                    </div>
+                            <div className="modal_body">
+                                <div className="modal_section">
+                                    <label className="modal_label">방 제목</label>
+                                    <input className="modal_input" type="text" />
+                                </div>
 
-                                    <div className="modal_section">
-                                        <label className="modal_label">비밀번호</label>
-                                            <input
-                                                lassName="modal_input"
-                                                type="password"
-                                            />
-                                        </div>
-
-                                    <div className="modal_section">
-                                        <label className="modal_label">프로세스</label>
-                                        <div className="process_flow">
-                                            <div className="process_step">주제선정</div>
-                                            <div className="arrow">→</div>
-                                            <div className="process_step">자료 조사</div>
-                                            <div className="arrow">→</div>
-                                            <div className="process_step">발표 자료</div>
-                                            <div className="arrow">→</div>
-                                            <div className="process_step">발표 준비</div>
-                                        </div>
+                                <div className="modal_section">
+                                    <label className="modal_label">비밀번호</label>
+                                    <input className="modal_input" type="password" />
+                                </div>    
+                               
+                               <div className="modal_section">
+                                    <label className="modal_label">프로세스</label>
+                                    <div className="process_flow">
+                                        <div className="process_step">주제선정</div>
+                                        <div className="arrow">→</div>
+                                        <div className="process_step">자료 조사</div>
+                                        <div className="arrow">→</div>
+                                        <div className="process_step">발표 자료</div>
+                                        <div className="arrow">→</div>
+                                        <div className="process_step">발표 준비</div>
                                     </div>
+                                </div>
                                 <button className='create_complete_btn'>생성</button> 
                             </div>     
                         </div> 
                     </div>   
                 </div>
             )}
-                        
         </div>
-       </>
+
+        {enterModal && (
+            <div className="modal_section">
+                <label className="modal_label">비밀번호</label>
+                    <input
+                        className="modal_input"
+                        type="password"
+                        value={inputPassword}
+                        onChange={(e) => setInputPassword(e.target.value)}
+                    />
+            </div>                
+        )}
+
+        {error && (
+            <div>
+                <p className="error_message">비밀번호가 틀렸습니다. 다시 시도해 주세요.</p>
+                    <button className='check_password_button' onClick={handlePasswordCheck}>
+                        확인
+                    </button>
+            </div>
+        )}
+    </>
     )
 }
 
