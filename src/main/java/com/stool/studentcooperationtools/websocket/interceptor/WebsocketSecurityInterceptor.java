@@ -9,8 +9,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.stereotype.Component;
@@ -28,7 +27,7 @@ public class WebsocketSecurityInterceptor implements ChannelInterceptor {
     public Message<?> preSend(final Message<?> message, final MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         if (SimpMessageType.CONNECT.equals(accessor.getMessageType())) {
-            Authentication authentication = SecurityContextHolder.getContextHolderStrategy().getContext().getAuthentication();
+            OAuth2AuthenticationToken authentication = (OAuth2AuthenticationToken) accessor.getHeader("simpUser");
             if(authentication == null){
                 // 웹소켓 연결 전에 인증하지 않은 경우 authentication는 조회되지 않음
                 String jsessionid = accessor.getFirstNativeHeader(SESSION_NAME);

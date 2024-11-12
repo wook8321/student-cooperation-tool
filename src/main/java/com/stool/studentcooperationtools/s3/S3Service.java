@@ -46,7 +46,8 @@ public class S3Service {
                 outputStream.write(fileBytes);
             }
             String fileName = UUID.randomUUID().toString();
-            fileNameSet.put(originalFileName,List.of(fileName,extension));
+            String thumbnailUrl = amazonS3.getUrl(bucketName,fileName).toString();
+            fileNameSet.put(originalFileName,List.of(fileName,extension,thumbnailUrl));
             amazonS3.putObject(new PutObjectRequest(bucketName,fileName,tempFile)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
             closeFile(tempFile);
@@ -71,7 +72,7 @@ public class S3Service {
     }
 
     private static String getExtension(final String fileCode){
-        if(StringUtils.hasText(fileCode)){
+        if(!StringUtils.hasText(fileCode)){
             throw new IllegalArgumentException("저장할 파일이 없습니다.");
         }
         return switch (fileCode) {
@@ -80,6 +81,8 @@ public class S3Service {
             case "data:image/jpg;base64" -> "jpg";
             case "data:application/pdf;base64" -> "pdf";
             case "data:application/docs;base64" -> "docs";
+            case "data:application/doc;base64" -> "doc";
+            case "data:text/html;base64" -> "html";
             default -> throw new IllegalArgumentException("해당 파일은 지원하지 않습니다.");
         };
     }
