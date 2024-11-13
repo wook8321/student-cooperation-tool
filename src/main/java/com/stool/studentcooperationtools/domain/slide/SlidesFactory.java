@@ -23,14 +23,19 @@ import java.util.List;
 @Component
 public class SlidesFactory {
 
-    public Slides createSlidesService(Credential credential) throws GeneralSecurityException, IOException {
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        return new Slides.Builder(HTTP_TRANSPORT, GsonFactory.getDefaultInstance(), credential)
-                .setApplicationName("Google Slides API")
-                .build();
+    public Slides createSlidesService(Credential credential) {
+        try {
+            NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            return new Slides.Builder(HTTP_TRANSPORT, GsonFactory.getDefaultInstance(), credential)
+                    .setApplicationName("Google Slides API")
+                    .build();
+        } catch (GeneralSecurityException | IOException e) {
+            throw new IllegalArgumentException(e.getMessage(),e.getCause());
+        }
     }
 
-    public Drive createDriveService(HttpCredentialsAdapter credentialsAdapter) throws GeneralSecurityException, IOException {
+
+    public Drive createDriveService(HttpCredentialsAdapter credentialsAdapter) {
         return new Drive.Builder(new NetHttpTransport(),
                 GsonFactory.getDefaultInstance(),
                 credentialsAdapter)

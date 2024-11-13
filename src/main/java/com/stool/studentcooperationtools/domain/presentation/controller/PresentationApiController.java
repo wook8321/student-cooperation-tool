@@ -31,26 +31,32 @@ public class PresentationApiController {
 
     @GetMapping("/api/v1/presentation/{presentationId}/exportPdf")
     public void exportToPdf(@PathVariable("presentationId") Long presentationId, HttpCredentialsAdapter credentialsAdapter,
-                                                  HttpServletResponse response) throws IOException, GeneralSecurityException {
-        ByteArrayOutputStream pdfStream = presentationService.exportPdf(credentialsAdapter, presentationId);
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename=\"exported.pdf\"");
-
+                            HttpServletResponse response){
         // ByteArrayOutputStream의 데이터를 응답으로 전송
-        response.getOutputStream().write(pdfStream.toByteArray());
-        response.getOutputStream().flush();
+        //ByteArrayOutputStream 사용 후 닫기
+        try (ByteArrayOutputStream pdfStream = presentationService.exportPdf(credentialsAdapter, presentationId)) {
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=\"exported.pdf\"");
+            response.getOutputStream().write(pdfStream.toByteArray());
+            response.getOutputStream().flush();
+        } catch (IOException e) {
+            throw new IllegalStateException(e.getMessage(), e.getCause());
+        }
     }
 
-    @GetMapping("/api/v1/presentation/{presentationId}/exportPptx")
-    public void exportToPptx(Long presentationId, HttpCredentialsAdapter credentialsAdapter,
-                                                   HttpServletResponse response) throws IOException, GeneralSecurityException {
-        ByteArrayOutputStream pdfStream = presentationService.exportPpt(credentialsAdapter, presentationId);
-        response.setContentType("application/vnd.openxmlformats-officedocument.presentationml.presentation");
-        response.setHeader("Content-Disposition", "attachment; filename=\"exported.pptx\"");
 
-        // ByteArrayOutputStream의 데이터를 응답으로 전송
-        response.getOutputStream().write(pdfStream.toByteArray());
-        response.getOutputStream().flush();
+    @GetMapping("/api/v1/presentation/{presentationId}/exportPptx")
+    public void exportToPptx(@PathVariable("presentationId") Long presentationId, HttpCredentialsAdapter credentialsAdapter,
+                             HttpServletResponse response) {
+        try(ByteArrayOutputStream pdfStream = presentationService.exportPpt(credentialsAdapter, presentationId)){
+            response.setContentType("application/vnd.openxmlformats-officedocument.presentationml.presentation");
+            response.setHeader("Content-Disposition", "attachment; filename=\"exported.pptx\"");
+            // ByteArrayOutputStream의 데이터를 응답으로 전송
+            response.getOutputStream().write(pdfStream.toByteArray());
+            response.getOutputStream().flush();
+        } catch (IOException e) {
+            throw new IllegalStateException(e.getMessage(),e.getCause());
+        }
     }
 
 }

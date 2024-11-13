@@ -39,13 +39,17 @@ public class PresentationWebSocketController {
     }
 
     @MessageMapping("presentation/create")
-    public void createPresentation(@Valid @RequestBody PresentationCreateSocketRequest request, SessionMember member) throws GeneralSecurityException, IOException {
-        credentialProvider.initializeCredentialAdapter();
-        HttpCredentialsAdapter credentialsAdapter = credentialProvider.getCredentialsAdapter();
-        PresentationUpdateSocketResponse response = presentationService.createPresentation(request, credentialsAdapter, member);
-        sendingUtils.convertAndSend(
-                sendingUtils.createPresentationManageSubUrl(request.getRoomId()),
-                WebsocketResponse.of(PRESENTATION_CREATE, response)
-        );
+    public void createPresentation(@Valid @RequestBody PresentationCreateSocketRequest request, SessionMember member) {
+        try {
+            credentialProvider.initializeCredentialAdapter();
+            HttpCredentialsAdapter credentialsAdapter = credentialProvider.getCredentialsAdapter();
+            PresentationUpdateSocketResponse response = presentationService.createPresentation(request, credentialsAdapter, member);
+            sendingUtils.convertAndSend(
+                    sendingUtils.createPresentationManageSubUrl(request.getRoomId()),
+                    WebsocketResponse.of(PRESENTATION_CREATE, response)
+            );
+        }catch(IOException e) {
+            throw new IllegalStateException(e.getMessage());
+        }
     }
 }

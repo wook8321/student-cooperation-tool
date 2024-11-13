@@ -88,7 +88,7 @@ class PresentationServiceMockTest {
 
     @Test
     @DisplayName("발표자료를 설정한 제목으로 생성")
-    void createPresentation() throws GeneralSecurityException, IOException {
+    void createPresentation() throws IOException {
         //given
         Long memberId = 1L;
         listOfPermission = new ArrayList<>();

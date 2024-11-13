@@ -85,7 +85,7 @@ public class RoomService {
     }
 
     @Transactional
-    public Boolean removeRoom(SessionMember member, final RoomRemoveRequest request) throws GeneralSecurityException, IOException {
+    public Boolean removeRoom(SessionMember member, final RoomRemoveRequest request) {
         Room room = roomRepository.findRoomByRoomId(member.getMemberSeq(), request.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("소속되지 않은 방 정보입니다"));
         if(Objects.equals(member.getMemberSeq(), room.getLeader().getId())){
