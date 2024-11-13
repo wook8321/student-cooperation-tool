@@ -1,13 +1,16 @@
 package com.stool.studentcooperationtools.websocket;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.stool.studentcooperationtools.websocket.controller.request.WebsocketResponse;
+import com.stool.studentcooperationtools.websocket.converter.SessionMemberMessageConverter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
@@ -44,9 +47,11 @@ public abstract class WebsocketTestSupport {
     protected WebSocketStompClient stompClient;
     protected final CustomSessionHandlerAdapter<WebsocketResponse> resultHandler = new CustomSessionHandlerAdapter<>(WebsocketResponse.class);
 
+    @MockBean
+    SessionMemberMessageConverter sessionMemberMessageConverter;
 
     @BeforeEach
-    void setUp() throws ExecutionException, InterruptedException, TimeoutException {
+    void setUp() throws ExecutionException, InterruptedException, TimeoutException, JsonProcessingException {
         URL = "ws://localhost:%d/ws-stomp".formatted(port);
         stompClient = createStompClient();
         executeSql("sql/SpringSessionCreate.sql");
