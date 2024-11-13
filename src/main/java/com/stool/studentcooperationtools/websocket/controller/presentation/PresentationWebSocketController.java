@@ -40,6 +40,7 @@ public class PresentationWebSocketController {
 
     @MessageMapping("presentation/create")
     public void createPresentation(@Valid @RequestBody PresentationCreateSocketRequest request, SessionMember member) throws GeneralSecurityException, IOException {
+        credentialProvider.initializeCredentialAdapter();
         HttpCredentialsAdapter credentialsAdapter = credentialProvider.getCredentialsAdapter();
         PresentationUpdateSocketResponse response = presentationService.createPresentation(request, credentialsAdapter, member);
         sendingUtils.convertAndSend(

@@ -13,6 +13,7 @@ import com.stool.studentcooperationtools.domain.presentation.repository.Presenta
 import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.domain.slide.SlidesFactory;
+import com.stool.studentcooperationtools.security.credential.GoogleCredentialProvider;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.presentation.request.PresentationCreateSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.presentation.request.PresentationUpdateSocketRequest;
@@ -36,6 +37,7 @@ public class PresentationService {
     private final PresentationRepository presentationRepository;
     private final RoomRepository roomRepository;
     private final SlidesFactory slidesFactory;
+    private final GoogleCredentialProvider googleCredentialProvider;
     @Value("${google.slides.folder-path}")
     private String folderPath;
 
@@ -144,7 +146,9 @@ public class PresentationService {
         }
     }
 
-    public Boolean deletePresentation(HttpCredentialsAdapter credentialsAdapter, Long roomId) throws GeneralSecurityException, IOException {
+    public Boolean deletePresentation(Long roomId) throws GeneralSecurityException, IOException {
+        googleCredentialProvider.initializeCredentialAdapter();
+        HttpCredentialsAdapter credentialsAdapter = googleCredentialProvider.getCredentialsAdapter();
         Presentation presentation = presentationRepository.findById(roomId)
                 .orElse(null);
         if(presentation == null){
