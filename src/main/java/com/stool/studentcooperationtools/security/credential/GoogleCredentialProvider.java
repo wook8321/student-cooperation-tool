@@ -55,7 +55,7 @@ public class GoogleCredentialProvider {
         this.credentialsAdapter = (HttpCredentialsAdapter) getHttpRequestInitializer();
     }
 
-    private Credential authorize(String userId) throws IOException {
+    private Credential authorize(String userId) {
         try(InputStream in = GoogleCredentialProvider.class.getResourceAsStream(credentialsFilePath)) {
 
             GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
@@ -72,7 +72,7 @@ public class GoogleCredentialProvider {
         }
     }
 
-    private HttpRequestInitializer getHttpRequestInitializer() throws IOException {
+    private HttpRequestInitializer getHttpRequestInitializer() {
         try(InputStream in = GoogleCredentialProvider.class.getResourceAsStream(credentialsforupdateFilePath)) {
             GoogleCredentials credentials = GoogleCredentials.fromStream(in)
                     .createScoped(List.of(DriveScopes.DRIVE_FILE));
