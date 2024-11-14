@@ -12,10 +12,10 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.slides.v1.SlidesScopes;
-import com.google.auth.Credentials;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import lombok.Getter;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +37,7 @@ public class GoogleCredentialProvider {
 
     private Credential credential;
 
-    private final HttpCredentialsAdapter credentialsAdapter;
+    private HttpCredentialsAdapter credentialsAdapter;
 
     public GoogleCredentialProvider(@Value("${google.slides.credentials-file-path}") String credentialsFilePath,
                                     @Value("${google.slides.tokens-directory-path}") String tokensDirectoryPath,
@@ -45,35 +45,42 @@ public class GoogleCredentialProvider {
         this.credentialsFilePath = credentialsFilePath;
         this.tokensDirectoryPath = tokensDirectoryPath;
         this.credentialsforupdateFilePath = credentialsforupdateFilePath;
-        this.credentialsAdapter = (HttpCredentialsAdapter) getHttpRequestInitializer();
     }
 
     public void initializeCredential(String userId) throws IOException {
         this.credential = authorize(userId);
     }
 
-    private Credential authorize(String userId) throws IOException {
-        InputStream in = GoogleCredentialProvider.class.getResourceAsStream(credentialsFilePath);
-        if (in == null) {
-            throw new FileNotFoundException("Resource not found: " + credentialsFilePath);
-        }
-        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
-
-        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-                new NetHttpTransport(), JSON_FACTORY, clientSecrets, SCOPES)
-                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(tokensDirectoryPath)))
-                .setAccessType("offline")
-                .build();
-        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
-        return new AuthorizationCodeInstalledApp(flow, receiver).authorize(userId);
+    public void initializeCredentialAdapter() throws IOException {
+        this.credentialsAdapter = (HttpCredentialsAdapter) getHttpRequestInitializer();
     }
 
-    private HttpRequestInitializer getHttpRequestInitializer() throws IOException {
-        InputStream in = GoogleCredentialProvider.class.getResourceAsStream(credentialsforupdateFilePath);
-        GoogleCredentials credentials = GoogleCredentials.fromStream(in)
-                .createScoped(List.of(DriveScopes.DRIVE_FILE));
-        return new HttpCredentialsAdapter(
-                credentials);
+    private Credential authorize(String userId) {
+        try(InputStream in = GoogleCredentialProvider.class.getResourceAsStream(credentialsFilePath)) {
+
+            GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+
+            GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                    new NetHttpTransport(), JSON_FACTORY, clientSecrets, SCOPES)
+                    .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(tokensDirectoryPath)))
+                    .setAccessType("offline")
+                    .build();
+            LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
+            return new AuthorizationCodeInstalledApp(flow, receiver).authorize(userId);
+        } catch (IOException e) {
+            throw new BeanCreationException(e.getMessage());
+        }
+    }
+
+    private HttpRequestInitializer getHttpRequestInitializer() {
+        try(InputStream in = GoogleCredentialProvider.class.getResourceAsStream(credentialsforupdateFilePath)) {
+            GoogleCredentials credentials = GoogleCredentials.fromStream(in)
+                    .createScoped(List.of(DriveScopes.DRIVE_FILE));
+            return new HttpCredentialsAdapter(
+                    credentials);
+        }catch (IOException e) {
+            throw new BeanCreationException(e.getMessage(), e.getCause());
+        }
     }
 
 }

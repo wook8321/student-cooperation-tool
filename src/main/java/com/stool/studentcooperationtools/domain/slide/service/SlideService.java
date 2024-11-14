@@ -36,40 +36,43 @@ public class SlideService {
     }
 
     @Transactional
-    public boolean updateSlides(Long presentationId, Credential credential) throws IOException, GeneralSecurityException {
+    public boolean updateSlides(Long presentationId, Credential credential) {
         com.stool.studentcooperationtools.domain.presentation.Presentation presentation =
                 presentationRepository.findById(presentationId)
                         .orElseThrow(()->new IllegalArgumentException("발표 자료가 없습니다"));
         String presentationPath = presentation.getPresentationPath();
         Slides service = slidesFactory.createSlidesService(credential);
-        Presentation response = service.presentations().get(presentationPath).execute();
-        List<Page> slides = response.getSlides();
-        List<CompletableFuture<Slide>> futures = slides.stream()
-                .map(slide -> CompletableFuture.supplyAsync(() -> {
-                    String objectId = slide.getObjectId();
-                    Thumbnail thumbnail = null;
-                    try {
-                        thumbnail = service.presentations().pages().getThumbnail(presentationPath, objectId).execute();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    Script script = Script.builder()
-                            .script("")
-                            .presentation(presentation)
-                            .build();
-                    return Slide.builder()
-                            .slideUrl(objectId)
-                            .presentation(presentation)
-                            .thumbnail(thumbnail.getContentUrl())
-                            .script(script)
-                            .build();
-                }))
-                .toList();
-
+        try {
+            Presentation response = service.presentations().get(presentationPath).execute();
+            List<Page> slides = response.getSlides();
+            List<CompletableFuture<Slide>> futures = slides.stream()
+                    .map(slide -> CompletableFuture.supplyAsync(() -> {
+                        String objectId = slide.getObjectId();
+                        Thumbnail thumbnail = null;
+                        try {
+                            thumbnail = service.presentations().pages().getThumbnail(presentationPath, objectId).execute();
+                        } catch (IOException e) {
+                            throw new IllegalStateException(e.getMessage(), e.getCause());
+                        }
+                        Script script = Script.builder()
+                                .script("")
+                                .presentation(presentation)
+                                .build();
+                        return Slide.builder()
+                                .slideUrl(objectId)
+                                .presentation(presentation)
+                                .thumbnail(thumbnail.getContentUrl())
+                                .script(script)
+                                .build();
+                    }))
+                    .toList();
         List<Slide> slideList = futures.stream()
                 .map(CompletableFuture::join)
                 .collect(Collectors.toList());
         slideRepository.saveAll(slideList);
+        } catch(IOException e) {
+            throw new IllegalStateException(e.getMessage(), e.getCause());
+        }
         return true;
     }
 }

@@ -13,6 +13,7 @@ import com.stool.studentcooperationtools.domain.presentation.repository.Presenta
 import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.domain.slide.SlidesFactory;
+import com.stool.studentcooperationtools.security.credential.GoogleCredentialProvider;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.presentation.request.PresentationCreateSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.presentation.request.PresentationUpdateSocketRequest;
@@ -36,6 +37,7 @@ public class PresentationService {
     private final PresentationRepository presentationRepository;
     private final RoomRepository roomRepository;
     private final SlidesFactory slidesFactory;
+    private final GoogleCredentialProvider googleCredentialProvider;
     @Value("${google.slides.folder-path}")
     private String folderPath;
 
@@ -64,7 +66,7 @@ public class PresentationService {
     @Transactional
     public PresentationUpdateSocketResponse createPresentation(PresentationCreateSocketRequest request,
                                                                HttpCredentialsAdapter credentialsAdapter,
-                                                               SessionMember member) throws IOException, GeneralSecurityException {
+                                                               SessionMember member) {
         String fileId;
         Drive dservice = slidesFactory.createDriveService(credentialsAdapter);
         File fileMetadata = new File();
@@ -74,30 +76,25 @@ public class PresentationService {
 
         // Drive에서 프레젠테이션 파일을 해당 폴더에 저장
         try {
-
             File file = dservice.files().create(fileMetadata)
                     .setFields("id")
                     .execute();
             fileId = file.getId();  // pptPath 반환
-        } catch (GoogleJsonResponseException e) {
-
-            throw new VerifyException("파일 저장에 실패했습니다");
-        }
-        Permission permission = new Permission()
-                .setType("anyone")
-                .setRole("writer");
-        dservice.permissions().create(fileId, permission).execute();
-        PermissionList permissions = dservice.permissions().list(fileId).execute();
-        if(!permissions.isEmpty()) {
-            for (Permission p : permissions.getPermissions()) {
-                if ("user".equals(p.getType()) && "writer".equals(p.getRole())) {
-                    try {
+            Permission permission = new Permission()
+                    .setType("anyone")
+                    .setRole("writer");
+            dservice.permissions().create(fileId, permission).execute();
+            PermissionList permissions = dservice.permissions().list(fileId).execute();
+            if (!permissions.isEmpty()) {
+                for (Permission p : permissions.getPermissions()) {
+                    if ("user".equals(p.getType()) && "writer".equals(p.getRole())) {
                         dservice.permissions().delete(fileId, p.getId()).execute();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
                     }
                 }
             }
+        }
+        catch (IOException e) {
+            throw new VerifyException(e.getMessage(),e.getCause());
         }
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(()->new IllegalArgumentException("해당 방은 존재하지 않습니다"));
@@ -112,7 +109,7 @@ public class PresentationService {
         return PresentationUpdateSocketResponse.of(presentation);
     }
 
-    public ByteArrayOutputStream exportPdf(HttpCredentialsAdapter credentialsAdapter, Long presentationId) throws IOException, GeneralSecurityException {
+    public ByteArrayOutputStream exportPdf(HttpCredentialsAdapter credentialsAdapter, Long presentationId) {
         Presentation presentation = presentationRepository.findById(presentationId)
                 .orElseThrow(()->new IllegalArgumentException("해당하는 발표자료가 없습니다"));
         String fileId = presentation.getPresentationPath();
@@ -123,12 +120,12 @@ public class PresentationService {
                     .executeMediaAndDownloadTo(outputStream);
 
             return (ByteArrayOutputStream) outputStream;
-        } catch (GoogleJsonResponseException e) {
-            throw new VerifyException(e.getMessage());
+        } catch (IOException e) {
+            throw new IllegalStateException(e.getMessage(), e.getCause());
         }
     }
 
-    public ByteArrayOutputStream exportPpt(HttpCredentialsAdapter credentialsAdapter, Long presentationId) throws IOException, GeneralSecurityException {
+    public ByteArrayOutputStream exportPpt(HttpCredentialsAdapter credentialsAdapter, Long presentationId) {
         Presentation presentation = presentationRepository.findById(presentationId)
                 .orElseThrow(()->new IllegalArgumentException("해당하는 발표자료가 없습니다"));
         String fileId = presentation.getPresentationPath();
@@ -139,20 +136,27 @@ public class PresentationService {
                     .executeMediaAndDownloadTo(outputStream);
 
             return (ByteArrayOutputStream) outputStream;
-        } catch (GoogleJsonResponseException e) {
-            throw new VerifyException(e.getMessage());
+        } catch (IOException e) {
+            throw new IllegalStateException(e.getMessage(), e.getCause());
         }
     }
 
-    public Boolean deletePresentation(HttpCredentialsAdapter credentialsAdapter, Long roomId) throws GeneralSecurityException, IOException {
-        Presentation presentation = presentationRepository.findById(roomId)
-                .orElse(null);
-        if(presentation == null){
+    public Boolean deletePresentation(Long roomId) {
+        try {
+            googleCredentialProvider.initializeCredentialAdapter();
+            HttpCredentialsAdapter credentialsAdapter = googleCredentialProvider.getCredentialsAdapter();
+            Presentation presentation = presentationRepository.findById(roomId)
+                    .orElse(null);
+            if (presentation == null) {
+                return true;
+            }
+            String fileId = presentation.getPresentationPath();
+            Drive driveService = slidesFactory.createDriveService(credentialsAdapter);
+            driveService.files().delete(fileId).execute();
             return true;
         }
-        String fileId = presentation.getPresentationPath();
-        Drive driveService = slidesFactory.createDriveService(credentialsAdapter);
-        driveService.files().delete(fileId).execute();
-        return true;
+        catch(IOException e){
+            throw new IllegalStateException(e.getMessage(), e.getCause());
+        }
     }
 }

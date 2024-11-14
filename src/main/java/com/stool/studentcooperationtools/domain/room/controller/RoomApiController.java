@@ -45,7 +45,7 @@ public class RoomApiController {
     }
 
     @DeleteMapping("/api/v1/rooms")
-    public ApiResponse<Boolean> removeRoom(SessionMember member, @Valid @RequestBody RoomRemoveRequest request) throws GeneralSecurityException, IOException {
+    public ApiResponse<Boolean> removeRoom(SessionMember member, @Valid @RequestBody RoomRemoveRequest request) {
         Boolean result = roomService.removeRoom(member, request);
         return ApiResponse.of(HttpStatus.OK,result);
     }

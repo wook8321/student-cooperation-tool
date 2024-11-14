@@ -44,8 +44,6 @@ public class RoomService {
     private final TopicRepository topicRepository;
     private final ParticipationRepository participationRepository;
     private final PresentationService presentationService;
-    private final SlidesFactory slidesFactory;
-    private final GoogleCredentialProvider googleCredentialProvider;
 
     public RoomsFindResponse findRooms(SessionMember member, final int page) {
         Pageable pageable = PageRequest.of(page, pageSize);
@@ -87,7 +85,7 @@ public class RoomService {
     }
 
     @Transactional
-    public Boolean removeRoom(SessionMember member, final RoomRemoveRequest request) throws GeneralSecurityException, IOException {
+    public Boolean removeRoom(SessionMember member, final RoomRemoveRequest request) {
         Room room = roomRepository.findRoomByRoomId(member.getMemberSeq(), request.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("소속되지 않은 방 정보입니다"));
         if(Objects.equals(member.getMemberSeq(), room.getLeader().getId())){
@@ -99,8 +97,7 @@ public class RoomService {
                     .orElseThrow(() -> new IllegalArgumentException("유저 정보가 올바르지 않습니다"));
             participationRepository.deleteByMemberIdAndRoomId(teammate.getId(), room.getId());
         }
-        HttpCredentialsAdapter credentialsAdapter = googleCredentialProvider.getCredentialsAdapter();
-        presentationService.deletePresentation(credentialsAdapter, request.getRoomId());
+        presentationService.deletePresentation(request.getRoomId());
         return true;
     }
 
