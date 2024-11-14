@@ -49,7 +49,7 @@ public class PresentationWebSocketController {
                     WebsocketResponse.of(PRESENTATION_CREATE, response)
             );
         }catch(IOException e) {
-            throw new IllegalStateException(e.getMessage());
+            throw new IllegalStateException(e.getMessage(), e.getCause());
         }
     }
 }

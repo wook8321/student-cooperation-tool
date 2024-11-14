@@ -121,7 +121,7 @@ public class PresentationService {
 
             return (ByteArrayOutputStream) outputStream;
         } catch (IOException e) {
-            throw new IllegalStateException(e.getMessage());
+            throw new IllegalStateException(e.getMessage(), e.getCause());
         }
     }
 
@@ -137,7 +137,7 @@ public class PresentationService {
 
             return (ByteArrayOutputStream) outputStream;
         } catch (IOException e) {
-            throw new IllegalStateException(e.getMessage());
+            throw new IllegalStateException(e.getMessage(), e.getCause());
         }
     }
 
@@ -156,7 +156,7 @@ public class PresentationService {
             return true;
         }
         catch(IOException e){
-            throw new IllegalStateException(e.getMessage());
+            throw new IllegalStateException(e.getMessage(), e.getCause());
         }
     }
 }

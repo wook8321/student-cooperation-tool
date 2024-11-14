@@ -79,7 +79,7 @@ public class GoogleCredentialProvider {
             return new HttpCredentialsAdapter(
                     credentials);
         }catch (IOException e) {
-            throw new BeanCreationException(e.getMessage());
+            throw new BeanCreationException(e.getMessage(), e.getCause());
         }
     }
 

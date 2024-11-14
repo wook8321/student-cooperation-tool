@@ -52,7 +52,7 @@ public class SlideService {
                         try {
                             thumbnail = service.presentations().pages().getThumbnail(presentationPath, objectId).execute();
                         } catch (IOException e) {
-                            throw new IllegalStateException(e.getMessage());
+                            throw new IllegalStateException(e.getMessage(), e.getCause());
                         }
                         Script script = Script.builder()
                                 .script("")
@@ -71,7 +71,7 @@ public class SlideService {
                 .collect(Collectors.toList());
         slideRepository.saveAll(slideList);
         } catch(IOException e) {
-            throw new IllegalStateException(e.getMessage());
+            throw new IllegalStateException(e.getMessage(), e.getCause());
         }
         return true;
     }
