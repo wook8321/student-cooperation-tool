@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.security.credential;
 
+import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
@@ -47,29 +48,13 @@ public class GoogleCredentialProvider {
         this.credentialsforupdateFilePath = credentialsforupdateFilePath;
     }
 
-    public void initializeCredential(String userId) throws IOException {
-        this.credential = authorize(userId);
+    public void initializeCredential(String accessToken) throws IOException {
+        this.credential = new Credential(BearerToken.authorizationHeaderAccessMethod())
+                .setAccessToken(accessToken);
     }
 
     public void initializeCredentialAdapter() throws IOException {
         this.credentialsAdapter = (HttpCredentialsAdapter) getHttpRequestInitializer();
-    }
-
-    private Credential authorize(String userId) {
-        try(InputStream in = GoogleCredentialProvider.class.getResourceAsStream(credentialsFilePath)) {
-
-            GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
-
-            GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-                    new NetHttpTransport(), JSON_FACTORY, clientSecrets, SCOPES)
-                    .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(tokensDirectoryPath)))
-                    .setAccessType("offline")
-                    .build();
-            LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
-            return new AuthorizationCodeInstalledApp(flow, receiver).authorize(userId);
-        } catch (IOException e) {
-            throw new BeanCreationException(e.getMessage());
-        }
     }
 
     private HttpRequestInitializer getHttpRequestInitializer() {
