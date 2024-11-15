@@ -7,49 +7,61 @@ import com.google.api.services.slides.v1.model.Page;
 import com.google.api.services.slides.v1.model.Thumbnail;
 import com.stool.studentcooperationtools.domain.presentation.repository.PresentationRepository;
 import com.stool.studentcooperationtools.domain.room.Room;
+import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
+import com.stool.studentcooperationtools.domain.script.repository.ScriptRepository;
 import com.stool.studentcooperationtools.domain.slide.SlidesFactory;
 import com.stool.studentcooperationtools.domain.slide.repository.SlideRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 class SlideServiceMockTest {
 
-    @Mock
+    @Autowired
     private PresentationRepository presentationRepository;
 
-    @Mock
+    @Autowired
     private SlideRepository slideRepository;
 
-    @Mock
+    @Autowired
+    private ScriptRepository scriptRepository;
+
+    @MockBean
     private SlidesFactory slidesFactory;
 
-    @Mock
+    @MockBean
     private Credential credential;
 
-    @Mock
+    @MockBean
     private Slides slidesService;
 
-    @InjectMocks
+    @Autowired
     private SlideService slideService;
+    @Autowired
+    private RoomRepository roomRepository;
 
     @Test
     @DisplayName("발표 자료의 모든 슬라이드를 저장")
     void updateSlides() throws IOException, GeneralSecurityException {
         // Given
-        Long presentationId = 1L;
         String presentationPath = "presentationPath";
         String objectId = "objectId";
         String thumbnailUrl = "thumbnailUrl";
@@ -57,19 +69,20 @@ class SlideServiceMockTest {
                 .title("t")
                 .password("1234")
                 .build();
+        roomRepository.save(room);
         // Mock Presentation object
         com.stool.studentcooperationtools.domain.presentation.Presentation presentation =
                 com.stool.studentcooperationtools.domain.presentation.Presentation.builder()
                         .presentationPath(presentationPath)
                         .room(room)
                         .build();
+        presentationRepository.save(presentation);
         // Mock Google Slides API objects
         Presentation mockGooglePresentation = new Presentation()
                 .setSlides(List.of(new Page().setObjectId(objectId)));
         Thumbnail mockThumbnail = new Thumbnail().setContentUrl(thumbnailUrl);
 
         // Presentation and Repository Mocks
-        when(presentationRepository.findById(presentationId)).thenReturn(Optional.of(presentation));
         when(slidesFactory.createSlidesService(credential)).thenReturn(slidesService);
         when(slidesService.presentations()).thenReturn(mock(Slides.Presentations.class));
         when(slidesService.presentations().get(presentationPath)).thenReturn(mock(Slides.Presentations.Get.class));
@@ -80,10 +93,12 @@ class SlideServiceMockTest {
         when(slidesService.presentations().pages().getThumbnail(presentationPath, objectId).execute()).thenReturn(mockThumbnail);
 
         // When
-        boolean result = slideService.updateSlides(presentationId, credential);
+        boolean result = slideService.updateSlides(1L, credential);
 
         // Then
         assertTrue(result);
+        assertThat(slideRepository.findSlidesAndScriptsByPresentationId(1L))
+                .isNotEmpty();
     }
 
     @Test
