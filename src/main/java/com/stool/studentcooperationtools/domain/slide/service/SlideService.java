@@ -6,7 +6,10 @@ import com.google.api.services.slides.v1.model.Page;
 import com.google.api.services.slides.v1.model.Presentation;
 import com.google.api.services.slides.v1.model.Thumbnail;
 import com.stool.studentcooperationtools.domain.presentation.repository.PresentationRepository;
+import com.stool.studentcooperationtools.domain.room.Room;
+import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.domain.script.Script;
+import com.stool.studentcooperationtools.domain.script.repository.ScriptRepository;
 import com.stool.studentcooperationtools.domain.slide.Slide;
 import com.stool.studentcooperationtools.domain.slide.SlidesFactory;
 import com.stool.studentcooperationtools.domain.slide.controller.response.SlideFindResponse;
@@ -29,6 +32,7 @@ public class SlideService {
     private final SlideRepository slideRepository;
     private final PresentationRepository presentationRepository;
     private final SlidesFactory slidesFactory;
+    private final ScriptRepository scriptRepository;
 
     public SlideFindResponse findSlides(final Long presentationId) {
         List<Slide> slides = slideRepository.findSlidesAndScriptsByPresentationId(presentationId);
@@ -45,6 +49,7 @@ public class SlideService {
         try {
             Presentation response = service.presentations().get(presentationPath).execute();
             List<Page> slides = response.getSlides();
+            List<Script> scripts = new ArrayList<>();
             List<CompletableFuture<Slide>> futures = slides.stream()
                     .map(slide -> CompletableFuture.supplyAsync(() -> {
                         String objectId = slide.getObjectId();
@@ -58,6 +63,7 @@ public class SlideService {
                                 .script("")
                                 .presentation(presentation)
                                 .build();
+                        scripts.add(script);
                         return Slide.builder()
                                 .slideUrl(objectId)
                                 .presentation(presentation)
@@ -69,6 +75,7 @@ public class SlideService {
         List<Slide> slideList = futures.stream()
                 .map(CompletableFuture::join)
                 .collect(Collectors.toList());
+        scriptRepository.saveAll(scripts);
         slideRepository.saveAll(slideList);
         } catch(IOException e) {
             throw new IllegalStateException(e.getMessage(), e.getCause());
