@@ -94,7 +94,11 @@ jobs:
         with:
           name: "credentialforupdate.json"
           json: ${{ secrets.CREDENTIALFORUPDATE_JSON }} 
-          
+
+      # gradlew의 권한 추가
+      - name: gradlew에 권한 추가
+        run: chmod +x gradlew
+      
       # git workflow
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2
