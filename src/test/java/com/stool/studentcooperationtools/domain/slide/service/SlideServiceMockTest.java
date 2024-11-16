@@ -2,8 +2,8 @@ package com.stool.studentcooperationtools.domain.slide.service;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.slides.v1.Slides;
-import com.google.api.services.slides.v1.model.Presentation;
 import com.google.api.services.slides.v1.model.Page;
+import com.google.api.services.slides.v1.model.Presentation;
 import com.google.api.services.slides.v1.model.Thumbnail;
 import com.stool.studentcooperationtools.domain.presentation.repository.PresentationRepository;
 import com.stool.studentcooperationtools.domain.room.Room;
@@ -11,27 +11,26 @@ import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.domain.script.repository.ScriptRepository;
 import com.stool.studentcooperationtools.domain.slide.SlidesFactory;
 import com.stool.studentcooperationtools.domain.slide.repository.SlideRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.List;
-import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@Transactional
 @ExtendWith(MockitoExtension.class)
 class SlideServiceMockTest {
 
@@ -60,7 +59,7 @@ class SlideServiceMockTest {
 
     @Test
     @DisplayName("발표 자료의 모든 슬라이드를 저장")
-    void updateSlides() throws IOException, GeneralSecurityException {
+    void updateSlides() throws IOException {
         // Given
         String presentationPath = "presentationPath";
         String objectId = "objectId";
