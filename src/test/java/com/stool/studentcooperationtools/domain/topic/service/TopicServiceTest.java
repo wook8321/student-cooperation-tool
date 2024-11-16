@@ -152,7 +152,7 @@ class TopicServiceTest {
 
         roomRepository.save(room);
 
-        Long InvalidMemberId = 2L;
+        Long InvalidMemberId = 2024L;
         SessionMember sessionMember = SessionMember.builder()
                 .profile(member.getProfile())
                 .memberSeq(InvalidMemberId)
