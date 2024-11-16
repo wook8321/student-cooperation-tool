@@ -19,6 +19,7 @@ public enum WebsocketMessageType {
     PART_UPDATE("part_update"),
     PART_FILE_UPLOAD("file_upload"),
     PART_FILE_REMOVE("file_delete"),
+    PRESENTATION_CREATE("presentation_create"),
     PRESENTATION_UPDATE("presentation_update"),
     SCRIPT_UPDATE("script_update");
 

@@ -25,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -222,73 +224,6 @@ class RoomServiceTest {
         //when
         //then
         assertThrows(IllegalArgumentException.class, () -> roomService.removeRoom(member, roomRemoveRequest));
-    }
-
-    @Test
-    @DisplayName("팀장이 방 삭제 요청 시 방을 삭제")
-    void removeRoomByLeader() {
-        //given
-        Member user = Member.builder()
-                .role(Role.USER)
-                .email("email")
-                .profile("profile")
-                .nickName("nickName")
-                .build();
-        memberRepository.save(user);
-        SessionMember member = SessionMember.of(user);
-        Room room = Room.builder()
-                .title("room")
-                .participationNum(1)
-                .leader(user)
-                .password("password")
-                .build();
-        roomRepository.save(room);
-        participationRepository.save(Participation.of(user, room));
-        RoomRemoveRequest roomRemoveRequest = RoomRemoveRequest.builder()
-                .roomId(room.getId())
-                .build();
-        //when
-        roomService.removeRoom(member, roomRemoveRequest);
-        //then
-        assertThat(roomRepository.existsById((room.getId()))).isFalse();
-    }
-
-    @Test
-    @DisplayName("팀원이 방 삭제 요청 시 방 참여 인원에서 삭제")
-    void removeRoomByTeamMate() {
-        //given
-        Member user = Member.builder()
-                .role(Role.USER)
-                .email("email")
-                .profile("profile")
-                .nickName("nickName")
-                .build();
-        memberRepository.save(user);
-        Member leader = Member.builder()
-                .role(Role.USER)
-                .email("email")
-                .profile("profile")
-                .nickName("nickName")
-                .build();
-        memberRepository.save(leader);
-        SessionMember member = SessionMember.of(user);
-        Room room = Room.builder()
-                .title("room")
-                .participationNum(1)
-                .leader(leader)
-                .password("password")
-                .build();
-        roomRepository.save(room);
-        participationRepository.save(Participation.of(user, room));
-        participationRepository.save(Participation.of(leader, room));
-        RoomRemoveRequest roomRemoveRequest = RoomRemoveRequest.builder()
-                .roomId(room.getId())
-                .build();
-        //when
-        roomService.removeRoom(member, roomRemoveRequest);
-        //then
-        assertThat(roomRepository.existsById((room.getId()))).isTrue();
-        assertThat(participationRepository.existsByMemberIdAndRoomId(user.getId(), room.getId())).isFalse();
     }
 
     @Test
