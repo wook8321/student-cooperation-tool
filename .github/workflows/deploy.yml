@@ -93,15 +93,14 @@ jobs:
         uses: jsdaniell/create-json@1.1.2
         with:
           name: "credentialforupdate.json"
-          json: ${{ secrets.CREDENTIALFORUPDATE_JSON }}  
-     
-      #gradlew 실행 권한 추가
-      - name: add excute mod
-        run: chmod +x gradlew
-      
-      #gradle clean and build
+          json: ${{ secrets.CREDENTIALFORUPDATE_JSON }} 
+          
+      # git workflow
       - name: Build with Gradle
-        run: ./gradlew clean build
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: --build-cache --parallel :application:test --stacktrace --info
+          cache-read-only: false
 
       - name: before_deploy
         if: contains(github.ref, 'main')
