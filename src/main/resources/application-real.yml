@@ -1,0 +1,6 @@
+spring:
+  profiles:
+    include: db, oauth2, session, s3, google-slide
+  sql:
+    init:
+      mode: always
