@@ -6,6 +6,7 @@ build/
 !**/src/test/**/build/
 **/src/main/**/resources/*.yml
 **/src/main/**/resources/*.properties
+**/src/main/**/resources/*.json
 
 
 ### STS ###
