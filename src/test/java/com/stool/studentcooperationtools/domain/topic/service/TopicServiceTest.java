@@ -80,8 +80,9 @@ class TopicServiceTest {
                 .build();
 
 
+        long invalidRoomId = 2024L;
         TopicAddSocketRequest request = TopicAddSocketRequest.builder()
-                .roomId(1L)
+                .roomId(invalidRoomId)
                 .topic("주제 제목")
                 .build();
         //when
