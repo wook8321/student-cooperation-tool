@@ -83,14 +83,14 @@ jobs:
       
       # credential.json 만들기
       - name: create-credential.json
-        uses: jsdaniell/create-json@v1.2.3
+        uses: jsdaniell/create-json@v1.1.2
         with:
           name: "credential.json"
           json: ${{ secrets.CREDENTIAL_JSON }}
        
       # credentialforupdate.json 만들기
       - name: create-credentialforupdate.json
-        uses: jsdaniell/create-json@1.2.3
+        uses: jsdaniell/create-json@1.1.2
         with:
           name: "credentialforupdate.json"
           json: ${{ secrets.CREDENTIALFORUPDATE_JSON }}  
