@@ -19,7 +19,11 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-        
+	  
+      # runner.os 확인
+      - name: Debug runner.os
+        run: echo "OS is ${{ runner.os }}"
+	
       # 빌드 시간 향상을 위한 캐싱
       - name: Cache
         uses: actions/cache@v4.1.2
