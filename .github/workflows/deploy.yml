@@ -22,7 +22,7 @@ jobs:
         
       # 빌드 시간 향상을 위한 캐싱
       - name: Cache
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4.1.2
         with:
           path: |
             ~/.gradle/caches
