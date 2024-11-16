@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.domain.file.service;
 
+import com.amazonaws.AmazonServiceException;
 import com.stool.studentcooperationtools.domain.file.File;
 import com.stool.studentcooperationtools.domain.file.FileType;
 import com.stool.studentcooperationtools.domain.file.repository.FileRepository;
@@ -12,6 +13,7 @@ import com.stool.studentcooperationtools.websocket.controller.file.response.File
 import com.stool.studentcooperationtools.websocket.controller.file.response.FileUploadWebsocketResponse;
 import com.stool.studentcooperationtools.websocket.controller.request.FileUploadWebsocketRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -66,10 +69,10 @@ public class FileService {
         );
     }
 
-    @Transactional(rollbackFor = {AccessDeniedException.class})//작업 접근 권한이 없다면 rollback한다.
+    @Transactional(rollbackFor = {AccessDeniedException.class, AmazonServiceException.class})//작업 접근 권한이 없다면 rollback한다.
     public FileDeleteWebsocketResponse deleteFile(final FileDeleteWebsocketRequest request,final SessionMember sessionMember) {
         s3Service.deleteFile(request.getFileName());
-        int result = fileRepository.deleteFileByIdAndLeaderOrOwner(request.getFileId(),sessionMember.getMemberSeq());
+        int result = fileRepository.deleteFileByIdAndLeaderOrOwner(sessionMember.getMemberSeq(),request.getFileId());
         if(result == 0){
             throw new AccessDeniedException("파일을 삭제할 권한이 없습니다.");
         }
