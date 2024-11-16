@@ -1,0 +1,135 @@
+name: github action on student-cooperation-tool
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: CheckOut
+        uses: actions/checkout@v4.1.7
+      # jdk 17 설치
+      - name: Set up JDK
+        uses: actions/setup-java@v4.2.2 
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+        
+      # 빌드 시간 향상을 위한 캐싱
+      - name: Cache
+        uses: actions/cache@v4.0.2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+	
+      # application-session.yml 만들기
+      - name: make application-session.yml
+        if: |
+          contains(github.ref, 'main')
+        run: |
+          cd ./src/main/resources
+          touch ./application-session.yml
+          echo "${{secrets.APPLICATION_SESSION}}" >> ./application-session.yml
+        shell: bash
+
+      # application-oauth2.yml 만들기
+      - name: make application-oauth2.yml
+        if: |
+          contains(github.ref, 'main')
+        run: |
+          cd ./src/main/resources
+          touch ./application-oauth2.yml
+          echo "${{secrets.APPLICATION_OAUTH2}}" >> ./application-oauth2.yml
+        shell: bash
+      
+        # application-google-slide.yml 만들기
+      - name: make application-google-slide.yml
+        if: |
+          contains(github.ref, 'main')
+        run: |
+          cd ./src/main/resources
+          touch ./application-google-slide.yml
+          echo "${{secrets.APPLICATION_GOOGLE_SLIDE}}" >> ./application-google-slide.yml
+        shell: bash
+
+        # application-db.yml 만들기
+      - name: make application-db.yml
+        if: |
+          contains(github.ref, 'main')
+        run: |
+          cd ./src/main/resources
+          touch ./application-db.yml
+          echo "${{secrets.APPLICATION_DB}}" >> ./application-db.yml
+        shell: bash
+
+        # application-s3.yml 만들기
+      - name: make application-s3.yml
+        if: |
+          contains(github.ref, 'main')
+        run: |
+          cd ./src/main/resources
+          touch ./application-s3.yml
+          echo "${{secrets.APPLICATION_S3}}" >> ./application-s3.yml
+        shell: bash
+      
+      # credential.json 만들기
+      - name: create-credential.json
+        uses: jsdaniell/create-json@v1.2.3
+        with:
+          name: "credential.json"
+          json: ${{ secrets.CREDENTIAL_JSON }}
+       
+      # credentialforupdate.json 만들기
+      - name: create-credentialforupdate.json
+        uses: jsdaniell/create-json@1.2.3
+        with:
+          name: "credentialforupdate.json"
+          json: ${{ secrets.CREDENTIALFORUPDATE_JSON }}  
+     
+      #gradlew 실행 권한 추가
+      - name: add excute mod
+        run: chmod +x gradlew
+      
+      #gradle clean and build
+      - name: Build with Gradle
+        run: ./gradlew clean build
+
+      - name: before_deploy
+        if: contains(github.ref, 'main')
+        run: |
+          mkdir -p before-deploy/
+          cp scripts/*.sh before-deploy/
+          cp appspec.yml before-deploy/
+          cp ./build/libs/*.jar before-deploy/
+          cp src/main/resources/application-real1.yml before-deploy/
+          cp src/main/resources/application-real2.yml before-deploy/
+          cd ./before-deploy/ && zip -r before-deploy *
+          cd ../ && mkdir -p deploy
+          mv ./before-deploy/before-deploy.zip ./deploy/stool.zip
+        shell: bash
+
+      # github action이 aws 서비스들(s3, codedeploy)에 접근할 IAM key, region 설정
+      - name: Configure AWS Credentials Action for GitHub Actions
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY}}
+          aws-secret-access-key: ${{secrets.AWS_SECRET_KEY}}
+          aws-region: ap-northeast-2
+        
+      # S3에 build(dist 폴더) 파일 업로드
+      - name: upload build file to S3
+        run: aws s3 cp ./deploy/stool.zip s3://stool-s3/stool.zip --acl private
+          
+      # CodeDeploy에 배포 요청
+      - name: Code Deploy
+        run: aws deploy create-deployment --application-name stool-codedeploy
+          --deployment-config-name CodeDeployDefault.OneAtATime
+          --deployment-group-name stool-group
+          --s3-location bucket=stool-s3,bundleType=zip,key=stool.zip
