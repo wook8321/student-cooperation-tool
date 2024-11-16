@@ -15,15 +15,13 @@ jobs:
         uses: actions/checkout@v4.1.7
       # jdk 17 설치
       - name: Set up JDK
-        uses: actions/setup-java@v4.2.2 
+        uses: actions/setup-java@v4.2.2
         with:
           java-version: '17'
           distribution: 'temurin'
-	  
       # runner.os 확인
       - name: Debug runner.os
         run: echo "OS is ${{ runner.os }}"
-	
       # 빌드 시간 향상을 위한 캐싱
       - name: Cache
         uses: actions/cache@v4.1.2
