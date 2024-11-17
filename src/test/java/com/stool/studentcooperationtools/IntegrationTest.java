@@ -6,6 +6,6 @@ import org.springframework.test.context.TestPropertySource;
 
 @ActiveProfiles("test")
 @TestPropertySource(properties = "spring.config.location=classpath:application.yml")
-@SpringBootTest
+@SpringBootTest(classes = StudentCooperationToolsApplication.class)
 public abstract class IntegrationTest {
 }
