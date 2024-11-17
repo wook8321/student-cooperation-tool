@@ -7,15 +7,17 @@ spring:
   session:
     jdbc:
       initialize-schema: always
+
+  datasource :
+    driverClassName: org.h2.Driver
+    username: sa
+    password: 1234
+    url: jdbc:h2:./stool
+
   jpa:
     hibernate:
-      ddl-auto: create # 배포 환경에선 validation으로 하기! 꼭!
-    show-sql: true
-  datasource:
-      username: root
-      password: 100101
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://localhost:3306/student_tool?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      ddl-auto: create
+    database-platform: org.hibernate.dialect.H2Dialect
 
   security:
     oauth2:
