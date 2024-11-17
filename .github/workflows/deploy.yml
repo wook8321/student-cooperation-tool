@@ -94,12 +94,20 @@ jobs:
         with:
           name: "credentialforupdate.json"
           json: ${{ secrets.CREDENTIALFORUPDATE_JSON }} 
-
+      # build용 mysql 세팅
+      - name: SetupMySQL
+        uses: samin/mysql-action@v1
+        with:
+          charater set server: 'utf8'
+          mysql database: 'student_tool'
+          mysql user: 'root'
+          mysql password: ${{secrets.MYSQL_PASSWORD}}
+          
       # gradlew의 권한 추가
       - name: gradlew에 권한 추가
         run: chmod +x gradlew
       
-      # git workflow
+      #gradle clean and build
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2
         with:
