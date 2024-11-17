@@ -99,7 +99,7 @@ jobs:
         uses: samin/mysql-action@v1
         with:
           charater set server: 'utf8'
-          mysql database: 'stool-db'
+          mysql database: 'student_tool'
           mysql user: 'root'
           mysql password: ${{secrets.MYSQL_PASSWORD}}
           
