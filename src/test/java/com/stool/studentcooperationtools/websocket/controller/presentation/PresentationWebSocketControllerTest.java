@@ -2,6 +2,7 @@ package com.stool.studentcooperationtools.websocket.controller.presentation;
 
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.stool.studentcooperationtools.domain.presentation.service.PresentationService;
+import com.stool.studentcooperationtools.security.credential.GoogleCredentialProvider;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.WebsocketTestSupport;
 import com.stool.studentcooperationtools.websocket.controller.presentation.request.PresentationCreateSocketRequest;
@@ -28,6 +29,8 @@ class PresentationWebSocketControllerTest extends WebsocketTestSupport {
 
     @MockBean
     private PresentationService presentationService;
+    @MockBean
+    private GoogleCredentialProvider credentialProvider;
 
     @Test
     @DisplayName("방의 발표자료를 업데이트")
@@ -74,6 +77,8 @@ class PresentationWebSocketControllerTest extends WebsocketTestSupport {
                 .build();
         when(presentationService.createPresentation(any(PresentationCreateSocketRequest.class),
                 any(HttpCredentialsAdapter.class), any(SessionMember.class))).thenReturn(response);
+        doNothing().when(credentialProvider).initializeCredentialAdapter();
+        when(credentialProvider.getCredentialsAdapter()).thenReturn(Mockito.mock(HttpCredentialsAdapter.class));
         stompSession.subscribe(PresentationUpdateSubUrl,resultHandler);
         //when
         stompSession.send("/pub/presentation/create",request);
