@@ -1,10 +1,11 @@
 package com.stool.studentcooperationtools;
 
-import com.stool.studentcooperationtools.domain.IntegrationTest;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 
-class StudentCooperationToolsApplicationTests extends IntegrationTest {
+@SpringBootTest
+class StudentCooperationToolsApplicationTests {
     @Test
     void contextLoads() {
     }
