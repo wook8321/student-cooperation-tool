@@ -70,6 +70,16 @@ jobs:
           touch ./application-db.yml
           echo "${{secrets.APPLICATION_DB}}" >> ./application-db.yml
         shell: bash
+        
+      # application-real-db.yml 만들기
+      - name: make application-real-db.yml
+        if: |
+          contains(github.ref, 'main')
+        run: |
+          cd ./src/main/resources
+          touch ./application-real-db.yml
+          echo "${{secrets.APPLICATION_REAL_DB}}" >> ./application-real-db.yml
+        shell: bash
 
         # application-s3.yml 만들기
       - name: make application-s3.yml
