@@ -1,6 +1,6 @@
 package com.stool.studentcooperationtools.domain.script.service;
 
-import com.stool.studentcooperationtools.domain.IntegrationTest;
+import com.stool.studentcooperationtools.IntegrationTest;
 import com.stool.studentcooperationtools.domain.script.Script;
 import com.stool.studentcooperationtools.domain.script.repository.ScriptRepository;
 import com.stool.studentcooperationtools.websocket.controller.script.request.ScriptUpdateSocketRequest;

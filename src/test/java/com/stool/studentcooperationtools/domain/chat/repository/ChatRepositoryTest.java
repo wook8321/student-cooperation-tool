@@ -1,6 +1,6 @@
 package com.stool.studentcooperationtools.domain.chat.repository;
 
-import com.stool.studentcooperationtools.domain.IntegrationTest;
+import com.stool.studentcooperationtools.IntegrationTest;
 import com.stool.studentcooperationtools.domain.chat.Chat;
 import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.member.Role;

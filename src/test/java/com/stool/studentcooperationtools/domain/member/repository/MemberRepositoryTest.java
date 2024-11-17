@@ -1,6 +1,6 @@
 package com.stool.studentcooperationtools.domain.member.repository;
 
-import com.stool.studentcooperationtools.domain.IntegrationTest;
+import com.stool.studentcooperationtools.IntegrationTest;
 import com.stool.studentcooperationtools.domain.friendship.Friendship;
 import com.stool.studentcooperationtools.domain.friendship.repository.FriendshipRepository;
 import com.stool.studentcooperationtools.domain.member.Member;

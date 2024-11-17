@@ -1,4 +1,4 @@
-package com.stool.studentcooperationtools.domain;
+package com.stool.studentcooperationtools;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;

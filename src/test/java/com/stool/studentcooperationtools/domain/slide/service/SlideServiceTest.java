@@ -1,6 +1,6 @@
 package com.stool.studentcooperationtools.domain.slide.service;
 
-import com.stool.studentcooperationtools.domain.IntegrationTest;
+import com.stool.studentcooperationtools.IntegrationTest;
 import com.stool.studentcooperationtools.domain.presentation.Presentation;
 import com.stool.studentcooperationtools.domain.presentation.repository.PresentationRepository;
 import com.stool.studentcooperationtools.domain.script.Script;
