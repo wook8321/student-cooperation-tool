@@ -119,10 +119,7 @@ jobs:
       
       #gradle clean and build
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: --build-cache --parallel test --stacktrace --info
-          cache-read-only: false
+        run: ./gradlew clean build
 
       - name: before_deploy
         if: contains(github.ref, 'main')
