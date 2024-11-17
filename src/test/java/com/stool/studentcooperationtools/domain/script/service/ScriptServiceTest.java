@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.domain.script.service;
 
+import com.stool.studentcooperationtools.domain.IntegrationTest;
 import com.stool.studentcooperationtools.domain.script.Script;
 import com.stool.studentcooperationtools.domain.script.repository.ScriptRepository;
 import com.stool.studentcooperationtools.websocket.controller.script.request.ScriptUpdateSocketRequest;
@@ -7,14 +8,13 @@ import com.stool.studentcooperationtools.websocket.controller.script.response.Sc
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional(readOnly = true)
-@SpringBootTest
-class ScriptServiceTest {
+class ScriptServiceTest extends IntegrationTest {
 
     @Autowired
     private ScriptService scriptService;

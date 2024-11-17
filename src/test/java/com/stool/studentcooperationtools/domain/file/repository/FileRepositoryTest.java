@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.domain.file.repository;
 
+import com.stool.studentcooperationtools.domain.IntegrationTest;
 import com.stool.studentcooperationtools.domain.file.File;
 import com.stool.studentcooperationtools.domain.file.FileType;
 import com.stool.studentcooperationtools.domain.member.Member;
@@ -12,7 +13,6 @@ import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -20,9 +20,9 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+
 @Transactional
-class FileRepositoryTest {
+class FileRepositoryTest extends IntegrationTest {
 
     @Autowired
     FileRepository fileRepository;

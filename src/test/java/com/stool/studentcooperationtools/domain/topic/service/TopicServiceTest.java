@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.domain.topic.service;
 
+import com.stool.studentcooperationtools.domain.IntegrationTest;
 import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.member.Role;
 import com.stool.studentcooperationtools.domain.member.repository.MemberRepository;
@@ -13,7 +14,6 @@ import com.stool.studentcooperationtools.websocket.controller.topic.request.Topi
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +22,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
 @Transactional
-class TopicServiceTest {
+class TopicServiceTest extends IntegrationTest {
 
     @Autowired
     TopicService topicService;

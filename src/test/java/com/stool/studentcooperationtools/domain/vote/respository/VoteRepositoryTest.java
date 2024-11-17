@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.domain.vote.respository;
 
+import com.stool.studentcooperationtools.domain.IntegrationTest;
 import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.member.Role;
 import com.stool.studentcooperationtools.domain.member.repository.MemberRepository;
@@ -11,7 +12,6 @@ import com.stool.studentcooperationtools.domain.vote.Vote;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -19,8 +19,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Transactional
-@SpringBootTest
-class VoteRepositoryTest {
+class VoteRepositoryTest extends IntegrationTest {
 
     @Autowired
     VoteRepository voteRepository;

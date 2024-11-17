@@ -1,12 +1,11 @@
 package com.stool.studentcooperationtools.domain.slide.repository;
 
+import com.stool.studentcooperationtools.domain.IntegrationTest;
 import com.stool.studentcooperationtools.domain.presentation.Presentation;
 import com.stool.studentcooperationtools.domain.presentation.repository.PresentationRepository;
-import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.domain.script.Script;
 import com.stool.studentcooperationtools.domain.script.repository.ScriptRepository;
 import com.stool.studentcooperationtools.domain.slide.Slide;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +13,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-class SlideRepositoryTest {
+class SlideRepositoryTest extends IntegrationTest {
 
     @Autowired
     private SlideRepository slideRepository;
