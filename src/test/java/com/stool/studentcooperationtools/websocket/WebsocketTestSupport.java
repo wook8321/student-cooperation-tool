@@ -58,6 +58,7 @@ public abstract class WebsocketTestSupport {
     void setUp() throws ExecutionException, InterruptedException, TimeoutException, JsonProcessingException {
         URL = "ws://localhost:%d/ws-stomp".formatted(port);
         stompClient = createStompClient();
+        executeSql("sql/SpringSessionDelete.sql");
         executeSql("sql/SpringSessionCreate.sql");
         StompHeaders stompHeaders = new StompHeaders();
         stompHeaders.add(SESSION_NAME,"testSession");
