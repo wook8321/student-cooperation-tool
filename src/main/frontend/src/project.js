@@ -7,59 +7,111 @@ import "./project.css";
 
 const domain = "http://localhost:8080"
 
+
+
 const Project = () => {
     const [createmodal, setCreateModal] = useState(false);
     const [roomData, setRoomData] = useState([]);
     const [searchTitle, setSearchTitle] = useState('');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-
-    const [enterModal, setenterModal] = useState(false);
+    const [enterModal, setEnterModal] = useState(false);
     const [password, setPassword] = useState('1234');
     const [inputPassword, setInputPassword] = useState('');
     const [error, setError] = useState(false);
 
+    const ProjectsList = () => {
+
+        const handleDeleteRoom = () => {
+            axios.delete(`${domain}/api/v1/rooms`)
+                .then(() => {
+                    console.log('Successed to delete room');
+                })
+                .catch(() => {
+                    console.log('Failed to delete room');
+                });
+        };
+
+        useEffect(() => {
+            axios.get('${domain}/api/v1/rooms?page=1')
+                .then((res) => {
+                    setRoomData(res.data);
+                })
+                .catch(() => {
+                    console.log('failed to load rooms');
+                });
+        }, []);
+
+        return (
+            <>
+                <div className="room_grid">
+                    {roomData.map((room) => (
+                        <div key={room.roomId} className="room_card">
+                            <h4>{room.title}</h4>
+                            <button onClick={() => handleDeleteRoom(room.roomId)}>X</button>
+                                <div className="process_flow">
+                                    <div className="process_step">주제선정</div>
+                                    <div className="arrow">→</div>
+                                    <div className="process_step">자료 조사</div>
+                                    <div className="arrow">→</div>
+                                    <div className="process_step">발표 자료</div>
+                                    <div className="arrow">→</div>
+                                    <div className="process_step">발표 준비</div>
+                                </div>   
+                            <button onClick={setEnterModal(true)}>입장</button>
+                        </div>
+                    ))}
+                </div>
+
+                
+            </>
+        );
+    };
+
     const handleSearch = () => {
         axios.get(`${domain}/api/v1/rooms/search?title=${searchTitle}&page=1`)
             .then((res) => {
-                setRoomData(JSON.stringify(res.data));
+                setRoomData(res.data);
             })
             .catch(() => {
                 console.log('Failed to search project.');
             });
     };
 
+    const createClick = () => {
+        setCreateModal(true);
+    }
+
     const handleCreateClick = () => {
         axios.post(`${domain}/api/v1/rooms`)
             .then((res) => {
-                setRoomData(JSON.stringify(res.data));
-                setCreateModal(true);  
+                setRoomData(res.data);
+                setCreateModal(false);
             })
             .catch(() => {
-                console.log('Failed to create project.'); 
+                console.log('Failed to create project.');
+                setCreateModal(false);
             });
     };
-
 
     const closeCreateModal = () => {
         setCreateModal(false);
         setRoomData([]);  
     };
 
-    const handleDeleteRoom = (roomId) => {
-        axios.delete(`${domain}/api/v1/rooms`)
-            .then(() => {
-                console.log('Successed to delete room');
+    const handleEnterRoom = () => {
+        axios.post(`${domain}/api/v1/rooms/enter-room`)
+            .then((res) => {
+                setPassword(res.password);
             })
             .catch(() => {
-                console.log('Failed to delete room');
+                console.log('Failed to enter room');
             });
     };
 
-
     const handlePasswordCheck = () => {
         if (inputPassword === password) {
-            <Link to='/subject'>
+            <Link to='/topic'>
                 
             </Link> 
         } else {
@@ -101,37 +153,18 @@ const Project = () => {
                 </button>
             </form>
 
-            
-
             <form className='create_box' onSubmit={(e) => e.preventDefault()}>
                 <button
                     className='create_button'
                     type="submit"
-                    onClick={handleCreateClick}
+                    onClick={createClick}
                 >
                     프로젝트 생성
                 </button>
             </form>
 
-            <div className="room_grid">
-                {roomData.map((room) => (
-                    <div key={room.id} className="room_card">
-                        <h4>{room.title}</h4>
-                        <button onClick={() => handleDeleteRoom(room.id)}>X</button>
-                        <div className="process_flow">
-                            <div className="process_step">주제선정</div>
-                            <div className="arrow">→</div>
-                            <div className="process_step">자료 조사</div>
-                            <div className="arrow">→</div>
-                            <div className="process_step">발표 자료</div>
-                            <div className="arrow">→</div>
-                            <div className="process_step">발표 준비</div>
-                        </div>
-                        
-                    </div>
-                ))}
-            </div>
-            
+            <ProjectsList />
+    
             {/*
             
             <div className="pagination">
@@ -149,7 +182,22 @@ const Project = () => {
             </div>
             
             */}
-            
+            {enterModal && (
+                <div className="modal_section">
+                    <label className="modal_label">비밀번호</label>
+                        <input
+                            className="modal_input"
+                            type="password"
+                            value={inputPassword}
+                            onChange={(e) => setInputPassword(e.target.value)}
+                        />
+                        
+                        <button className="room_enter" onClick={handlePasswordCheck}>
+                            입장
+                        </button>
+                </div>                
+            )}
+
             {createmodal && (
                 <div className='add_project_container'>
                     <div className="modal_overlay">
@@ -178,7 +226,7 @@ const Project = () => {
                                         <div className="process_step">발표 준비</div>
                                     </div>
                                 </div>
-                                <button className='create_complete_btn'>생성</button> 
+                                <button className='create_complete_btn' onClick={handleCreateClick}>생성</button> 
                             </div>     
                         </div> 
                     </div>   
@@ -186,17 +234,7 @@ const Project = () => {
             )}
         </div>
 
-        {enterModal && (
-            <div className="modal_section">
-                <label className="modal_label">비밀번호</label>
-                    <input
-                        className="modal_input"
-                        type="password"
-                        value={inputPassword}
-                        onChange={(e) => setInputPassword(e.target.value)}
-                    />
-            </div>                
-        )}
+        
 
         {error && (
             <div>
