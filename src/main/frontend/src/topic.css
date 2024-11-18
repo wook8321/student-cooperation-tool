@@ -1,0 +1,105 @@
+.background {
+    background: '#82c91e';
+    height: '100vh'; 
+    padding: '20px';
+}
+
+.add_topic {
+    font-size: '24px';
+    color: '#fff';
+    background: '#4dabf7';
+    padding: '10px 20px';
+    border-radius: '5px';
+    cursor: 'pointer';
+    border: 'none';
+}
+
+.process {
+    position: 'fixed';
+    bottom: '20px';
+    width: '100%';
+    display: 'flex';
+    justify-content: 'space-around'
+}
+
+.topics_overlay {
+    display: 'flex';
+    justify-content: 'space-between';
+}
+
+.topics_container {
+    display: 'flex';
+    justify-content: 'space-between';
+}
+
+.topics_content {
+    background: '#ffe066';
+    padding: '20px';
+    border-radius: '10px';
+    box-shadow: '0px 4px 8px rgba(0, 0, 0, 0.2)';
+    width: '200px';
+}
+
+.chat-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.chat-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 600px;
+    position: relative;
+}
+  
+.chat-close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.like-container {
+    width: 59px;
+    height: 24px;
+    margin-right: 5px;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+  }
+
+.like-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+  
+.like-image {
+    width: 20px;
+    height: 20px;
+}
+  
+.like-count {
+    font-size: 10px;
+    padding-left: 3px;
+    display: flex;
+    align-items: center;
+}
