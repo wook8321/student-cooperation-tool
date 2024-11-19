@@ -9,6 +9,7 @@ const domain = "http://localhost:8080"
 
 const Project = () => {
     const [createmodal, setCreateModal] = useState(false);
+    const [rooms, setRooms] = useState([]); // 참여한 방 정보
     const [roomData, setRoomData] = useState([]);
     const [searchTitle, setSearchTitle] = useState('');
     const [page, setPage] = useState(1);
@@ -17,22 +18,95 @@ const Project = () => {
     const [enterModal, setenterModal] = useState(false);
     const [password, setPassword] = useState('1234');
     const [inputPassword, setInputPassword] = useState('');
-    const [error, setError] = useState(false);
+    const [error, setError] = useState(false); 
 
-    const handleSearch = () => {
+    const ProjectList = () => {
+        
+        useEffect(() => {
+            axios.get(domain + '/api/v1/rooms?page=1')
+                .then((res) => {
+                    setRooms(res.data);
+                })
+                .catch(() => {
+                    console.log('failed to load friends');
+                });
+        }, []);
+    
+        return (
+            <div>
+                <h3>참여한 프로젝트 목록</h3>
+                <ul>
+                    {rooms.map(room => (
+                        <li key={room.id} className="room-item">
+                        <div className="room-button" onClick={() => setenterModal(true)}>
+                          <span>{room.title}</span>
+                          <div className="room-steps">
+                            <span>주제 선정</span>
+                            <span>자료 조사</span>
+                            <span>발표 자료</span>
+                            <span>발표 준비</span>
+                          </div>
+                        </div>
+                        <button
+                          className="delete-button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteRoom(room.id);
+                          }}
+                        >
+                          X
+                        </button>
+                      </li>
+                    ))}
+                </ul>
+            </div>
+        );
+    };
+
+    const handleSearch = ({ searchTitle }) => {
         axios.get(`${domain}/api/v1/rooms/search?title=${searchTitle}&page=1`)
             .then((res) => {
-                setRoomData(JSON.stringify(res.data));
+                setRoomData(res.data);
             })
             .catch(() => {
                 console.log('Failed to search project.');
             });
+
+        return (
+            <div>
+                <h3>검색한 프로젝트 목록</h3>
+                <ul>
+                    {rooms.map(room => (
+                        <li key={room.id} className="room-item">
+                        <div className="room-button" onClick={() => setenterModal(true)}>
+                            <span>{room.title}</span>
+                            <div className="room-steps">
+                                <span>주제 선정</span>
+                                <span>자료 조사</span>
+                                <span>발표 자료</span>
+                                <span>발표 준비</span>
+                            </div>
+                        </div>
+                        <button
+                            className="delete-button"
+                            onClick={(e) => {
+                             e.stopPropagation();
+                            handleDeleteRoom(room.id);
+                            }}
+                        >
+                            X
+                        </button>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        );
     };
 
     const handleCreateClick = () => {
         axios.post(`${domain}/api/v1/rooms`)
             .then((res) => {
-                setRoomData(JSON.stringify(res.data));
+                setRoomData(res.data);
                 setCreateModal(true);  
             })
             .catch(() => {
@@ -46,8 +120,8 @@ const Project = () => {
         setRoomData([]);  
     };
 
-    const handleDeleteRoom = (roomId) => {
-        axios.delete(`${domain}/api/v1/rooms`)
+    const handleDeleteRoom = ({roomId}) => {
+        axios.delete(`${domain}/api/v1/rooms/${roomId}`)
             .then(() => {
                 console.log('Successed to delete room');
             })
@@ -57,7 +131,7 @@ const Project = () => {
     };
 
 
-    const handlePasswordCheck = () => {
+    const handlePasswordCheck = ({ password }) => {
         if (inputPassword === password) {
             <Link to='/subject'>
                 
@@ -82,6 +156,8 @@ const Project = () => {
                     </button>
                 </Link>
         </div>
+
+        <ProjectList />
         
         <div className='container'>
             <form className='search_box' onSubmit={(e) => e.preventDefault()}>
@@ -100,8 +176,6 @@ const Project = () => {
                     검색
                 </button>
             </form>
-
-            
 
             <form className='create_box' onSubmit={(e) => e.preventDefault()}>
                 <button
@@ -195,6 +269,7 @@ const Project = () => {
                         value={inputPassword}
                         onChange={(e) => setInputPassword(e.target.value)}
                     />
+                    <button onClick={handlePasswordCheck(roomData.password)}className='enter_btn'>입장</button>
             </div>                
         )}
 
