@@ -1,13 +1,16 @@
 package com.stool.studentcooperationtools.websocket;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.stool.studentcooperationtools.websocket.controller.request.WebsocketResponse;
+import com.stool.studentcooperationtools.websocket.converter.SessionMemberMessageConverter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
@@ -15,6 +18,8 @@ import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
@@ -31,6 +36,8 @@ import java.util.concurrent.TimeoutException;
 
 import static com.stool.studentcooperationtools.security.config.SecurityConfig.SESSION_NAME;
 
+@ActiveProfiles("test")
+@TestPropertySource(properties = "spring.config.location=classpath:application.yml")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class WebsocketTestSupport {
 
@@ -44,11 +51,14 @@ public abstract class WebsocketTestSupport {
     protected WebSocketStompClient stompClient;
     protected final CustomSessionHandlerAdapter<WebsocketResponse> resultHandler = new CustomSessionHandlerAdapter<>(WebsocketResponse.class);
 
+    @MockBean
+    SessionMemberMessageConverter sessionMemberMessageConverter;
 
     @BeforeEach
-    void setUp() throws ExecutionException, InterruptedException, TimeoutException {
+    void setUp() throws ExecutionException, InterruptedException, TimeoutException, JsonProcessingException {
         URL = "ws://localhost:%d/ws-stomp".formatted(port);
         stompClient = createStompClient();
+        executeSql("sql/SpringSessionDelete.sql");
         executeSql("sql/SpringSessionCreate.sql");
         StompHeaders stompHeaders = new StompHeaders();
         stompHeaders.add(SESSION_NAME,"testSession");

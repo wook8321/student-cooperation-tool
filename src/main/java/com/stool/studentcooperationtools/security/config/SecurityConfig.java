@@ -25,13 +25,12 @@ public class SecurityConfig {
                             .permitAll();
                 })
                 .authorizeHttpRequests( authorize -> { //인증 없이 접근가능한 url
-                    authorize.requestMatchers("/","/api/test","/login","/oauth/**","/logout","/ws-stomp/**")
+                    authorize.requestMatchers("/","/api/test","/login","/oauth/**","/logout","/ws-stomp/**","/profile")
                             .permitAll();
                 })
                 .sessionManagement(session->session //세션 고정 공격 보호
                         .sessionFixation().changeSessionId()
                 )
-                .formLogin(AbstractHttpConfigurer::disable) // form 로그인 불가능 설정
                 .authorizeHttpRequests( authorize -> { // 나머지 모든 url은 인증이 필요
                     authorize.anyRequest().authenticated();
                 })

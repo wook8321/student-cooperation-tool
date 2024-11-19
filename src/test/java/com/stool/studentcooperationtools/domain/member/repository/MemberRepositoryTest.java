@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.domain.member.repository;
 
+import com.stool.studentcooperationtools.IntegrationTest;
 import com.stool.studentcooperationtools.domain.friendship.Friendship;
 import com.stool.studentcooperationtools.domain.friendship.repository.FriendshipRepository;
 import com.stool.studentcooperationtools.domain.member.Member;
@@ -7,15 +8,13 @@ import com.stool.studentcooperationtools.domain.member.Role;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 @Transactional
-@SpringBootTest
-class MemberRepositoryTest {
+class MemberRepositoryTest extends IntegrationTest {
 
     @Autowired
     MemberRepository memberRepository;
