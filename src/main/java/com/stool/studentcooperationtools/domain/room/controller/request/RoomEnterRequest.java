@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class RoomPasswordValidRequest {
+public class RoomEnterRequest {
 
     @NotNull
     private Long roomId;
@@ -16,7 +16,7 @@ public class RoomPasswordValidRequest {
     private String password;
 
     @Builder
-    private RoomPasswordValidRequest(final String password, final Long roomId) {
+    private RoomEnterRequest(final String password, final Long roomId) {
         this.password = password;
         this.roomId = roomId;
     }

@@ -140,6 +140,7 @@ include::{snippets}/Topic-find/response-fields.adoc[]
 
 ==== HTTP Request
 include::{snippets}/chat-find/http-request.adoc[]
+include::{snippets}/chat-find/query-parameters.adoc[]
 
 ==== HTTP Response
 include::{snippets}/chat-find/http-response.adoc[]
@@ -181,6 +182,17 @@ include::{snippets}/review-add/request-fields.adoc[]
 include::{snippets}/review-add/http-response.adoc[]
 include::{snippets}/review-add/response-fields.adoc[]
 
+=== 해당 자료에 평가 삭제
+
+==== HTTP Request
+include::{snippets}/review-delete/http-request.adoc[]
+include::{snippets}/review-delete/request-fields.adoc[]
+
+
+==== HTTP Response
+include::{snippets}/review-delete/http-response.adoc[]
+include::{snippets}/review-delete/response-fields.adoc[]
+
 [[Presentation-API]]
 == Presentation API
 
@@ -206,3 +218,16 @@ include::{snippets}/slide-find/http-request.adoc[]
 ==== HTTP Response
 include::{snippets}/slide-find/http-response.adoc[]
 include::{snippets}/slide-find/response-fields.adoc[]
+
+[[File-API]]
+== File API
+
+=== 파일 다운로드
+
+==== HTTP Request
+include::{snippets}/file-download/http-request.adoc[]
+include::{snippets}/file-download/query-parameters.adoc[]
+
+==== HTTP Request
+include::{snippets}/file-download/http-response.adoc[]
+include::{snippets}/file-download/response-fields.adoc[]

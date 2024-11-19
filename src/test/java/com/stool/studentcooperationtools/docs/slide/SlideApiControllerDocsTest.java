@@ -5,6 +5,7 @@ import com.stool.studentcooperationtools.domain.slide.controller.SlideApiControl
 import com.stool.studentcooperationtools.domain.slide.controller.response.SlideFindDto;
 import com.stool.studentcooperationtools.domain.slide.controller.response.SlideFindResponse;
 import com.stool.studentcooperationtools.domain.slide.service.SlideService;
+import com.stool.studentcooperationtools.security.credential.GoogleCredentialProvider;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -22,10 +23,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class SlideApiControllerDocsTest extends RestDocsSupport {
 
     private SlideService slideService = Mockito.mock(SlideService.class);
-
+    private GoogleCredentialProvider credentialProvider = Mockito.mock(GoogleCredentialProvider.class);
     @Override
     protected Object initController() {
-        return new SlideApiController(slideService);
+        return new SlideApiController(slideService, credentialProvider);
     }
 
     @Test
@@ -52,7 +53,7 @@ public class SlideApiControllerDocsTest extends RestDocsSupport {
 
         //when
         //then
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/presentations/"+ presentationId + "/slides"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/presentation/"+ presentationId + "/slides"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andDo(document("slide-find",
