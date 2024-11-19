@@ -7,18 +7,18 @@ import { Client, IMessage } from "@stomp/stompjs";
 const domain = "http://localhost:8080"
 
 interface ChatMessageReqeust {
-    from: string;
-    text: string;
-    roomId: number;
+  from: string;
+  text: string;
+  roomId: number;
   }
-  interface ChatMessageResponse{
-    id: number;
-    content: string;
-    writer: string;
-  }
+
+interface ChatMessageResponse{
+  id: number;
+  content: string;
+  writer: string;
+}
   
-  function ChatPage() {
-    const { roomId } = useParams();
+  const ChatPage = ({ roomId }) => {
     const [stompClient, setStompClient] = useState<Client | null>(null);
     const [messages, setMessages] = useState<ChatMessageResponse[]>([]);
     const [writer, setWriter] = useState<string>("");
@@ -28,12 +28,12 @@ interface ChatMessageReqeust {
       const loadChatHistory = async () => {
         try {
           const response = await axios.get(
-            `{$domain}/api/v1/rooms/${roomId}/chats`
+            `${domain}/api/v1/rooms/${roomId}/chats`
           );
           const messages = response.data.data.messageList as ChatMessageResponse[];
           setMessages(messages);
         } catch (error) {
-          console.error("채팅 내역 로드 실패", error);
+          console.error("Failed to load chat", error);
         }
       };
   
@@ -88,12 +88,7 @@ interface ChatMessageReqeust {
 
     return (
       <div className="chat-container">
-        <div>
-          <Link to={"/api/v1/rooms/topics"} className="back-link">
-            뒤로 가기
-          </Link>
-        </div>
-        <div className="chat-messages">
+        <div className="chat_messages">
           {messages.map((msg, idx) => (
             <div key={idx}>
               {msg.writer}: {msg.content}
