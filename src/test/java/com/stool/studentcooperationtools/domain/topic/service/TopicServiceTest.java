@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -79,8 +80,9 @@ class TopicServiceTest {
                 .build();
 
 
+        long invalidRoomId = 2024L;
         TopicAddSocketRequest request = TopicAddSocketRequest.builder()
-                .roomId(1L)
+                .roomId(invalidRoomId)
                 .topic("주제 제목")
                 .build();
         //when
@@ -151,7 +153,7 @@ class TopicServiceTest {
 
         roomRepository.save(room);
 
-        Long InvalidMemberId = 2L;
+        Long InvalidMemberId = 2024L;
         SessionMember sessionMember = SessionMember.builder()
                 .profile(member.getProfile())
                 .memberSeq(InvalidMemberId)
@@ -175,8 +177,8 @@ class TopicServiceTest {
         List<Topic> topics = topicRepository.findAll();
         //then
         assertThatThrownBy(() -> topicService.deleteTopic(request, sessionMember))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageMatching("주제를 삭제할 수 없습니다.");
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageMatching("주제를 삭제할 권한이 없습니다.");
         assertThat(topics).hasSize(1);
     }
 }

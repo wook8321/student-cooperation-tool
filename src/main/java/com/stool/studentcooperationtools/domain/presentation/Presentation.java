@@ -5,10 +5,12 @@ import com.stool.studentcooperationtools.domain.room.Room;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class Presentation extends BaseTimeEntity {
 
     @Id
@@ -18,12 +20,16 @@ public class Presentation extends BaseTimeEntity {
     @Column(nullable = false)
     private String presentationPath;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     private Room room;
 
     @Builder
     private Presentation(final String presentationPath, final Room room) {
         this.presentationPath = presentationPath;
         this.room = room;
+    }
+
+    public void updatePath(String presentationPath) {
+        this.presentationPath = presentationPath;
     }
 }

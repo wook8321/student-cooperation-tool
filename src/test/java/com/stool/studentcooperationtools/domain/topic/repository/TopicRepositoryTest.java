@@ -159,4 +159,46 @@ class TopicRepositoryTest {
         assertThat(topics).hasSize(0);
         assertThat(updatedData).isEqualTo(1);
     }
+
+    @DisplayName("주제의 주인,방장이 아닌 제 3자가 삭제할 경우 삭제하지 않는다.")
+    @Test
+    void deleteTopicByAnother(){
+        //given
+        Member leader = Member.builder()
+                .email("방장이메일")
+                .nickName("방장")
+                .profile("방장프로필")
+                .role(Role.USER)
+                .build();
+        memberRepository.save(leader);
+        Room room = Room.builder()
+                .password("password")
+                .title("제목")
+                .leader(leader)
+                .participationNum(0)
+                .build();
+
+        Member owner = Member.builder()
+                .email("팀원이메일")
+                .nickName("팀원")
+                .profile("팀원프로필")
+                .role(Role.USER)
+                .build();
+        Topic topic =Topic.builder()
+                .topic("주제")
+                .member(owner)
+                .room(room)
+                .build();
+        roomRepository.save(room);
+        memberRepository.save(owner);
+        topicRepository.save(topic);
+
+        //when
+        long invalidId = 2024L;
+        int updatedData = topicRepository.deleteTopicByLeaderOrOwner(topic.getId(), invalidId);
+        List<Topic> topics = topicRepository.findAll();
+        //then
+        assertThat(topics).hasSize(1);
+        assertThat(updatedData).isEqualTo(0);
+    }
 }
