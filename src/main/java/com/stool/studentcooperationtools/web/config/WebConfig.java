@@ -1,5 +1,7 @@
 package com.stool.studentcooperationtools.web.config;
 
+import com.stool.studentcooperationtools.security.credential.resolver.GoogleCredentialArgumentResolver;
+import com.stool.studentcooperationtools.security.credential.resolver.CredentialsAdapterArgumentResolver;
 import com.stool.studentcooperationtools.web.resolver.SessionMemberArgumentResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -13,10 +15,14 @@ import java.util.List;
 public class WebConfig implements WebMvcConfigurer {
 
     private final SessionMemberArgumentResolver sessionMemberArgumentResolver;
+    private final GoogleCredentialArgumentResolver googleCredentialArgumentResolver;
+    private final CredentialsAdapterArgumentResolver googleCredentialsAdapterArgumentResolver;
 
     @Override
     public void addArgumentResolvers(final List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(sessionMemberArgumentResolver);
+        resolvers.add(googleCredentialArgumentResolver);
+        resolvers.add(googleCredentialsAdapterArgumentResolver);
         WebMvcConfigurer.super.addArgumentResolvers(resolvers);
     }
 }

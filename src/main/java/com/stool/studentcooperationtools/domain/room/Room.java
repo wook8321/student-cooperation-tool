@@ -34,11 +34,11 @@ public class Room extends BaseTimeEntity {
     @Column
     private int participationNum;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    private Member leader;
+
     @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Topic mainTopic;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Member leader;
 
     @Builder
     private Room(final String title, final String password, final int participationNum, final Member leader) {
@@ -47,7 +47,7 @@ public class Room extends BaseTimeEntity {
         this.participationNum = participationNum;
         this.leader = leader;
     }
-    
+
     public String getTopic(){
         if(mainTopic == null){
             return "미정";

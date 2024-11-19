@@ -12,6 +12,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    public static final String SESSION_NAME = "SESSION";
+
     private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
@@ -23,27 +25,26 @@ public class SecurityConfig {
                             .permitAll();
                 })
                 .authorizeHttpRequests( authorize -> { //인증 없이 접근가능한 url
-                    authorize.requestMatchers("/","/api/test","/login","/oauth/**","/logout")
+                    authorize.requestMatchers("/","/api/test","/login","/oauth/**","/logout","/ws-stomp/**","/profile")
                             .permitAll();
                 })
                 .sessionManagement(session->session //세션 고정 공격 보호
                         .sessionFixation().changeSessionId()
                 )
-                .formLogin(AbstractHttpConfigurer::disable) // form 로그인 불가능 설정
                 .authorizeHttpRequests( authorize -> { // 나머지 모든 url은 인증이 필요
                     authorize.anyRequest().authenticated();
                 })
                 .oauth2Login((oauth)->oauth
                         .userInfoEndpoint((endPoint)->endPoint
-                                .userService(customOAuth2UserService)
+                                .userService(customOAuth2UserService) // OAuth2유저의 정보의 EndPoint
                         )
-                        .defaultSuccessUrl("/")
+                        .defaultSuccessUrl("/")// 로그인이 성공했을 때 redirect url
                 )
                 .logout(logout->logout //로그아웃 설정
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
+                        .logoutUrl("/logout")// 로그아웃 url
+                        .logoutSuccessUrl("/")// 로그아웃 성공했을 때 redirect url
+                        .invalidateHttpSession(true)// 모든 session을 초기화하는 설정
+                        .deleteCookies(SESSION_NAME)
                 )
                 .build();
     }

@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.domain.room.repository;
 
+import com.stool.studentcooperationtools.IntegrationTest;
 import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.member.Role;
 import com.stool.studentcooperationtools.domain.member.repository.MemberRepository;
@@ -10,18 +11,17 @@ import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
-@SpringBootTest
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 @Transactional
-class RoomRepositoryTest {
+class RoomRepositoryTest extends IntegrationTest {
 
     @Autowired
     RoomRepository roomRepository;
@@ -35,16 +35,16 @@ class RoomRepositoryTest {
     void findAllByMemberIdWithRoom() {
         //given
         Room room = Room.builder()
-                        .title("room")
-                        .participationNum(1)
-                        .password("password")
-                        .build();
+                .title("room")
+                .participationNum(1)
+                .password("password")
+                .build();
         Member user = Member.builder()
-                        .role(Role.USER)
-                        .email("email")
-                        .profile("profile")
-                        .nickName("nickName")
-                        .build();
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickName")
+                .build();
         memberRepository.save(user);
         SessionMember member = SessionMember.of(user);
         roomRepository.save(room);

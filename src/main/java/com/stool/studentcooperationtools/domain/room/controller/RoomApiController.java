@@ -2,7 +2,7 @@ package com.stool.studentcooperationtools.domain.room.controller;
 
 import com.stool.studentcooperationtools.domain.api.ApiResponse;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
-import com.stool.studentcooperationtools.domain.room.controller.request.RoomPasswordValidRequest;
+import com.stool.studentcooperationtools.domain.room.controller.request.RoomEnterRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomRemoveRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomTopicUpdateRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomAddResponse;
@@ -14,6 +14,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,14 +45,14 @@ public class RoomApiController {
     }
 
     @DeleteMapping("/api/v1/rooms")
-    public ApiResponse<Boolean> removeRoom(SessionMember member, @Valid @RequestBody RoomRemoveRequest request){
+    public ApiResponse<Boolean> removeRoom(SessionMember member, @Valid @RequestBody RoomRemoveRequest request) {
         Boolean result = roomService.removeRoom(member, request);
         return ApiResponse.of(HttpStatus.OK,result);
     }
 
-    @PostMapping("/api/v1/rooms/valid-password")
-    public ApiResponse<Boolean> validRoomPassword(SessionMember member, @Valid @RequestBody RoomPasswordValidRequest request){
-        Boolean result = roomService.validRoomPassword(member, request);
+    @PostMapping("/api/v1/rooms/enter-room")
+    public ApiResponse<Boolean> enterRoom(SessionMember member, @Valid @RequestBody RoomEnterRequest request){
+        Boolean result = roomService.enterRoom(member, request);
         return ApiResponse.of(HttpStatus.OK, result);
     }
 
