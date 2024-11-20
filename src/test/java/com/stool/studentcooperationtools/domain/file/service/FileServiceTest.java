@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.domain.file.service;
 
+import com.stool.studentcooperationtools.IntegrationTest;
 import com.stool.studentcooperationtools.domain.file.File;
 import com.stool.studentcooperationtools.domain.file.FileType;
 import com.stool.studentcooperationtools.domain.file.repository.FileRepository;
@@ -20,7 +21,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,9 +31,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
 
-@SpringBootTest
 @Transactional
-class FileServiceTest {
+class FileServiceTest extends IntegrationTest {
 
     @Autowired
     FileService fileService;
@@ -49,7 +49,7 @@ class FileServiceTest {
     @Autowired
     RoomRepository roomRepository;
 
-    @Autowired
+    @MockBean
     S3Service s3Service;
 
     @DisplayName("파일을 추가할 때, 파일을 추가할 역할이 존재하지 않으면 에러가 발생한다.")
