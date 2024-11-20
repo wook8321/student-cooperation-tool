@@ -32,10 +32,6 @@ footer > a > img:hover {
     transform: scale(1.1);
 }
 
-
-
-
-
 .create_button {
     background-color: #28a745; 
     color: white; 
@@ -86,8 +82,8 @@ footer > a > img:hover {
     background-color: rgba(0, 0, 0, 0.137);
     align-items: center;
 }
-  
-/* .modal_overlay {
+ 
+.modal_overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -184,4 +180,5 @@ footer > a > img:hover {
     z-index: 1500;
     margin-top: 60px;
     margin-left: 100px;
+
 } */

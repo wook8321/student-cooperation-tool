@@ -130,7 +130,7 @@ const Project = () => {
         </div>
 
         {/*
-            
+        
             <div className="pagination">
                 <button onClick={() => {
                     const newPage = Math.max(page - 1, 1);
