@@ -12,7 +12,6 @@ const domain = "http://localhost:8080";
 
 const FriendsList = () => {
   const [friends, setFriends] = useState([]);
-
   useEffect(() => {
     axios
       .get(domain + "/api/v1/friends")
@@ -71,7 +70,6 @@ const Friend = () => {
   const [searchText, setSearchText] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [friendData, setFriendData] = useState(null);
-
   const handleSearchClick = () => {
     axios
       .get(domain + `/api/v1/friends/search?relation=false&name=${searchText}`)
