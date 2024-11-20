@@ -24,7 +24,7 @@ const Project = () => {
     axios
       .get(`${domain}/api/v1/rooms/search?title=${searchTitle}&page=1`)
       .then((res) => {
-        setRoomData(JSON.stringify(res.data));
+        setRoomData(res.data);
       })
       .catch(() => {
         console.log("Failed to search project.");
@@ -35,7 +35,7 @@ const Project = () => {
     axios
       .post(`${domain}/api/v1/rooms`)
       .then((res) => {
-        setRoomData(JSON.stringify(res.data));
+        setRoomData(res.data);
         setCreateModal(true);
       })
       .catch(() => {
@@ -112,24 +112,27 @@ const Project = () => {
         </form>
 
         <div className="room_grid">
-          {roomData.map((room) => (
-            <div key={room.id} className="room_card">
-              <h4>{room.title}</h4>
-              <button onClick={() => handleDeleteRoom(room.id)}>X</button>
-              <div className="process_flow">
-                <div className="process_step">주제선정</div>
-                <div className="arrow">→</div>
-                <div className="process_step">자료 조사</div>
-                <div className="arrow">→</div>
-                <div className="process_step">발표 자료</div>
-                <div className="arrow">→</div>
-                <div className="process_step">발표 준비</div>
-              </div>
-            </div>
-          ))}
-        </div>
+          {roomData.length > 0 ? (
 
-        {/*
+                roomData.map((room) => (
+                    <div key={room.id} className="room_card">
+                      <h4>{room.title}</h4>
+                      <button onClick={() => handleDeleteRoom(room.id)}>X</button>
+                      <div className="process_flow">
+                        <div className="process_step">주제선정</div>
+                        <div className="arrow">→</div>
+                        <div className="process_step">자료 조사</div>
+                        <div className="arrow">→</div>
+                        <div className="process_step">발표 자료</div>
+                        <div className="arrow">→</div>
+                        <div className="process_step">발표 준비</div>
+                      </div>
+                    </div>
+                ))
+              ) : <h2>검색한 프로젝트가 없습니다.</h2>}
+            </div>
+
+          {/*
         
             <div className="pagination">
                 <button onClick={() => {
@@ -147,7 +150,7 @@ const Project = () => {
             
             */}
 
-        {createmodal && (
+          {createmodal && (
           <div className="add_project_container">
             <div className="modal_overlay">
               <div className="modal_content">
