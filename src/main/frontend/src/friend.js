@@ -23,46 +23,22 @@ const FriendsList = () => {
       });
   }, []);
 
-  const exFriend = [
-    {
-      id: "test1",
-      name: "person1",
-      profileImage: "https://example.com/image1.jpg",
-    },
-    {
-      id: "test2",
-      name: "person2",
-      profileImage: "https://example.com/image2.jpg",
-    },
-    {
-      id: "test3",
-      name: "person3",
-      profileImage: "https://example.com/image3.jpg",
-    },
-    {
-      id: "test4",
-      name: "person4",
-      profileImage: "https://example.com/image4.jpg",
-    },
-  ];
   return (
-    <div>
-      <h3>친구 목록</h3>
-      <ul className="friend_list">
-        {exFriend.map((friend) => (
-          <li key={friend.id} className="friend_item">
-            <div className="profile-icon">
-              <img
-                src={friend.profileImage}
-                alt="프로필"
-                onError={(e) => (e.target.src = userImage)}
-              />
-            </div>
-            <span className="friend-name">{friend.name}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
+      <div className="friend_list">
+        <h3>친구 목록</h3>
+        {friends.length > 0 ? (
+          <ul>
+            {friends.map(friend => (
+                <li key={friend.id}>
+                  <div className="profile-icon">
+                    <img src={friend.profile || userImage} alt="프로필" />
+                  </div>
+                  <span className="friend-name">{friend.name}</span>
+                </li>)
+            )}
+          </ul>
+        ) : <h2>아직 친구가 없습니다.</h2>}
+      </div>
   );
 };
 
