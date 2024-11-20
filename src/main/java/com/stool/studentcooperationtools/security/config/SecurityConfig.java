@@ -21,7 +21,7 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests( authorize -> { // 정적 파일들은 접근 허락
-                    authorize.requestMatchers("/*.html","/*.png","/*.ico","/static/**")
+                    authorize.requestMatchers("/*.html", "/*.png","/*.ico","/static/**")
                             .permitAll();
                 })
                 .authorizeHttpRequests( authorize -> { //인증 없이 접근가능한 url
@@ -35,6 +35,7 @@ public class SecurityConfig {
                     authorize.anyRequest().authenticated();
                 })
                 .oauth2Login((oauth)->oauth
+                        .loginPage("/login")
                         .userInfoEndpoint((endPoint)->endPoint
                                 .userService(customOAuth2UserService) // OAuth2유저의 정보의 EndPoint
                         )
