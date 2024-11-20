@@ -17,24 +17,30 @@ const FriendsList = () => {
             .then((res) => {
                 setFriends(res.data);
             })
-            .catch(() => {
-                console.log('failed to load friends');
+            .catch((err) => {
+                console.err('Failed to load friends', err);
             });
     }, []);
 
     return (
         <div>
-            <h3>친구 목록</h3>
-            <ul>
-                {friends.map(friend => (
-                    <li key={friend.id}>
-                        <div className="profile-icon">
-                           <img src={friend.profileImage || userImage} alt="프로필" />
-                        </div>
-                        <span className="friend-name">{friend.name}</span>
-                    </li>
-                ))}
-            </ul>
+            {friends ? (
+                <div className="friend_list">
+                    <h3>친구 목록</h3>
+                    <ul>  
+                        {friends.map(friend => (
+                            <li key={friend.id}>
+                                <div className="profile-icon">
+                                <img src={friend.profile || userImage} alt="프로필" />
+                                </div>
+                                <span className="friend-name">{friend.name}</span>
+                            </li>)
+                        )}
+                    </ul>
+                </div>
+            ) : (
+                <h2    >아직 친구가 없습니다.</h2>
+            )}   
         </div>
     );
 };
@@ -44,30 +50,28 @@ const Friend = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [friendData, setFriendData] = useState(null);
 
-    const handleSearchClick = () => {
+    const handleSearchClick = ({searchText}) => {
         axios.get(domain + `/api/v1/friends/search?relation=false&name=${searchText}`)
             .then((res) => {
                 setFriendData(res.data);
                 setModalOpen(true);
             })
-            .catch(() => {
-                console.log('Failed to search friend.');
+            .catch((err) => {
+                console.err('Failed to search friend.', err);
                 setModalOpen(true);
             });
     };
 
     const handleAddFriend = () => {
         if (friendData && friendData.id) {
-            axios.post(`${domain}/api/v1/friends/add`, {
-                /* memberId: 현재 사용자의 memberId */
-                friendId: friendData.id
-            })
+            axios.post(`${domain}/api/v1/friends/add`)
             .then((res) => {
                 console.log('Friend added:', res.data);
+
                 handleCloseModal(); // 친구 추가 후 모달 닫기
             })
-            .catch(() => {
-                console.log('Failed to add friend.');
+            .catch((err) => {
+                console.err('Failed to add friend.', err);
             });
         }
     };
@@ -105,7 +109,7 @@ const Friend = () => {
                     <button
                         className="search_button"
                         type="submit"
-                        onClick={handleSearchClick}
+                        onClick={handleSearchClick(searchText)}
                     >
                         <img src={searchIcon} alt="검색" />
                     </button>
