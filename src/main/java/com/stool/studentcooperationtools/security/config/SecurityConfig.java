@@ -25,7 +25,7 @@ public class SecurityConfig {
                             .permitAll();
                 })
                 .authorizeHttpRequests( authorize -> { //인증 없이 접근가능한 url
-                    authorize.requestMatchers("/","/api/test","/login","/oauth/**","/logout","/ws-stomp/**","/profile")
+                    authorize.requestMatchers("/api/auth/check","/","/api/test","/login","/oauth/**","/logout","/ws-stomp/**","/profile")
                             .permitAll();
                 })
                 .sessionManagement(session->session //세션 고정 공격 보호
