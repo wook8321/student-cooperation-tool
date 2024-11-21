@@ -11,12 +11,13 @@ import "./friend.css";
 const domain = "http://localhost:8080";
 
 const FriendsList = () => {
-  const [friends, setFriends] = useState([]);
+  const [friends, setFriends] = useState({num: 0, members: []});
   useEffect(() => {
     axios
       .get(domain + "/api/v1/friends")
       .then((res) => {
-        setFriends(res.data);
+        console.log(res.data);
+        setFriends(res.data.data);
       })
       .catch(() => {
         console.log("failed to load friends");
@@ -26,14 +27,14 @@ const FriendsList = () => {
   return (
       <div className="friend_list">
         <h3>친구 목록</h3>
-        {friends.length > 0 ? (
+        {friends.num > 0 ? (
           <ul>
-            {friends.map(friend => (
-                <li key={friend.id}>
+            {friends.members.map(friend => (
+                <li key={friend.email}>
                   <div className="profile-icon">
                     <img src={friend.profile || userImage} alt="프로필" />
                   </div>
-                  <span className="friend-name">{friend.name}</span>
+                  <span className="friend-name">{friend.nickname}</span>
                 </li>)
             )}
           </ul>
@@ -45,12 +46,13 @@ const FriendsList = () => {
 const Friend = () => {
   const [searchText, setSearchText] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [friendData, setFriendData] = useState(null);
+  const [friendData, setFriendData] = useState({num:0, members:[]})
   const handleSearchClick = () => {
     axios
       .get(domain + `/api/v1/friends/search?relation=false&name=${searchText}`)
       .then((res) => {
-        setFriendData(res.data);
+        console.log(res.data.data);
+        setFriendData(res.data.data);
         setModalOpen(true);
       })
       .catch(() => {
@@ -59,13 +61,11 @@ const Friend = () => {
       });
   };
 
-  const handleAddFriend = () => {
-    if (friendData && friendData.id) {
+  const handleAddFriend = (email) => {
       axios
-        .post(`${domain}/api/v1/friends/add`, {
-          /* memberId: 현재 사용자의 memberId */
-          friendId: friendData.id,
-        })
+        .post(`${domain}/api/v1/friends`, {
+          email
+        },  { "Content-Type": "application/json"},)
         .then((res) => {
           console.log("Friend added:", res.data);
           handleCloseModal(); // 친구 추가 후 모달 닫기
@@ -73,7 +73,6 @@ const Friend = () => {
         .catch(() => {
           console.log("Failed to add friend.");
         });
-    }
   };
 
   const handleCloseModal = () => {
@@ -125,16 +124,24 @@ const Friend = () => {
             <button className="close_button" onClick={handleCloseModal}>
               X
             </button>
-            {friendData ? (
-              <div className="friend_result">
-                <p>{friendData.name}</p>
-                <button className="add_friend_button" onClick={handleAddFriend}>
-                  친구 추가 +
-                </button>
-              </div>
-            ) : (
-              <p>검색 결과가 없습니다.</p>
-            )}
+            <div className="friend_result">
+                {friendData.num > 0 ? (
+                    <ul>
+                      {friendData.members.map(friend => (
+                          <li key={friend.email}>
+                            <div className="profile-icon">
+                              <img src={friend.profile || userImage} alt="프로필"/>
+                            </div>
+                            <span className="friend-name">{friend.nickname}</span>
+                            <button className="add_friend_button" onClick={() => handleAddFriend(friend.email)}>
+                              친구 추가
+                            </button>
+                          </li>)
+                      )}
+                    </ul>)
+                    : (
+                        <p>검색 결과가 없습니다.</p>)}
+            </div>
           </div>
         </div>
       )}
