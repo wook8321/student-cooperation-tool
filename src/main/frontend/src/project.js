@@ -162,7 +162,7 @@ const Project = () => {
           <button
             className="create_button"
             type="submit"
-            onClick={handleCreateClick}
+            onClick={()=>setCreateModal(true)}
           >
             프로젝트 생성
           </button>
@@ -247,7 +247,8 @@ const Project = () => {
                                   <div className="process_step">발표 준비</div>
                                 </div>
                               </div>
-                              <button className="create_complete_btn">생성</button>
+                              <button className="create_complete_btn"
+                                      onClick={() => handleCreateClick()}>생성</button>
                             </div>
                           </div>
                         </div>
