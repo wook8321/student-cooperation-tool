@@ -167,6 +167,7 @@ main {
     width: 350px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     text-align: center;
+    z-index: 1001;
 }
 
 .close_button {
@@ -178,6 +179,7 @@ main {
     border: none;
     font-size: 20px;
     cursor: pointer;
+    z-index: 1001;
     transition: color 0.3s ease;
 }
 
@@ -193,6 +195,7 @@ main {
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
+    z-index: 1001;
     transition: background-color 0.3s ease;
 }
 
