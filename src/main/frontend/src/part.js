@@ -15,12 +15,13 @@ const Part = (roomId) => {
     const [reviewContent, setReviewContent] = useState(""); // 평가 내용
     const [isMenuOpen, setIsMenuOpen] = useState(false); // 드롭다운 열림/닫힘 상태
     const [chatModal, setChatModal] = useState(false);
+    const [reviewPartId, setReviewPartId] = useState(null);
 
     const PartsList = ({ roomId }) => {
         useEffect( () => {
             axios.get(`${domain}/api/v1/rooms/${roomId}/parts`)
                 .then((res) => {
-                    setParts(res.data);
+                    setParts(res.data.data.parts);
                 })
                 .catch(() => {
                     setError('failed to load friends');
@@ -52,7 +53,7 @@ const Part = (roomId) => {
 
     const deletePart = (part_Id) => {
         const deletedPart = parts.filter((part) => part.partId !== part_Id);
-        setTopics(deletedPart);
+        setParts(deletedPart);
         socket.publish(`${domain}/pub/parts/delete`);
     };
 
@@ -71,7 +72,7 @@ const Part = (roomId) => {
     const closeAddModal = () => setAddModal(false);
     const openUpdateModal = () => setUpdateModal(true);
     const closeUpdateModal = () => setUpdateModal(false);
-    const openReviewModal = () => setReviewModal(true);
+    const openReviewModal = (partId) => setReviewPartId(partId); setReviewModal(true);
     const closeReviewModal = () => setReviewModal(false);
 
     const toggleMenu = () => {
@@ -125,7 +126,7 @@ const Part = (roomId) => {
         };
 
         axios
-        .post(`/api/v1/parts/${partId}/review`, payload)
+        .post(`/api/v1/parts/review`, payload)
         .then(() => {
             setReviewContent(""); // 입력창 초기화
             setIsModalOpen(false); // 모달 닫기
