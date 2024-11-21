@@ -1,6 +1,8 @@
 server:
   port : 8082
   forward-headers-strategy: native
+  ssl:
+    enabled: false
 spring:
   profiles:
     include: real-db, oauth2, session, s3, google-slide
