@@ -61,6 +61,7 @@ const Project = () => {
   const [createmodal, setCreateModal] = useState(false);
   const [roomData, setRoomData] = useState({num:0, rooms:[]});
   const [searchTitle, setSearchTitle] = useState("");
+  const [roomTitle, setRoomTitle] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -86,8 +87,8 @@ const Project = () => {
     axios
       .post(`${domain}/api/v1/rooms`)
       .then((res) => {
-        setRoomData(res.data.data);
-        setCreateModal(true);
+        console.log("Successed to create project.")
+        closeCreateModal();
       })
       .catch(() => {
         console.log("Failed to create project.");
@@ -227,12 +228,16 @@ const Project = () => {
                             <div className="modal_body">
                               <div className="modal_section">
                                 <label className="modal_label">방 제목</label>
-                                <input className="modal_input" type="text"/>
+                                <input className="modal_input" type="text"
+                                       value={roomTitle}
+                                       onChange={(e) => setRoomTitle(e.target.value)}/>
                               </div>
 
                               <div className="modal_section">
                                 <label className="modal_label">비밀번호</label>
-                                <input className="modal_input" type="password"/>
+                                <input className="modal_input" type="password"
+                                       value={password}
+                                       onChange={(e) => setPassword(e.target.value)}/>
                               </div>
 
                               <div className="modal_section">
