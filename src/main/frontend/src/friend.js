@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
-import friendImage from "./images/friends.svg";
-import projectImage from "./images/archive.svg";
-import userImage from "./images/user.svg";
 import searchIcon from "./images/search.svg";
-import homeImage from "./images/home.png";
 import {domain} from "./domain";
 import "./friend.css";
 import "./scrollbar.css"
+import Footer from "./footer";
 
 
 const FriendsList = () => {
@@ -122,19 +118,7 @@ const Friend = () => {
         <FriendsList /> {/* 친구 목록 표시 */}
       </main>
 
-      <footer>
-        <Link to="/">
-          <img src={homeImage} />
-        </Link>
-        <br></br>
-        <Link to="/friend">
-          <img src={friendImage} alt="친구 이미지" />
-        </Link>
-        <br />
-        <Link to="/project">
-          <img src={projectImage} alt="프로젝트 이미지" />
-        </Link>
-      </footer>
+      <Footer/>
 
       {modalOpen && (
         <div className="modal">

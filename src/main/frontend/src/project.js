@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from "axios";
-import friendImage from "./images/friends.svg";
-import projectImage from "./images/archive.svg";
-import homeImage from "./images/home.png";
 import userImage from "./images/user.svg"
-import searchImage from "./images/search.svg";
 import "./project.css";
-
-const domain = "http://localhost:8080";
+import Footer from "./footer";
+import {domain} from "./domain";
 
 const RoomList = () => {
   const [rooms, setRooms] = useState({num: 0, roomList: []});
@@ -202,19 +198,7 @@ const Project = () => {
 
   return (
     <div className="container">
-      <footer>
-        <Link to="/">
-          <img src={homeImage} />
-        </Link>
-        <br></br>
-        <Link to="/friend">
-          <img src={friendImage} alt="친구 이미지" />
-        </Link>
-        <br />
-        <Link to="/project">
-          <img src={projectImage} alt="프로젝트 이미지" />
-        </Link>
-      </footer>
+      <Footer/>
 
       <main>
         <form className="search_box" onSubmit={(e) => e.preventDefault()}>
