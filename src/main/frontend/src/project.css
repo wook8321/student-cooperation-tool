@@ -166,19 +166,22 @@ footer > a > img:hover {
 }
 
 .create_complete_btn {
-    background-color: #3b82f6; 
-    color: white; 
+    background-color: #3b82f6;
+    color: white;
     border: none;
-    border-radius: 0%; 
-    width: 200px; 
-    height: 50px; 
-    font-size: 20px; 
+    border-radius: 0%;
+    width: 200px;
+    height: 50px;
+    font-size: 20px;
     cursor: pointer;
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
     z-index: 1500;
     margin-top: 60px;
     margin-left: 100px;
+}
 
+.friend_modal{
+    z-index: 1001;
 }
