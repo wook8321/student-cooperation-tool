@@ -6,9 +6,10 @@ import projectImage from "./images/archive.svg";
 import userImage from "./images/user.svg";
 import searchIcon from "./images/search.svg";
 import homeImage from "./images/home.png";
+import {domain} from "./domain";
 import "./friend.css";
+import "./scrollbar.css"
 
-const domain = "http://localhost:8080";
 
 const FriendsList = () => {
   const [friends, setFriends] = useState({num: 0, members: []});
@@ -26,13 +27,14 @@ const FriendsList = () => {
 
   return (
       <div className="friend_list">
+        <div id="newFriendDiv"></div>
         <h3>친구 목록</h3>
         {friends.num > 0 ? (
           <ul>
             {friends.members.map(friend => (
                 <li key={friend.email}>
                   <div className="profile-icon">
-                    <img src={friend.profile || userImage} alt="프로필" />
+                    <img src={friend.profile} alt="프로필" />
                   </div>
                   <span className="friend-name">{friend.nickname}</span>
                 </li>)
@@ -61,7 +63,7 @@ const Friend = () => {
       });
   };
 
-  const handleAddFriend = (email) => {
+  const handleAddFriend = (email, profile, nickname) => {
       axios
         .post(`${domain}/api/v1/friends`, {
           email
@@ -69,11 +71,29 @@ const Friend = () => {
         .then((res) => {
           console.log("Friend added:", res.data);
           handleCloseModal(); // 친구 추가 후 모달 닫기
+          createFriendDiv(email,profile, nickname);
         })
         .catch(() => {
           console.log("Failed to add friend.");
         });
   };
+
+  function createFriendDiv(email,profile, nickname){
+    const newFriendDiv = document.getElementById('newFriendDiv')
+    if(newFriendDiv.querySelector('h2') === null){
+      newFriendDiv.innerHTML += `<h2>새로운 친구</h2>`
+    }
+    newFriendDiv.innerHTML +=
+          `
+            <li key=${email}>
+              <div class="profile-icon">
+                <img src = ${profile} alt="프로필"/>
+              </div>
+              <span class="friend-name">${nickname}</span>
+            </li>
+          `
+  }
+
 
   const handleCloseModal = () => {
     setModalOpen(false);
@@ -124,16 +144,16 @@ const Friend = () => {
             <button className="close_button" onClick={handleCloseModal}>
               X
             </button>
-            <div className="friend_result">
+            <div className="friend_result scrollbar">
                 {friendData.num > 0 ? (
                     <ul>
                       {friendData.members.map(friend => (
                           <li key={friend.email}>
                             <div className="profile-icon">
-                              <img src={friend.profile || userImage} alt="프로필"/>
+                              <img src={friend.profile} alt="프로필"/>
                             </div>
                             <span className="friend-name">{friend.nickname}</span>
-                            <button className="add_friend_button" onClick={() => handleAddFriend(friend.email)}>
+                            <button className="add_friend_button" onClick={() => handleAddFriend(friend.email,friend.profile,friend.nickname)}>
                               친구 추가
                             </button>
                           </li>)
