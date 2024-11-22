@@ -1,29 +1,26 @@
-import React, {useEffect, useState} from "react";
-import axios from "axios";
-import {domain} from "./domain";
+import React, { Component } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Login from './login.js';
+import Main from './main.js';
+import Friend from './friend.js';
+import Project from './project.js';
+import Auth from "./auth";
 
-function App() {
-  const [hello, setHello] = useState('');
-
-  useEffect(() => {
-    axios.get(domain + '/api/loginTest')
-        .then(res => {
-          setHello(JSON.stringify(res.data));
-        })
-        .catch(error =>{
-            alert(JSON.stringify(error))
-        })
-  }, []);
+const App = () => {
   return (
-      <div className="App">
-        백엔드 데이터 : {hello}
-          <a className="btn btn-primary w-100 py-2 mb-1" href="/oauth2/authorization/google" type="button">Google로 로그인</a>
-          <form action="/logout" method="post">
-            <button type={"submit"}> 로그아웃</button>
-          </form>
-          {/*로그아웃은 post 방식으로 <form>테그로 csrf 토큰과 함께 요청하면 됨*/}
-      </div>
+    <div>
+      <BrowserRouter>
+        <Routes>
+          <Route path = "/" element = {<Main />}></Route>
+          <Route path = "/login" element = {<Login />}></Route>
+          <Route path = "/friend" element = {<Auth><Friend /></Auth>}></Route>
+          <Route path = "/project" element = {<Auth><Project /></Auth>}></Route>
+          {/*일치하는 라우트가 없는경우 처리 <Route path="/*" element={<NotFound />}></Route> */}
+        </Routes>
+      </BrowserRouter>
+    </div>
+
   );
-}
+};
 
 export default App;
