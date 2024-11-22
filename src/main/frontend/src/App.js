@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import axios from "axios";
-
-const domain = "http://localhost:8080"
+import {domain} from "./domain";
 
 function App() {
   const [hello, setHello] = useState('');

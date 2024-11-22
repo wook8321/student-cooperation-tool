@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.domain.slide.service;
 
+import com.stool.studentcooperationtools.IntegrationTest;
 import com.stool.studentcooperationtools.domain.presentation.Presentation;
 import com.stool.studentcooperationtools.domain.presentation.repository.PresentationRepository;
 import com.stool.studentcooperationtools.domain.script.Script;
@@ -7,21 +8,15 @@ import com.stool.studentcooperationtools.domain.script.repository.ScriptReposito
 import com.stool.studentcooperationtools.domain.slide.Slide;
 import com.stool.studentcooperationtools.domain.slide.controller.response.SlideFindResponse;
 import com.stool.studentcooperationtools.domain.slide.repository.SlideRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
 @Transactional
-class SlideServiceTest {
+class SlideServiceTest extends IntegrationTest {
 
     @Autowired
     private SlideService slideService;
