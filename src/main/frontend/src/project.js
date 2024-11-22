@@ -4,6 +4,7 @@ import axios from "axios";
 import friendImage from "./images/friends.svg";
 import projectImage from "./images/archive.svg";
 import homeImage from "./images/home.png";
+import userImage from "./images/user.svg"
 import searchImage from "./images/search.svg";
 import "./project.css";
 
@@ -163,8 +164,8 @@ const Project = () => {
   const ParticipantList = () => {
       
     return (
-      <div className="room_list">
-        <h3>방 목록</h3>
+      <div className="participant_list">
+        <h3>팀원 목록</h3>
         {participant.num > 0 ? (
             participant.members.map((participant) => (
                 <div key={participant.email} className="room_card">
@@ -172,7 +173,7 @@ const Project = () => {
                   <h2>{participant.nickname}</h2>
                 </div>
             ))
-        ) : <h2>프로젝트가 없습니다.</h2>}
+        ) : <h2>선택한 팀원이 없습니다.</h2>}
       </div>
     );
   }
@@ -206,7 +207,7 @@ const Project = () => {
           <button
             className="search_button"
             type="submit"
-            onClick={() => handleSearch}
+            onClick={() => handleSearch(searchTitle)}
           >
             검색
           </button>
@@ -227,7 +228,7 @@ const Project = () => {
             <div className="add_project_container">
               <div className="modal_overlay">
                 <div className="modal_content">
-                  <button className="close_button" onClick={() => closeSearchModal}>
+                  <button className="close_button" onClick={() => closeSearchModal()}>
                     X
                   </button>
                   <div className="room_grid">
@@ -275,7 +276,7 @@ const Project = () => {
           <div className="add_project_container">
             <div className="modal_overlay">
               <div className="modal_content">
-                <button className="close_button" onClick={() => closeCreateModal}>
+                <button className="close_button" onClick={() => closeCreateModal()}>
                   X
                 </button>
 
