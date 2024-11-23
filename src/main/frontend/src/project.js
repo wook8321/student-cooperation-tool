@@ -37,26 +37,28 @@ const RoomList = () => {
 
   return (
       <div className="room_list">
-        <button className="room-list-button" onClick={() => setEnterModal(true)}>
+        
           <h3>방 목록</h3>
           {rooms.num > 0 ? (
               rooms.roomList.map((room) => (
                   <div key={room.id} className="room_card">
-                    <h4>{room.title}</h4>
-                    <button onClick={() => handleDeleteRoom(room.id)}>X</button>
-                    <div className="process_flow">
-                      <div className="process_step">주제선정</div>
-                      <div className="arrow">→</div>
-                      <div className="process_step">자료 조사</div>
-                      <div className="arrow">→</div>
-                      <div className="process_step">발표 자료</div>
-                      <div className="arrow">→</div>
-                      <div className="process_step">발표 준비</div>
-                    </div>
+                    <button className="room-list-button" onClick={() => setEnterModal(true)}>
+                      <h4>{room.title}</h4>
+                      <button onClick={() => handleDeleteRoom(room.id)}>X</button>
+                      <div className="process_flow">
+                        <div className="process_step">주제선정</div>
+                        <div className="arrow">→</div>
+                        <div className="process_step">자료 조사</div>
+                        <div className="arrow">→</div>
+                        <div className="process_step">발표 자료</div>
+                        <div className="arrow">→</div>
+                        <div className="process_step">발표 준비</div>
+                      </div>
+                    </button>
                   </div>
               ))
           ) : <h2>프로젝트가 없습니다.</h2>}
-        </button>
+        
       </div>
   );
 };
@@ -237,17 +239,19 @@ const Project = () => {
                     {roomData.num > 0 ? (
                         roomData.rooms.map((room) => (
                             <div key={room.id} className="room_card">
-                              <h4>{room.title}</h4>
-                              <button onClick={() => handleDeleteRoom(room.id)}>X</button>
-                              <div className="process_flow">
-                                <div className="process_step">주제선정</div>
-                                <div className="arrow">→</div>
-                                <div className="process_step">자료 조사</div>
-                                <div className="arrow">→</div>
-                                <div className="process_step">발표 자료</div>
-                                <div className="arrow">→</div>
-                                <div className="process_step">발표 준비</div>
-                              </div>
+                              <button className="room-list-button" onClick={() => setEnterModal(true)}>
+                                <h4>{room.title}</h4>
+                                <button onClick={() => handleDeleteRoom(room.id)}>X</button>
+                                <div className="process_flow">
+                                  <div className="process_step">주제선정</div>
+                                  <div className="arrow">→</div>
+                                  <div className="process_step">자료 조사</div>
+                                  <div className="arrow">→</div>
+                                  <div className="process_step">발표 자료</div>
+                                  <div className="arrow">→</div>
+                                  <div className="process_step">발표 준비</div>
+                                </div>
+                              </button>
                             </div>
                         ))
                     ) : <h2>검색한 프로젝트가 없습니다.</h2>}
@@ -318,9 +322,7 @@ const Project = () => {
                     <button className="add_friend_button" onClick={() => setFriendModal(true)}> {/* 참가할 친구 추가 */}
                       +
                     </button>
-
-                     
-
+                    
                   <ParticipantList /> {/* 참가할 친구 리스트 */}
 
                   </div>
@@ -336,6 +338,10 @@ const Project = () => {
           <div className="modal_section">
             <label className="modal_label">비밀번호</label>
 
+            <button className="close_button" onClick={() => setEnterModal(false)}>
+              X
+            </button>
+            
             <input
               className="modal_input"
               type="password"
