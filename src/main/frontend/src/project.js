@@ -33,6 +33,7 @@ const Project = () => {
   const [rooms, setRooms] = useState({num: 0, rooms: []});
   const [effect, setEffect] = useState(false);
   const [deleteRoomId, setDeleteRoomId] = useState(null);
+  const [toggleOpen, setToggleOpen] = useState(false);
   useEffect(() => {
         axios
             .get(domain + "/api/v1/rooms?page=0")
@@ -53,6 +54,9 @@ const Project = () => {
       }
   }, [deleteRoomId]);
 
+    const openToggle = () => {
+        setToggleOpen((prev) => !prev);
+    };
 
     const handleDeleteRoom = (roomId, updated) => {
         axios
@@ -105,9 +109,6 @@ const Project = () => {
 
     function createRoomDiv(updatedRoom){
         const newRoomDiv = document.getElementById('newRoomDiv')
-        if(newRoomDiv.querySelector('h2') === null){
-            newRoomDiv.innerHTML += `<h2>새로운 프로젝트</h2>`
-        }
         const roomCard = document.createElement('li');
         roomCard.setAttribute('key', updatedRoom.roomId);
         roomCard.className = 'room_card';
@@ -255,8 +256,15 @@ const Project = () => {
           </button>
         </form>
           <div className="room_list">
-              <div id="newRoomDiv"></div>
-              <h3>방 목록</h3>
+              <h2
+                  className={`collapsible ${toggleOpen ? "" : "collapsed"}`}
+                  onClick={openToggle}
+              >
+                  새로운 프로젝트
+              </h2>
+              <div className={`collapsible-content ${toggleOpen ? "visible" : ""}`} id="newRoomDiv">
+              </div>
+              <h2>프로젝트 목록</h2>
               {rooms.num > 0 ? (
                   rooms.rooms.map((room) => (
                       <div key={room.roomId} className="room_card">
