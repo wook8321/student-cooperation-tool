@@ -10,18 +10,23 @@ import "./project.css";
 
 const domain = "http://localhost:8080";
 
-const RoomList = () => {
-  const [rooms, setRooms] = useState({num: 0, rooms: []});
-  const handleDeleteRoom = () => {
+const handleDeleteRoom = (roomId) => {
     axios
-        .delete(`${domain}/api/v1/rooms`)
+        .delete(`${domain}/api/v1/rooms`, {
+            data: {
+                roomId,
+            },
+        })
         .then(() => {
-          console.log("Successed to delete room");
+            console.log("Successed to delete room");
         })
         .catch(() => {
-          console.log("Failed to delete room");
+            console.log("Failed to delete room");
         });
-  };
+};
+
+const RoomList = () => {
+  const [rooms, setRooms] = useState({num: 0, rooms: []});
   useEffect(() => {
     axios
         .get(domain + "/api/v1/rooms?page=0")
@@ -141,21 +146,6 @@ const Project = () => {
       setSearchFriendModal(false);
       setSearchFriend(null);
   }
-
-  const handleDeleteRoom = (roomId) => {
-    axios
-      .delete(`${domain}/api/v1/rooms`, {
-          data: {
-              roomId,
-          },
-      })
-      .then(() => {
-        console.log("Successed to delete room");
-      })
-      .catch(() => {
-        console.log("Failed to delete room");
-      });
-  };
 
   const handlePasswordCheck = () => {
     if (inputPassword === password) {
