@@ -4,6 +4,7 @@ import searchIcon from "./images/search.svg";
 import {domain} from "./domain";
 import "./friend.css";
 import "./scrollbar.css"
+import "./bar.css"
 import Footer from "./footer";
 
 
@@ -24,7 +25,8 @@ const FriendsList = () => {
   return (
       <div className="friend_list">
         <div id="newFriendDiv"></div>
-        <h3>친구 목록</h3>
+        <div id="barDiv"></div>
+        <h3 id="friendsListH">친구 목록</h3>
         {friends.num > 0 ? (
           <ul>
             {friends.members.map(friend => (
@@ -36,7 +38,7 @@ const FriendsList = () => {
                 </li>)
             )}
           </ul>
-        ) : <h2>아직 친구가 없습니다.</h2>}
+        ) : <h2 id="notExistH">아직 친구가 없습니다.</h2>}
       </div>
   );
 };
@@ -75,10 +77,22 @@ const Friend = () => {
   };
 
   function createFriendDiv(email,profile, nickname){
-    const newFriendDiv = document.getElementById('newFriendDiv')
-    if(newFriendDiv.querySelector('h2') === null){
-      newFriendDiv.innerHTML += `<h2>새로운 친구</h2>`
-    }
+     const newFriendDiv = document.getElementById('newFriendDiv')
+     if(newFriendDiv.querySelector('h2') === null){
+           newFriendDiv.innerHTML += `<h2>새로운 친구</h2>`
+     }
+      const barDiv = document.querySelector('#barDiv');
+      const notExistH = document.querySelector('#notExistH');
+
+      if (notExistH) {
+          //친구가 없는 상태일 때 친구를 사겼을 경우
+          let friendsListH = document.querySelector('#friendsListH')
+          friendsListH.parentNode.removeChild(friendsListH)
+          notExistH.parentNode.removeChild(notExistH)
+      } else{
+          barDiv.setAttribute("class","divider-bar")
+      }
+    // 새롭게 생긴 친구를 삽입
     newFriendDiv.innerHTML +=
           `
             <li key=${email}>
@@ -100,13 +114,8 @@ const Friend = () => {
     <div className="container">
       <main>
         <form className="search_box" onSubmit={(e) => e.preventDefault()}>
-          <input
-            className="friend_search_txt"
-            type="text"
-            placeholder="친구 이름을 입력하세요."
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-          />
+          <input className="friend_search_txt" type="text" placeholder="친구 이름을 입력하세요." value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}/>
           <button
             className="search_button"
             type="submit"
