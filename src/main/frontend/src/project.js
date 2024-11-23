@@ -5,6 +5,10 @@ import userImage from "./images/user.svg"
 import "./project.css";
 import Footer from "./footer";
 import {domain} from "./domain";
+import "./scrollbar.css"
+import "./card.css"
+import "./paginationButton.css"
+
 
 const RoomList = () => {
   const [rooms, setRooms] = useState({num: 0, roomList: []});
@@ -32,24 +36,32 @@ const RoomList = () => {
 
   return (
       <div className="room_list">
-        <h3>방 목록</h3>
-        {rooms.num > 0 ? (
-            rooms.roomList.map((room) => (
-                <div key={room.id} className="room_card">
-                  <h4>{room.title}</h4>
-                  <button onClick={() => handleDeleteRoom(room.id)}>X</button>
-                  <div className="process_flow">
-                    <div className="process_step">주제선정</div>
-                    <div className="arrow">→</div>
-                    <div className="process_step">자료 조사</div>
-                    <div className="arrow">→</div>
-                    <div className="process_step">발표 자료</div>
-                    <div className="arrow">→</div>
-                    <div className="process_step">발표 준비</div>
-                  </div>
-                </div>
-            ))
-        ) : <h2>프로젝트가 없습니다.</h2>}
+        <h3> 참여한 프로젝트 : {rooms.num}</h3>
+        <div className="card-container">
+            {rooms.num > 0 ? (
+                rooms.roomList.map((room) => (
+                    <div key={room.id} className="card">
+                        <button onClick={() => handleDeleteRoom(room.id)}>X</button>
+                        <div className="image-cap pink-cap">
+                            {room.title}
+                        </div>
+                        <div className="card-body">
+                            <h3 className="card-title">{room.topic}</h3>
+                            <div className="process_flow">
+                                <div className="process_step">주제선정</div>
+                                <div className="arrow">→</div>
+                                <div className="process_step">자료 조사</div>
+                                <div className="arrow">→</div>
+                                <div className="process_step">발표 자료</div>
+                                <div className="arrow">→</div>
+                                <div className="process_step">발표 준비</div>
+                            </div>
+                            <button className="card-button">참여하기</button>
+                        </div>
+                    </div>
+                ))
+            ) : <h2>프로젝트가 없습니다.</h2>}
+        </div>
       </div>
   );
 };
@@ -59,12 +71,12 @@ const Project = () => {
   const [roomData, setRoomData] = useState({num:0, rooms:[]});
   const [result, setResult] = useState({num:0, members:[]}); // 초대할 친구 정보
   const [participant, setParticipant] = useState({num:0, members:[]}); // 이미 초대된 친구들 정보
-  
+
   const [searchTitle, setSearchTitle] = useState("");
   const [searchFriend, setSearchFriend] = useState("");
   const [roomTitle, setRoomTitle] = useState("");
 
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
 
   const [searchModal, setSearchModal] = useState(false);
@@ -73,17 +85,38 @@ const Project = () => {
   const [password, setPassword] = useState("");
   const [inputPassword, setInputPassword] = useState("");
   const [error, setError] = useState(false);
-  const handleSearch = ({ searchTitle }) => {
+
+  const handleSearch = ({page}) => {
+      const searchTitle = document.getElementById("roomSearchInput").value;
     axios
-      .get(`${domain}/api/v1/rooms/search?title=${searchTitle}&page=0`)
+      .get(`${domain}/api/v1/rooms/search?title=${searchTitle}&page=${page}`)
       .then((res) => {
-        setRoomData(res.data.data);
-        setSearchModal(true);
+          setRoomData(res.data.data);
+          setSearchModal(true);  // 모달 열기
       })
       .catch(() => {
         console.log("Failed to search project.");
       });
   };
+
+  const handleLoadMore = () => {
+        setPage((prevPage) => prevPage + 1);  // 페이지 번호 증가
+        handleSearch({ page: page + 1 });     // 다음 페이지 데이터 요청
+  };
+
+    // 이전 페이지 버튼 클릭
+    const handlePrevPage = () => {
+        if (page > 0) {
+            setPage((prevPage) => prevPage - 1);
+            handleSearch({ page: page - 1 });
+        }
+    };
+
+    // 다음 페이지 버튼 클릭
+    const handleNextPage = () => {
+        setPage((prevPage) => prevPage + 1);
+        handleSearch({ page: page + 1 });
+    };
 
   const handleCreateClick = () => {
     axios
@@ -103,6 +136,7 @@ const Project = () => {
   };
 
   const closeSearchModal = () => {
+    setPage(0);
     setSearchModal(false);
     setRoomData(null);
   }
@@ -175,11 +209,11 @@ const Project = () => {
   };
 
   const addResult = (email, nickname, profile) => {
-    setParticipant(prev => ({ num: prev.num + 1, members: { email, nickname, profile }, ...prev })); // 참가자들 리스트 추가 
+    setParticipant(prev => ({ num: prev.num + 1, members: { email, nickname, profile }, ...prev })); // 참가자들 리스트 추가
   };
 
   const ParticipantList = () => {
-      
+
     return (
       <div className="participant_list">
         <h3>팀원 목록</h3>
@@ -201,33 +235,20 @@ const Project = () => {
       <Footer/>
 
       <main>
+
         <form className="search_box" onSubmit={(e) => e.preventDefault()}>
-          <input
-            className="project_search_txt"
-            type="text"
-            placeholder="프로젝트 이름을 입력하세요."
-            value={searchTitle}
-            onChange={(e) => setSearchTitle(e.target.value)}
-          />
-          <button
-            className="search_button"
-            type="submit"
-            onClick={() => handleSearch(searchTitle)}
-          >
+          <input id="roomSearchInput" className="project_search_txt" type="text" placeholder="프로젝트 이름을 입력하세요."
+            value={searchTitle} onChange={(e) => setSearchTitle(e.target.value)}/>
+          <button className="search_button" type="submit" onClick={() => handleSearch({page : 0})}>
             검색
           </button>
         </form>
+          <form className="create_box" onSubmit={(e) => e.preventDefault()}>
+              <button className="create_button" type="submit" onClick={()=>setCreateModal(true)}>
+                  프로젝트 생성
+              </button>
+          </form>
         <RoomList />
-
-        <form className="create_box" onSubmit={(e) => e.preventDefault()}>
-          <button
-            className="create_button"
-            type="submit"
-            onClick={()=>setCreateModal(true)}
-          >
-            프로젝트 생성
-          </button>
-        </form>
 
         {searchModal && (
             <div className="add_project_container">
@@ -236,23 +257,29 @@ const Project = () => {
                   <button className="close_button" onClick={() => closeSearchModal()}>
                     X
                   </button>
-                  <div className="room_grid">
+                  <div className="room_grid scrollbar">
                     {roomData.num > 0 ? (
-                        roomData.rooms.map((room) => (
-                            <div key={room.id} className="room_card">
-                              <h4>{room.title}</h4>
-                              <button onClick={() => handleDeleteRoom(room.id)}>X</button>
-                              <div className="process_flow">
-                                <div className="process_step">주제선정</div>
-                                <div className="arrow">→</div>
-                                <div className="process_step">자료 조사</div>
-                                <div className="arrow">→</div>
-                                <div className="process_step">발표 자료</div>
-                                <div className="arrow">→</div>
-                                <div className="process_step">발표 준비</div>
-                              </div>
+                        <>
+                            <div className="card-container">
+                                {roomData.rooms.map((room) => (
+                                    <div key={room.id} className="card">
+                                        <div className="image-cap orange-cap">{room.title}</div>
+                                        <div className="card-body">
+                                            <h3 className="card-title">{room.topic}</h3>
+                                            <a href="#" className="card-button">참여하기</a>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        ))
+                            <div style={{ textAlign: 'center' }} className="pagination-container">
+                                <button onClick={handlePrevPage} className="pagination-button" disabled={page === 0}>
+                                        이전
+                                </button>
+                                <button onClick={handleNextPage} className="pagination-button" disabled={roomData.last}>
+                                    다음
+                                </button>
+                            </div>
+                        </>
                     ) : <h2>검색한 프로젝트가 없습니다.</h2>}
                   </div>
                 </div>
@@ -260,7 +287,7 @@ const Project = () => {
             </div>
         )}
             {/*
-            
+
             <div className="pagination">
                 <button onClick={() => {
                     const newPage = Math.max(page - 1, 1);
@@ -274,11 +301,11 @@ const Project = () => {
                     setPage(newPage);
                 }} disabled={page === totalPages}>다음</button>
             </div>
-            
+
             */}
 
         {createmodal && (
-          <div className="add_project_container">
+          <div className="add_project_container ">
             <div className="modal_overlay">
               <div className="modal_content">
                 <button className="close_button" onClick={() => closeCreateModal()}>
@@ -322,8 +349,6 @@ const Project = () => {
                       +
                     </button>
 
-                     
-
                   <ParticipantList /> {/* 참가할 친구 리스트 */}
 
                   </div>
@@ -339,12 +364,8 @@ const Project = () => {
           <div className="modal_section">
             <label className="modal_label">비밀번호</label>
 
-            <input
-              className="modal_input"
-              type="password"
-              value={inputPassword}
-              onChange={(e) => setInputPassword(e.target.value)}
-            />
+            <input className="modal_input" type="password" value={inputPassword}
+              onChange={(e) => setInputPassword(e.target.value)}/>
           </div>
         )}
 
