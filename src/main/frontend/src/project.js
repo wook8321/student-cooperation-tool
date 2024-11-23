@@ -9,6 +9,8 @@ import "./project.css";
 
 const domain = "http://localhost:8080";
 
+const [enterModal, setEnterModal] = useState(false);
+
 const RoomList = () => {
   const [rooms, setRooms] = useState({num: 0, roomList: []});
   const handleDeleteRoom = () => {
@@ -35,24 +37,26 @@ const RoomList = () => {
 
   return (
       <div className="room_list">
-        <h3>방 목록</h3>
-        {rooms.num > 0 ? (
-            rooms.roomList.map((room) => (
-                <div key={room.id} className="room_card">
-                  <h4>{room.title}</h4>
-                  <button onClick={() => handleDeleteRoom(room.id)}>X</button>
-                  <div className="process_flow">
-                    <div className="process_step">주제선정</div>
-                    <div className="arrow">→</div>
-                    <div className="process_step">자료 조사</div>
-                    <div className="arrow">→</div>
-                    <div className="process_step">발표 자료</div>
-                    <div className="arrow">→</div>
-                    <div className="process_step">발표 준비</div>
+        <button className="room-list-button" onClick={() => setEnterModal(true)}>
+          <h3>방 목록</h3>
+          {rooms.num > 0 ? (
+              rooms.roomList.map((room) => (
+                  <div key={room.id} className="room_card">
+                    <h4>{room.title}</h4>
+                    <button onClick={() => handleDeleteRoom(room.id)}>X</button>
+                    <div className="process_flow">
+                      <div className="process_step">주제선정</div>
+                      <div className="arrow">→</div>
+                      <div className="process_step">자료 조사</div>
+                      <div className="arrow">→</div>
+                      <div className="process_step">발표 자료</div>
+                      <div className="arrow">→</div>
+                      <div className="process_step">발표 준비</div>
+                    </div>
                   </div>
-                </div>
-            ))
-        ) : <h2>프로젝트가 없습니다.</h2>}
+              ))
+          ) : <h2>프로젝트가 없습니다.</h2>}
+        </button>
       </div>
   );
 };
@@ -71,7 +75,7 @@ const Project = () => {
   const [totalPages, setTotalPages] = useState(1);
 
   const [searchModal, setSearchModal] = useState(false);
-  const [enterModal, setEnterModal] = useState(false);
+  
   const [friendModal, setFriendModal] = useState(false);
   const [password, setPassword] = useState("");
   const [inputPassword, setInputPassword] = useState("");
@@ -161,18 +165,17 @@ const Project = () => {
   };
 
   const ParticipantList = () => {
-      
     return (
       <div className="room_list">
-        <h3>방 목록</h3>
-        {participant.num > 0 ? (
-            participant.members.map((participant) => (
-                <div key={participant.email} className="room_card">
-                  <img src={participant.profile || userImage} alt="프로필" />
-                  <h2>{participant.nickname}</h2>
-                </div>
-            ))
-        ) : <h2>프로젝트가 없습니다.</h2>}
+          <h3>방 목록</h3>
+          {participant.num > 0 ? (
+              participant.members.map((participant) => (
+                  <div key={participant.email} className="room_card">
+                    <img src={participant.profile || userImage} alt="프로필" />
+                    <h2>{participant.nickname}</h2>
+                  </div>
+              ))
+          ) : <h2>프로젝트 참가자가 없습니다.</h2>}
       </div>
     );
   }
@@ -339,6 +342,7 @@ const Project = () => {
               value={inputPassword}
               onChange={(e) => setInputPassword(e.target.value)}
             />
+            <button className="enter_button" onClick={() => handlePasswordCheck}></button>
           </div>
         )}
 
@@ -346,7 +350,7 @@ const Project = () => {
           <div>
             <p className="error_message"> 비밀번호가 틀렸습니다. 다시 시도해 주세요. </p>
 
-            <button className="check_password_button" onClick={() => handlePasswordCheck}>
+            <button className="check_password_button" onClick={() => setError(false)}>
               확인
             </button>
           </div>
