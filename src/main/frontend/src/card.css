@@ -2,12 +2,13 @@
     display: flex;
     gap: 20px; /* 카드 간 간격 */
     flex-wrap: wrap; /* 화면 크기에 맞춰 카드가 자동으로 줄 바꿈되도록 */
+    justify-content: center; /* 세로 중앙 정렬 */
 }
 
 .card {
     background-color: #2a2a2a;
     border-radius: 8px;
-    width: 200px;
+    width: 350px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     max-width: 250px; /* 카드 최대 너비 */
@@ -15,7 +16,7 @@
 
 .image-cap {
     height: 150px;
-    background-color: gray;
+    background-color: #2b3035;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -59,6 +60,7 @@
     border-radius: 5px;
     text-align: center;
     display: block;
+    margin-top: auto;
 }
 
 .card-button:hover {
