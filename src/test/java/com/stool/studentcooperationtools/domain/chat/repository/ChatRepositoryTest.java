@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.domain.chat.repository;
 
+import com.stool.studentcooperationtools.IntegrationTest;
 import com.stool.studentcooperationtools.domain.chat.Chat;
 import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.member.Role;
@@ -9,7 +10,6 @@ import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +18,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+
 @Transactional
-class ChatRepositoryTest {
+class ChatRepositoryTest extends IntegrationTest {
 
     @Autowired
     ChatRepository chatRepository;

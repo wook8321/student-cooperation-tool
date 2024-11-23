@@ -26,5 +26,8 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select r from Room r where r.id = :roomId")
     Optional<Room> findRoomWithPLock(@Param("roomId") Long roomId);
+
+    @Query("select exists(select 1 from Participation p where p.member.id = :memberId and p.room.id = :roomId)")
+    Boolean existMemberInRoom(@Param("memberId") Long memberId, @Param("roomId") Long roomId);
 }
 

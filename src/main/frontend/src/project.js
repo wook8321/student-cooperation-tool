@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import friendImage from "./images/friends.svg";
 import projectImage from "./images/archive.svg";
 import homeImage from "./images/home.png";
 import searchImage from "./images/search.svg";
 import "./project.css";
+import userImage from "./images/user.svg";
+
 
 const domain = "http://localhost:8080";
 
