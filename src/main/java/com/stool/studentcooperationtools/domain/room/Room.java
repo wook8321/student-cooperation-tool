@@ -34,7 +34,7 @@ public class Room extends BaseTimeEntity {
     @Column
     private int participationNum;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Member leader;
 
     @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
