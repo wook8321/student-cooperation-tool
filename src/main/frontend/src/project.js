@@ -36,6 +36,7 @@ const RoomList = () => {
 
   return (
       <div className="room_list">
+          <div id="newRoomDiv"></div>
         <h3>방 목록</h3>
         {rooms.num > 0 ? (
             rooms.rooms.map((room) => (
@@ -94,19 +95,39 @@ const Project = () => {
     axios
       .post(`${domain}/api/v1/rooms`,  {
           title : roomTitle,
-          password : password,
+          password,
           participation : participant.members.map((member) => member.id)
       })
-      .then(() => {
+      .then((res) => {
+          const updatedRoom = res.data.data;
         console.log("Successed to create project.")
         closeCreateModal();
+          createRoomDiv(updatedRoom);
       })
       .catch(() => {
         console.log("Failed to create project.");
       });
   };
 
-  const closeCreateModal = () => {
+    function createRoomDiv(updatedRoom){
+        const newRoomDiv = document.getElementById('newRoomDiv')
+        if(newRoomDiv.querySelector('h2') === null){
+            newRoomDiv.innerHTML += `<h2>새로운 프로젝트</h2>`
+        }
+        const roomCard = document.createElement('li');
+        roomCard.setAttribute('key', updatedRoom.roomId);
+        roomCard.className = 'room_card';
+        roomCard.innerHTML = `<h4>${updatedRoom.title}</h4>
+        <button>X</button> `;
+
+        const deleteButton = roomCard.querySelector('button');
+        deleteButton.addEventListener('click', () => handleDeleteRoom(updatedRoom.roomId));
+
+        newRoomDiv.appendChild(roomCard);
+    }
+
+
+    const closeCreateModal = () => {
     setCreateModal(false);
     setRoomData(null);
   };
@@ -121,9 +142,13 @@ const Project = () => {
       setSearchFriend(null);
   }
 
-  const handleDeleteRoom = () => {
+  const handleDeleteRoom = (roomId) => {
     axios
-      .delete(`${domain}/api/v1/rooms`)
+      .delete(`${domain}/api/v1/rooms`, {
+          data: {
+              roomId,
+          },
+      })
       .then(() => {
         console.log("Successed to delete room");
       })
@@ -403,7 +428,7 @@ const Project = () => {
                     onChange={(e) => setSearchFriend(e.target.value)}
                 />
                 <button className="search_icon" onClick={() => {handleFriend(searchFriend)}}>검색</button>
-                <button className="close_button" onClick={() => setFriendModal(false)}> X</button>
+                <button onClick={() => setFriendModal(false)}> X</button>
                 <div className="friend_list">
                     {result.num > 0 ? (
                         result.members.map((member) => (
@@ -423,7 +448,7 @@ const Project = () => {
 
         /*{searchFriendModal && (
             <div className="search_friend_modal">
-                <button className="close_button" onClick={() => setSearchFriendModal(false)}> X</button>
+                <button onClick={() => setSearchFriendModal(false)}> X</button>
                 {result.num > 0 ? (
                     result.members.map((result) => (
                         <div key={result.email} className="friend_card">
