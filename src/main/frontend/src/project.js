@@ -130,7 +130,7 @@ const Project = () => {
 
   const handlePasswordCheck = () => {
     if (inputPassword === password) {
-      <Link to="/subject"></Link>;
+      <Link to="/topic"></Link>;
     } else {
       setError(true);
     }
