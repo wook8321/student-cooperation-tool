@@ -188,6 +188,8 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
                                                 .description("응답 데이터"),
                                         fieldWithPath("data.num").type(NUMBER)
                                                 .description("검색된 방 개수"),
+                                        fieldWithPath("data.last").type(BOOLEAN)
+                                                .description("마지막 페이지를 나타내는 값"),
                                         fieldWithPath("data.rooms[]").type(ARRAY)
                                                 .description("방 정보 리스트"),
                                         fieldWithPath("data.rooms[].roomId").type(NUMBER)
