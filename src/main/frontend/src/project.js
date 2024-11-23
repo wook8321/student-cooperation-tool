@@ -10,60 +10,6 @@ import "./project.css";
 
 const domain = "http://localhost:8080";
 
-const handleDeleteRoom = (roomId) => {
-    axios
-        .delete(`${domain}/api/v1/rooms`, {
-            data: {
-                roomId,
-            },
-        })
-        .then(() => {
-            console.log("Successed to delete room");
-        })
-        .catch(() => {
-            console.log("Failed to delete room");
-        });
-};
-
-const RoomList = () => {
-  const [rooms, setRooms] = useState({num: 0, rooms: []});
-  useEffect(() => {
-    axios
-        .get(domain + "/api/v1/rooms?page=0")
-        .then((res) => {
-          setRooms(res.data.data);
-          console.log(rooms);
-        })
-        .catch(() => {
-          console.log("failed to load rooms");
-        });
-  }, []);
-
-  return (
-      <div className="room_list">
-          <div id="newRoomDiv"></div>
-        <h3>방 목록</h3>
-        {rooms.num > 0 ? (
-            rooms.rooms.map((room) => (
-                <div key={room.roomId} className="room_card">
-                  <h4>{room.title}</h4>
-                  <button onClick={() => handleDeleteRoom(room.roomId)}>X</button>
-                  <div className="process_flow">
-                    <div className="process_step">주제선정</div>
-                    <div className="arrow">→</div>
-                    <div className="process_step">자료 조사</div>
-                    <div className="arrow">→</div>
-                    <div className="process_step">발표 자료</div>
-                    <div className="arrow">→</div>
-                    <div className="process_step">발표 준비</div>
-                  </div>
-                </div>
-            ))
-        ) : <h2>프로젝트가 없습니다.</h2>}
-      </div>
-  );
-};
-
 const Project = () => {
   const [createmodal, setCreateModal] = useState(false);
   const [roomData, setRoomData] = useState({num:0, rooms:[]});
@@ -84,7 +30,49 @@ const Project = () => {
   const [inputPassword, setInputPassword] = useState("");
   const [error, setError] = useState(false);
   const [searchFriendModal, setSearchFriendModal] = useState(false);
-  const handleSearch = ({ searchTitle }) => {
+  const [rooms, setRooms] = useState({num: 0, rooms: []});
+  const [effect, setEffect] = useState(false);
+  const [deleteRoomId, setDeleteRoomId] = useState(null);
+  useEffect(() => {
+        axios
+            .get(domain + "/api/v1/rooms?page=0")
+            .then((res) => {
+                setRooms(res.data.data);
+                console.log(res.data.data);
+            })
+            .catch(() => {
+                console.log("failed to load rooms");
+            });
+
+    }, [effect]);
+
+  useEffect(() => {
+      const roomCardToDelete = document.querySelector(`li[key="${deleteRoomId}"]`);
+      if (roomCardToDelete) {
+          roomCardToDelete.remove();
+      }
+  }, [deleteRoomId]);
+
+
+    const handleDeleteRoom = (roomId, updated) => {
+        axios
+            .delete(`${domain}/api/v1/rooms`, {
+                data: {
+                    roomId,
+                },
+            })
+            .then(() => {
+                setEffect((prev) => !prev);
+                if(updated){
+                    setDeleteRoomId(roomId);
+                }
+            })
+            .catch(() => {
+                console.log("Failed to delete room");
+            });
+    };
+
+    const handleSearch = ({ searchTitle }) => {
     axios
       .get(`${domain}/api/v1/rooms/search?title=${searchTitle}&page=0`)
       .then((res) => {
@@ -107,7 +95,8 @@ const Project = () => {
           const updatedRoom = res.data.data;
         console.log("Successed to create project.")
         closeCreateModal();
-          createRoomDiv(updatedRoom);
+        setEffect((prev)=>!prev);
+        createRoomDiv(updatedRoom);
       })
       .catch(() => {
         console.log("Failed to create project.");
@@ -126,9 +115,9 @@ const Project = () => {
         <button>X</button> `;
 
         const deleteButton = roomCard.querySelector('button');
-        deleteButton.addEventListener('click', () => handleDeleteRoom(updatedRoom.roomId));
+        deleteButton.addEventListener('click', () => handleDeleteRoom(updatedRoom.roomId, true));
 
-        newRoomDiv.appendChild(roomCard);
+        newRoomDiv.prepend(roomCard);
     }
 
 
@@ -265,41 +254,51 @@ const Project = () => {
             검색
           </button>
         </form>
-        <RoomList />
+          <div className="room_list">
+              <div id="newRoomDiv"></div>
+              <h3>방 목록</h3>
+              {rooms.num > 0 ? (
+                  rooms.rooms.map((room) => (
+                      <div key={room.roomId} className="room_card">
+                          <h4>{room.title}</h4>
+                          <button onClick={() => handleDeleteRoom(room.roomId, false)}>X</button>
+                          <div className="process_flow">
+                              <div className="process_step">주제선정</div>
+                              <div className="arrow">→</div>
+                              <div className="process_step">자료 조사</div>
+                              <div className="arrow">→</div>
+                              <div className="process_step">발표 자료</div>
+                              <div className="arrow">→</div>
+                              <div className="process_step">발표 준비</div>
+                          </div>
+                      </div>
+                  ))
+              ) : <h2>프로젝트가 없습니다.</h2>}
+          </div>
 
-        <form className="create_box" onSubmit={(e) => e.preventDefault()}>
-          <button
-            className="create_button"
-            type="submit"
-            onClick={()=>setCreateModal(true)}
-          >
-            프로젝트 생성
-          </button>
-        </form>
+          <form className="create_box" onSubmit={(e) => e.preventDefault()}>
+              <button
+                  className="create_button"
+                  type="submit"
+                  onClick={() => setCreateModal(true)}
+              >
+                  프로젝트 생성
+              </button>
+          </form>
 
-        {searchModal && (
-            <div className="modal_overlay">
-                <div onClick={(e) => e.stopPropagation()} className="add_project_container">
-                <div className="modal_content">
-                  <button className="close_button" onClick={() => closeSearchModal()}>
-                    X
-                  </button>
-                  <div className="room_grid">
-                    {roomData.num > 0 ? (
-                        roomData.rooms.map((room) => (
-                            <div key={room.roomId} className="room_card">
-                              <h4>{room.title}</h4>
-                              <button onClick={() => handleDeleteRoom(room.roomId)}>X</button>
-                              <div className="process_flow">
-                                <div className="process_step">주제선정</div>
-                                <div className="arrow">→</div>
-                                <div className="process_step">자료 조사</div>
-                                <div className="arrow">→</div>
-                                <div className="process_step">발표 자료</div>
-                                <div className="arrow">→</div>
-                                <div className="process_step">발표 준비</div>
-                              </div>
-                            </div>
+          {searchModal && (
+              <div className="modal_overlay">
+                  <div onClick={(e) => e.stopPropagation()} className="add_project_container">
+                      <div className="modal_content">
+                          <button className="close_button" onClick={() => closeSearchModal()}>
+                              X
+                          </button>
+                          <div className="room_grid">
+                              {roomData.num > 0 ? (
+                                  roomData.rooms.map((room) => (
+                                      <div key={room.roomId} className="room_card">
+                                          <h4>{room.title}</h4>
+                                      </div>
                         ))
                     ) : <h2>검색한 프로젝트가 없습니다.</h2>}
                   </div>
