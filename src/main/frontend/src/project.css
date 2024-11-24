@@ -4,7 +4,7 @@
   display: flex;
   background-color: #f9fafc;
   font-family: "Roboto", Arial, sans-serif;
-  color: #333;
+  color: #4a403a;
 }
 
 main {
@@ -161,22 +161,111 @@ footer > a > img:hover {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(3px);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 100;
 }
 
 .modal_content {
+  display: flex;
+  flex-direction: column;
   background-color: #ffffff;
-  padding: 30px;
+  justify-content: space-between;
+  height: 60%;
+  padding: 15px;
   border-radius: 10px;
   box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
-  width: 400px;
+  width: 40%;
   position: relative;
-    z-index : 1001;
 }
+
+.modal_section {
+    display: flex;
+    justify-content: center;  /* 내용 중앙 정렬 */
+    align-items: center;      /* 수직 중앙 정렬 */
+    margin-bottom: 30px;      /* 섹션 간 간격 */
+}
+
+.modal_section:first-child {
+    margin-top: 50px;  /* 첫 번째 modal_section에 여백 추가 */
+}
+
+.modal_section label {
+    margin-right: 15px; /* 레이블과 입력 필드 사이 간격 */
+}
+
+.modal_input {
+    width: 80%;
+    padding: 10px;
+    margin-bottom: 16px;
+    border: 1px solid #D1C4B0; /* 부드러운 테두리 */
+    border-radius: 5px;
+}
+
+.modal_content .common-button{
+    background-color: #e0afa0; /* 변경할 색 */
+    color: #fff;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%; /* 화면의 넓이에 맞게 조정 */
+    max-width: 300px; /* 최대 넓이를 설정하여 너무 넓어지지 않게 함 */
+    display: block;
+    margin: 0 auto;
+}
+
+.add_friend {
+    background-color: #FDF7F3; /* 부드러운 베이지 톤 */
+    border: 1px solid #E0AFA0; /* 메인 색상 테두리 */
+    border-radius: 10px; /* 둥근 모서리 */
+    padding: 20px; /* 내부 여백 */
+    margin-top: 20px; /* 다른 요소와의 간격 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 카드 느낌을 위한 그림자 */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 중앙 정렬 */
+    gap: 10px; /* 아이템 간 간격 */
+}
+
+.add_friend .common-button {
+    background-color: #E0AFA0; /* 메인 색상 */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px; /* 정사각형 버튼 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px; /* + 버튼의 크기 */
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.add_friend .common-button:hover {
+    transform: scale(1.1); /* 살짝 확대 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* 강조된 그림자 */
+}
+
+.add_friend .common-button:active {
+    transform: scale(0.95); /* 클릭 시 축소 */
+}
+
+.add_friend .participant_list {
+    width: 100%;
+    text-align: center;
+    color: #5A514E; /* 은은한 텍스트 색상 */
+    font-size: 14px;
+    font-weight: 500;
+}
+
 
 .close_button {
   position: absolute;
@@ -190,22 +279,21 @@ footer > a > img:hover {
   transition: color 0.3s ease;
 }
 
+
 .close_button:hover {
   color: #888;
 }
 
 
-.friend_modal{
-    display: flex;
-    width: 300px;
-    height: 70px;
-    justify-content: center;
-    padding: 10px;
-    margin-top: 50px;
-    margin-left: 200px;
-    background-color: rgba(0, 0, 0, 0.137);
-    align-items: center;
-    z-index : 1002;
+.friend_modal {
+    background: #fdf7f3;
+    padding: 20px;  /* 여유 공간이 필요할 경우 적절하게 조정 */
+    width: 90%;
+    max-width: 400px;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
 }
 
 .friend_overlay {
@@ -214,30 +302,93 @@ footer > a > img:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.137);
+    background-color: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(3px);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index : 1001;
+    z-index: 300; /* friendModal 오버레이 z-index */
 }
 
-.search_friend_modal{
-    display: flex;
-    width: 300px;
-    height: 70px;
-    justify-content: center;
-    padding: 10px;
-    margin-top: 50px;
-    margin-left: 200px;
-    background-color: rgba(0, 0, 0, 0.137);
-    align-items: center;
-    z-index : 1002;
+.friend_search_txt {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+    border: 1px solid #e0afa0;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    background-color: #f9f4f2;
+    color: #333;
+    outline: none;
+    box-sizing: border-box;
 }
+
+.friend_search_txt:focus {
+    border-color: #d08a7e;  /* 포커스시 색상 */
+    background-color: #fff;
+}
+
+.close_button_friend {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    background-color: #e0afa0;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px; /* X 크기 */
+    color: #fff;
+    cursor: pointer;
+}
+
+.close_button_friend::before {
+    content: "×"; /* X 표시 */
+    font-size: 22px; /* X 크기 */
+    font-weight: bold;
+    text-align: center;
+}
+
+.close_button_friend:focus {
+    outline: none; /* 클릭했을 때 외곽선 제거 */
+}
+
+.search_icon {
+    background-color: #D1A898;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.friend_list {
+    margin-top: 20px;
+}
+
+.friend_card {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #E0AFA0;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: #FAF3EF; /* 부드러운 배경색 */
+}
+
+.friend_card img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
 
 /* 기본 스타일 */
 .collapsible {
     cursor: pointer;
-    background-color: #f4f4f4;
     padding: 10px 15px;
     font-size: 18px;
     border: 1px solid #ddd;
@@ -263,30 +414,12 @@ footer > a > img:hover {
     padding: 10px 15px;
     border: 1px solid #ddd;
     border-top: none;
-    background-color: #fafafa;
     margin-top: -1px;
     border-radius: 0 0 5px 5px;
 }
 
 .collapsible-content.visible {
     display: block;
-}
-
-.create_complete_btn {
-  background-color: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 20px;
-}
-
-.create_complete_btn:hover {
-  background-color: #1e63d4;
 }
 
 /* 팀원 리스트 */
@@ -317,37 +450,6 @@ footer > a > img:hover {
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-.create_button {
-  background-color: #3b82f6; /* 기본 파란색 배경 */
-  color: #ffffff; /* 텍스트는 흰색 */
-  border: none; /* 테두리 제거 */
-  border-radius: 8px; /* 둥근 모서리 */
-  width: 200px; /* 버튼 너비 */
-  height: 50px; /* 버튼 높이 */
-  font-size: 18px; /* 텍스트 크기 */
-  font-weight: bold; /* 텍스트 굵게 */
-  cursor: pointer; /* 클릭 가능 표시 */
-  display: flex; /* 가운데 정렬을 위해 플렉스 박스 사용 */
-  align-items: center; /* 수직 중앙 정렬 */
-  justify-content: center; /* 수평 중앙 정렬 */
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
-  transition: background-color 0.3s ease, transform 0.2s ease; /* 호버 애니메이션 */
+h3, h2 {
+    color: #4A403A; /* 따뜻한 브라운 톤 */
 }
-
-.create_button:hover {
-  background-color: #1e63d4; /* 호버 시 색상 변경 */
-  transform: translateY(-2px); /* 버튼이 약간 떠오르는 효과 */
-}
-
-.create_button:active {
-  background-color: #1553a0; /* 클릭 시 더 어두운 색 */
-  transform: translateY(0); /* 클릭 시 원래 위치로 돌아감 */
-}
-
-.create_button:disabled {
-  background-color: #bcd4f8; /* 비활성화 시 밝은 색상 */
-  color: #ffffff; /* 텍스트 색상 유지 */
-  cursor: not-allowed; /* 클릭 불가 표시 */
-  box-shadow: none; /* 그림자 제거 */
-}
-
