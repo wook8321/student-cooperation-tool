@@ -111,7 +111,6 @@ public class RoomService {
         Member user = memberRepository.findById(member.getMemberSeq())
                 .orElseThrow(() -> new IllegalArgumentException("유저 정보가 올바르지 않습니다"));
         if(!participationRepository.existsByMemberIdAndRoomId(member.getMemberSeq(), room.getId())){
-            room.addParticipant();
             participationRepository.save(Participation.of(user, room));
         }
     }
