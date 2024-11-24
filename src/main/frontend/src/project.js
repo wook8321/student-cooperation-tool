@@ -8,7 +8,8 @@ import {domain} from "./domain";
 import "./scrollbar.css"
 import "./card.css"
 import "./paginationButton.css"
-
+import "./buttons.css"
+import searchIcon from "./images/search.svg";
 
 const RoomList = () => {
   const [enterModal, setEnterModal] = useState(false);
@@ -122,7 +123,6 @@ const Project = () => {
   const [error, setError] = useState(false);
   const [searchFriendModal, setSearchFriendModal] = useState(false);
   const [rooms, setRooms] = useState({num: 0, rooms: []});
-  const [effect, setEffect] = useState(false);
   const [deleteRoomId, setDeleteRoomId] = useState(null);
   const [toggleOpen, setToggleOpen] = useState(false);
   const [searchResult, setSearchResult] = useState({num:0, members: []});
@@ -134,13 +134,6 @@ const Project = () => {
       }
   }, [deleteRoomId]);
 
-    useEffect(() => {
-        setResult(prev => ({
-            num: prev.num-1,
-            members : prev.members.filter(
-                (member) => searchResult.members.some((res) => res.id === member.id))
-            }));
-    }, [effect]);
     const openToggle = () => {
         setToggleOpen((prev) => !prev);
     };
@@ -299,7 +292,9 @@ const Project = () => {
         })
   }
   /* 참여할 유저 ( 친구 상태 ) 검색 */
-  const handleFriend = () => {
+  const handleFriend = async(e) => {
+      const value = e.target.value;
+      setSearchFriend(value);
     axios.get(`${domain}/api/v1/friends/search?relation=true&name=${searchFriend}`)
         .then((res) => {
             const allResults = res.data.data.members; // 검색 결과
@@ -310,8 +305,7 @@ const Project = () => {
                 )
                 : allResults;
             console.log(filteredResults);
-            setSearchResult({num: filteredResults.length, members: filteredResults});
-          setSearchFriendModal(true);
+            setResult({num: filteredResults.length, members: filteredResults});
         })
         .catch((reason) => {
           console.log("Failed to search friend");
@@ -337,15 +331,6 @@ const Project = () => {
 
   const addResult = (result, isSearch) => {
     setParticipant(prev => ({ num: prev.num + 1, members: [...prev.members, result ]})); // 참가자들 리스트 추가
-      if(isSearch){
-          setSearchResult((prev) => ({
-              num: prev.num - 1,
-              members: prev.members.filter((member) => member !== result)
-          }));
-          setEffect((prev) => !prev);
-          return;
-      }
-
       setResult((prev) => ({
           num: prev.num - 1,
           members: prev.members.filter((member) => member !== result)
@@ -362,7 +347,7 @@ const Project = () => {
 
     return (
       <div className="participant_list">
-        <h3>팀원 목록</h3>
+        <h2>팀원 목록</h2>
         {participant.num > 0 ? (
             participant.members.map((participant) => (
                 <div key={participant.email} className="room_card">
@@ -373,7 +358,7 @@ const Project = () => {
                     </button>
                 </div>
             ))
-        ) : <h2>선택한 팀원이 없습니다.</h2>}
+        ) : <h3>선택한 팀원이 없습니다.</h3>}
       </div>
     );
   }
@@ -387,9 +372,9 @@ const Project = () => {
 
         <form className="search_box" onSubmit={(e) => e.preventDefault()}>
           <input id="roomSearchInput" className="project_search_txt" type="text" placeholder="프로젝트 이름을 입력하세요."/>
-          <button className="search_button" type="submit" onClick={() => handleSearch({page : 0})}>
-            검색
-          </button>
+            <button className="search_button" type="submit" onClick={() => handleSearch({page: 0})}>
+                <img src={searchIcon} alt="검색"/>
+            </button>
         </form>
           <div className="room_list">
               <h2 className={`collapsible ${toggleOpen ? "" : "collapsed"}`} onClick={openToggle}>
@@ -398,7 +383,7 @@ const Project = () => {
               <div className={`collapsible-content ${toggleOpen ? "visible" : ""}`} id="newRoomDiv">
               </div>
           <form className="create_box" onSubmit={(e) => e.preventDefault()}>
-              <button className="create_button" type="submit" onClick={()=>setCreateModal(true)}>
+              <button className="common-button" type="submit" onClick={()=>setCreateModal(true)}>
                   프로젝트 생성
               </button>
           </form>
@@ -468,12 +453,9 @@ const Project = () => {
             */}
 
         {createmodal && (
-          <div className="add_project_container ">
-            <div className="modal_overlay">
-                <div onClick={(e) => e.stopPropagation()} className="add_project_container">
-                    <div className="modal_content">
-                <button className="close_button" onClick={() => closeCreateModal()}>
-                  X
+            <div className="modal_overlay" onClick={()=> setCreateModal(false)}>
+                <div onClick={(e) => e.stopPropagation()}  className="modal_content">
+                <button className="close_button_friend" onClick={() => closeCreateModal()}>
                 </button>
                 <div className="modal_body">
                   <div className="modal_section">
@@ -491,31 +473,15 @@ const Project = () => {
                              onChange={(e) => setPassword(e.target.value)}
                       />
                   </div>
-
-                  <div className="modal_section">
-                    <label className="modal_label">프로세스</label>
-
-                    <div className="process_flow">
-                      <div className="process_step">주제선정</div>
-                      <div className="arrow">→</div>
-                      <div className="process_step">자료 조사</div>
-                      <div className="arrow">→</div>
-                      <div className="process_step">발표 자료</div>
-                      <div className="arrow">→</div>
-                      <div className="process_step">발표 준비</div>
-                    </div>
-                  </div>
                 </div>
                   <div className="add_friend">
-                    <button className="add_friend_button" onClick={() => {handleFriendList()}}>
+                      <ParticipantList /> {/* 참가할 친구 리스트 */}
+                    <button className="common-button" onClick={() => {handleFriendList()}}>
                       +
                     </button>
-                  <ParticipantList /> {/* 참가할 친구 리스트 */}
-                  <button className="create_complete_btn" onClick={() => handleCreateClick()}>생성</button>
                   </div>
+                  <button className="common-button" onClick={() => handleCreateClick()}>생성</button>
                 </div>
-              </div>
-            </div>
           </div>
         )}</div>
       </main>
@@ -544,17 +510,16 @@ const Project = () => {
         )}
 
         {friendModal && (
-            <div className="friend_overlay">
+            <div className="friend_overlay" onClick={()=> setFriendModal(false)}>
                 <div onClick={(e)=> e.stopPropagation()} className="friend_modal">
                 <input
                     className="friend_search_txt"
                     type="text"
-                    placeholder="참여시킬 친구 이름을 입력하세요."
+                    placeholder="친구 이름을 입력하세요."
                     value={searchFriend}
-                    onChange={(e) => setSearchFriend(e.target.value)}
+                    onChange={handleFriend}
                 />
-                <button className="search_icon" onClick={() => {handleFriend()}}>검색</button>
-                <button onClick={() => setFriendModal(false)}> X</button>
+                    <button className="close_button_friend" onClick={() => setFriendModal(false)}></button>
                 <div className="friend_list">
                     {result.num > 0 ? (
                         result.members.map((member) => (
@@ -562,7 +527,7 @@ const Project = () => {
                                 <img src={member.profile || userImage} alt="프로필"/>
                                 <h2>{member.nickname}</h2>
                                 <button className="add_result_button"
-                                    onClick={() => addResult(member,false)}> 초대
+                                    onClick={() => addResult(member)}> 초대
                                 </button>
                             </div>
                         ))
@@ -570,25 +535,6 @@ const Project = () => {
                 </div>
                 </div>
             </div>
-        )}
-
-        {searchFriendModal && (
-            <div className="search_friend_modal">
-                <button onClick={() => closeSearchFriendModal()}> X</button>
-                {searchResult.num > 0 ? (
-                    searchResult.members.map((result) => (
-                        <div key={result.email} className="friend_card">
-                            <img src={result.profile || userImage} alt="프로필"/>
-                            <h2>{result.nickname}</h2>
-                            <button
-                                onClick={() => addResult(result, true)}> 초대
-                            </button>
-                        </div>
-                    ))
-                ) : <h2>검색한 친구가 없습니다.</h2>}
-
-            </div>
-
         )}
     </div>
   );
