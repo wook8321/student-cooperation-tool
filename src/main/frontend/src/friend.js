@@ -131,29 +131,31 @@ const Friend = () => {
 
       {modalOpen && (
         <div className="modal">
-          <div className="modal_overlay" onClick={handleCloseModal}></div>
-          <div className="modal_content">
-            <h3>검색 결과</h3>
-            <button className="close_button" onClick={handleCloseModal}>
-              X
-            </button>
-            <div className="friend_result scrollbar">
-                {friendData.num > 0 ? (
-                    <ul>
-                      {friendData.members.map(friend => (
-                          <li key={friend.email}>
-                            <div className="profile-icon">
-                              <img src={friend.profile} alt="프로필"/>
-                            </div>
-                            <span className="friend-name">{friend.nickname}</span>
-                            <button className="add_friend_button" onClick={() => handleAddFriend(friend.email,friend.profile,friend.nickname)}>
-                              친구 추가
-                            </button>
-                          </li>)
-                      )}
-                    </ul>)
-                    : (
-                        <p>검색 결과가 없습니다.</p>)}
+          <div>    
+            <div className="modal_overlay" onClick={handleCloseModal}></div>
+            <div className="modal_content">
+              <h3>검색 결과</h3>
+              <button className="close_button" onClick={handleCloseModal}>
+                X
+              </button>
+              <div className="friend_result scrollbar">
+                  {friendData.num > 0 ? (
+                      <ul>
+                        {friendData.members.map(friend => (
+                            <li key={friend.email}>
+                              <div className="profile-icon">
+                                <img src={friend.profile} alt="프로필"/>
+                              </div>
+                              <span className="friend-name">{friend.nickname}</span>
+                              <button className="add_friend_button" onClick={() => handleAddFriend(friend.email,friend.profile,friend.nickname)}>
+                                친구 추가
+                              </button>
+                            </li>)
+                        )}
+                      </ul>)
+                      : (
+                          <p>검색 결과가 없습니다.</p>)}
+              </div>
             </div>
           </div>
         </div>
