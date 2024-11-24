@@ -125,7 +125,7 @@ const Project = () => {
   const [rooms, setRooms] = useState({num: 0, rooms: []});
   const [deleteRoomId, setDeleteRoomId] = useState(null);
   const [toggleOpen, setToggleOpen] = useState(false);
-  const [searchResult, setSearchResult] = useState({num:0, members: []});
+  const [searched, setSearched] = useState(false);
 
   useEffect(() => {
       const roomCardToDelete = document.querySelector(`li[key="${deleteRoomId}"]`);
@@ -133,6 +133,25 @@ const Project = () => {
           roomCardToDelete.remove();
       }
   }, [deleteRoomId]);
+
+  useEffect(()=>{
+      axios.get(`${domain}/api/v1/friends/search?relation=true&name=${searchFriend}`)
+          .then((res) => {
+              const allResults = res.data.data.members; // 검색 결과
+              console.log(allResults);
+              const filteredResults = participant.num > 0
+                  ? allResults.filter((result) =>
+                      !participant.members.some((member) => member.id === result.id)
+                  )
+                  : allResults;
+              console.log(filteredResults);
+              setResult({num: filteredResults.length, members: filteredResults});
+          })
+          .catch((reason) => {
+              console.log("Failed to search friend");
+              console.log(reason);
+          });
+  }, [searched])
 
     const openToggle = () => {
         setToggleOpen((prev) => !prev);
@@ -261,12 +280,6 @@ const Project = () => {
   }
 
 
-  const closeSearchFriendModal = () => {
-      setSearchFriendModal(false);
-      setSearchResult({num:0, members:[]})
-      setSearchFriend("");
-  }
-
   const closeEnterModal = () => {
       setEnterRoomId(0)
       setEnterModal(false)
@@ -294,38 +307,8 @@ const Project = () => {
   /* 참여할 유저 ( 친구 상태 ) 검색 */
   const handleFriend = async(e) => {
       const value = e.target.value;
-      setSearchFriend(value);
-    axios.get(`${domain}/api/v1/friends/search?relation=true&name=${searchFriend}`)
-        .then((res) => {
-            const allResults = res.data.data.members; // 검색 결과
-            console.log(allResults);
-            const filteredResults = participant.num > 0
-                ? allResults.filter((result) =>
-                    !participant.members.some((member) => member.id === result.id)
-                )
-                : allResults;
-            console.log(filteredResults);
-            setResult({num: filteredResults.length, members: filteredResults});
-        })
-        .catch((reason) => {
-          console.log("Failed to search friend");
-          console.log(reason);
-        });
-
-        return (
-            <div className="participant_grid">
-              {searchResult.num > 0 ? (
-                  searchResult.members.map((result) => (
-                      <div key={result.email} className="participant_card">
-                        <img src={result.profile || userImage} alt="프로필"/>
-                        <h2>{result.nickname}</h2>
-                        <button onClick={() => addResult(result, true)}> 초대 </button>
-                    <button onClick={() => setFriendModal(false)}>X</button>
-                  </div>
-                ))
-              ) : <h2>검색 한 친구가 없습니다.</h2>}
-            </div>
-          );
+      setSearchFriend(value.toLowerCase());
+      setSearched((prev)=>!prev);
   };
 
 
