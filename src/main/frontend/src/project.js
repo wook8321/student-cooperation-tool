@@ -262,6 +262,7 @@ const Project = () => {
               </div>
             </div>
         )}
+        
             {/*
             
             <div className="pagination">
@@ -353,7 +354,7 @@ const Project = () => {
             <button className="enter_button" onClick={() => handlePasswordCheck}></button>
           </div>
         )}
-
+        
         {error && (
           <div>
             <p className="error_message"> 비밀번호가 틀렸습니다. 다시 시도해 주세요. </p>
