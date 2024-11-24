@@ -55,25 +55,36 @@ const Topic = ({ roomId }) => {
 
     topics.num += 1;
 
-    const newTopicObject = [{
-      topicId : topics.num,
-      memberId : userId,
-      topic : newTopic,
-      voteNum : 0,
-      votes : [],
-    }]
+    setTopics((prev) => {
+      const newTopicObject = {
+        topicId: prev.num + 1,
+        memberId: userId,
+        topic: newTopic,
+        voteNum: 0,
+        votes: [],
+      };
+  
+      const updatedTopics = {
+        num: prev.num + 1,
+        topics: [...prev.topics, newTopicObject],
+      };
 
-    setTopics((prev) => [...prev, newTopicObject]); // 새 주제 추가
-    stompClient.publish({
-      destination : `${domain}/pub/topics/add`,
-      body: topics
+      stompClient.publish({
+        destination : `${domain}/pub/topics/add`,
+        body: topics
+      });
+
+      return updatedTopics;
     });
+
     setNewTopic(""); // 입력 초기화
   };
 
   const deleteTopic = (topic_id) => {
     const updatedTopic = topics.topics.filter((topic) => topic.topicId !== topic_id);
+
     setTopics(updatedTopic);
+
     stompClient.publish({
       destination : `${domain}/pub/topics/delete`,
       body : topics
@@ -81,29 +92,51 @@ const Topic = ({ roomId }) => {
   };
 
   const addVote = (topic_id) => {
-    const filteredTopic = topics.topics.filter((topic) => topic.topicId === topic_id); // 입력한 id값과 topics 데이터 안의 아이디가 같은 주제
-    
-    vote_num += 1;
-    filteredTopic.voteNum = vote_num;
-    filteredTopic.votes = ((prev) => [...prev, {userId, vote_num}]);
+    setTopics((prev) => {
+      const updatedTopics = prev.topics.map((topic) => {
+        if (topic.topicId === topic_id) {
+          return {
+            ...topic,
+            voteNum: topic.voteNum + 1,
+            votes: [...topic.votes, { memberId: userId, voteId: topic.voteNum + 1 }],
+          };
+        }
+        return topic;
+      });
 
-    stompClient.publish({
-      destination : `${domain}/pub/votes/add`,
-      body : topics
+      const updatedState = { ...prev, topics: updatedTopics };
+
+      stompClient.publish({
+        destination : `${domain}/pub/votes/add`,
+        body : topics
+      });
+
+      return updatedState;
     });
   }
 
   const deleteVote = (topic_id) => {
-    const filteredTopic = topics.topics.filter((topic) => topic.topicId !== topic_id); // 입력한 id값과 topics 데이터 안의 아이디가 다른 주제
-    
-    vote_num -= 1;
-    filteredTopic.voteNum = vote_num;
-    filteredTopic.votes = ((prev) => [...prev, {userId, vote_num}]);
+    setTopics((prev) => {
+      const updatedTopics = prev.topics.map((topic) => {
+        if (topic.topicId === topic_id) {
+          return {
+            ...topic,
+            voteNum: topic.voteNum - 1,
+            votes: topic.votes,  // 사용자 id와 비교해서 같은 것만 삭제해야함.
+          };
+        }
+        return topic;
+      });
 
-    stompClient.publish({
-      destination : `${domain}/pub/votes/delete`,
-      body : topics 
-    });
+      const updatedState = { ...prev, topics: updatedTopics };
+
+      stompClient.publish({
+        destination : `${domain}/pub/votes/delete`,
+        body : topics 
+      });
+
+      return updatedState;
+    })
   }
 
   if (error) {
@@ -112,10 +145,6 @@ const Topic = ({ roomId }) => {
 
   const ClickLike = (topic_id) => {
     const [isClicked, setIsClicked] = useState(false);
-    const filteredTopic = topics.topics.filter((topic) => topic.topicId === topic_id); // 입력받은 id값과 topics 데이터의 topicId가 일치하는 주제
-    
-    if(filteredTopic.length > 0) // 입력받은 id값 주제의 voteNum 저장
-      vote_num = filteredTopic[0].voteNum;
 
     const changeLike = useCallback(() => {
         //버튼을 클릭할 때 마다 현재의 반대 상태로 변경
