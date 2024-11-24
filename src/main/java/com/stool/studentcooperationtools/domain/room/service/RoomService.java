@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.domain.room.service;
 
+import com.stool.studentcooperationtools.domain.PagingUtils;
 import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.member.repository.MemberRepository;
 import com.stool.studentcooperationtools.domain.participation.Participation;
@@ -34,16 +35,15 @@ import java.util.Objects;
 public class RoomService {
 
     private final RoomRepository roomRepository;
-    private final int pageSize = 6;
     private final MemberRepository memberRepository;
     private final TopicRepository topicRepository;
     private final ParticipationRepository participationRepository;
     private final PresentationService presentationService;
 
     public RoomsFindResponse findRooms(SessionMember member, final int page) {
-        Pageable pageable = PageRequest.of(page, pageSize);
+        Pageable pageable = PageRequest.of(page, PagingUtils.ROOM_PAGING_PARSE);
         Page<Room> rooms = roomRepository.findRoomsByMemberIdWithPage(member.getMemberSeq(), pageable);
-        return RoomsFindResponse.of(rooms.getContent());
+        return RoomsFindResponse.of(rooms.getTotalElements(), page ,rooms.getTotalPages(), rooms.getContent());
     }
 
     @Transactional
@@ -74,7 +74,7 @@ public class RoomService {
     }
 
     public RoomSearchResponse searchRoom(final String title, final int page) {
-        Pageable pageable = PageRequest.of(page, pageSize);
+        Pageable pageable = PageRequest.of(page, PagingUtils.ROOM_PAGING_PARSE);
         Page<Room> rooms = roomRepository.findRoomsByTitleWithPage(title, pageable);
         return RoomSearchResponse.of(rooms.isLast(),rooms.getContent());
     }
