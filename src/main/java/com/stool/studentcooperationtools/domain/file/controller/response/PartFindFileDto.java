@@ -10,17 +10,15 @@ public class PartFindFileDto {
 
     private String fileName;
     private FileType fileType;
-    private String filePath;
     private String originalName;
 
     @Builder
     private PartFindFileDto(
             final String fileName, final FileType fileType,
-            final String filePath, final String originalName
+            final String originalName
     ) {
         this.fileName = fileName;
         this.fileType = fileType;
-        this.filePath = filePath;
         this.originalName = originalName;
     }
 
@@ -28,7 +26,6 @@ public class PartFindFileDto {
         return PartFindFileDto.builder()
                 .fileName(file.getFileName())
                 .fileType(file.getFileType())
-                .filePath(file.getFilePath())
                 .originalName(file.getOriginalName())
                 .build();
     }

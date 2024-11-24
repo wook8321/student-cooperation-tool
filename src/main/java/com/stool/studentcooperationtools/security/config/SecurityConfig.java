@@ -21,21 +21,21 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests( authorize -> { // 정적 파일들은 접근 허락
-                    authorize.requestMatchers("/*.html","/*.png","/*.ico","/static/**")
+                    authorize.requestMatchers("/*.html", "/*.png","/*.ico","/static/**")
                             .permitAll();
                 })
                 .authorizeHttpRequests( authorize -> { //인증 없이 접근가능한 url
-                    authorize.requestMatchers("/","/api/test","/login","/oauth/**","/logout","/ws-stomp/**")
+                    authorize.requestMatchers("/api/auth/check","/","/api/test","/login","/oauth/**","/logout","/ws-stomp/**","/profile")
                             .permitAll();
                 })
                 .sessionManagement(session->session //세션 고정 공격 보호
                         .sessionFixation().changeSessionId()
                 )
-                .formLogin(AbstractHttpConfigurer::disable) // form 로그인 불가능 설정
                 .authorizeHttpRequests( authorize -> { // 나머지 모든 url은 인증이 필요
                     authorize.anyRequest().authenticated();
                 })
                 .oauth2Login((oauth)->oauth
+                        .loginPage("/login")
                         .userInfoEndpoint((endPoint)->endPoint
                                 .userService(customOAuth2UserService) // OAuth2유저의 정보의 EndPoint
                         )

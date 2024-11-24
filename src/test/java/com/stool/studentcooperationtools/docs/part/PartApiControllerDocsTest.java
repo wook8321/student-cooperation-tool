@@ -38,7 +38,6 @@ public class PartApiControllerDocsTest extends RestDocsSupport {
                 PartFindFileDto.builder()
                         .fileName("S3에 저장된 파일 이름, 파일 식별키")
                         .originalName("원래 파일이름")
-                        .filePath("S3에 저장된 주소")
                         .fileType(FileType.PDF)
                         .build()
         );
@@ -92,8 +91,6 @@ public class PartApiControllerDocsTest extends RestDocsSupport {
                                         .description("S3에 저장된 파일 이름, 파일 식별키"),
                                 fieldWithPath("data.parts[].files[].originalName").type(STRING)
                                         .description("원래 파일 이름"),
-                                fieldWithPath("data.parts[].files[].filePath").type(STRING)
-                                        .description("파일의 경로"),
                                 fieldWithPath("data.parts[].files[].fileType").type(STRING)
                                         .description("파일의 타입")
                         )
