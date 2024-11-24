@@ -175,6 +175,7 @@ footer > a > img:hover {
   box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
   width: 400px;
   position: relative;
+    z-index : 1001;
 }
 
 .close_button {
@@ -204,6 +205,7 @@ footer > a > img:hover {
     margin-left: 200px;
     background-color: rgba(0, 0, 0, 0.137);
     align-items: center;
+    z-index : 1002;
 }
 
 .friend_overlay {
@@ -216,6 +218,7 @@ footer > a > img:hover {
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index : 1001;
 }
 
 .search_friend_modal{
@@ -228,6 +231,7 @@ footer > a > img:hover {
     margin-left: 200px;
     background-color: rgba(0, 0, 0, 0.137);
     align-items: center;
+    z-index : 1002;
 }
 
 /* 기본 스타일 */
@@ -346,3 +350,4 @@ footer > a > img:hover {
   cursor: not-allowed; /* 클릭 불가 표시 */
   box-shadow: none; /* 그림자 제거 */
 }
+
