@@ -14,6 +14,8 @@ const RoomList = () => {
   const [enterModal, setEnterModal] = useState(false);
   const [enterRoomId, setEnterRoomId] = useState(0)
   const [rooms, setRooms] = useState({num: 0, roomList: []});
+  const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태 추가
+
   const handleDeleteRoom = () => {
     axios
         .delete(`${domain}/api/v1/rooms`)
@@ -24,20 +26,27 @@ const RoomList = () => {
           console.log("Failed to delete room");
         });
   };
-  useEffect(() => {
-    axios
-        .get(domain + "/api/v1/rooms?page=0")
-        .then((res) => {
-          console.log(res.data);
-          setRooms(res.data.data);
-        })
-        .catch(() => {
-          console.log("failed to load rooms");
-        });
-  }, []);
+
+    // 방 목록 가져오기 (페이지에 따라 호출)
+    const fetchRooms = (page) => {
+        axios
+            .get(domain + `/api/v1/rooms?page=${page}`)
+            .then((res) => {
+                console.log(res.data);
+                setRooms(res.data.data);
+                setCurrentPage(page); // 현재 페이지 업데이트
+            })
+            .catch(() => {
+                console.log("Failed to load rooms");
+            });
+    };
+
+    // 초기 로드 시 첫 페이지 데이터 가져오기
+    useEffect(() => {
+        fetchRooms(0); // 첫 페이지로 초기화
+    }, []);
 
     const enterRoom = (roomId) =>{
-        alert(roomId)
         setEnterRoomId(roomId);
         setEnterModal(true);
     }
@@ -45,32 +54,60 @@ const RoomList = () => {
   return (
       <div className="room_list">
         <h3> 참여한 프로젝트 : {rooms.num}</h3>
-        <div className="card-container">
-            {rooms.num > 0 ? (
-                rooms.roomList.map((room) => (
-                    <div key={room.roomId} className="card">
-                        <button onClick={() => handleDeleteRoom(room.roomId)}>X</button>
-                        <div className="image-cap pink-cap">
-                            {room.title}
-                        </div>
-                        <div className="card-body">
-                            <h3 className="card-title">{room.topic}</h3>
-                            <div className="process_flow">
-                                <div className="process_step">주제선정</div>
-                                <div className="arrow">→</div>
-                                <div className="process_step">자료 조사</div>
-                                <div className="arrow">→</div>
-                                <div className="process_step">발표 자료</div>
-                                <div className="arrow">→</div>
-                                <div className="process_step">발표 준비</div>
-                            </div>
-                            <button className="card-button" onClick={() => enterRoom(room.roomId)}>
-                                참여하기
-                            </button>
-                        </div>
-                    </div>
-                ))
-            ) : <h2>프로젝트가 없습니다.</h2>}
+          <div>
+              {rooms.num > 0 ? (
+                  <>
+                      <div className="card-container">
+                      {rooms.rooms.map((room) => {
+                          const capColors = ["pink-cap", "green-cap", "orange-cap"];
+                          const randomCapClass = capColors[Math.round(Math.random() * capColors.length)];
+                          return (
+                          <div key={room.roomId} className="card">
+                              <div className={`image-cap ${randomCapClass}`}>
+                                  {room.title}
+                              </div>
+                              <div className="card-body">
+                            <span style={{ fontSize: "small", justifyContent: "end", color: "white" }}>
+                                참가자 : {room.participationNum}
+                            </span>
+                                  <h3 className="card-title">주제 : {room.topic}</h3>
+                                  <div className="button-group">
+                                      <button className="card-button" onClick={() => enterRoom(room.roomId)}>
+                                          입장하기
+                                      </button>
+                                      <button className="card-red-button" onClick={() => handleDeleteRoom(room.roomId)}>
+                                          삭제하기
+                                      </button>
+                                  </div>
+                              </div>
+                          </div>
+                      );
+                      })}
+                      </div>
+                      <div id="paginationButtonGroup" className="pagination-container">
+                          <button className="pagination-button" onClick={() => fetchRooms(rooms.firstPage - 1)}
+                                  disabled={currentPage === rooms.firstPage - 1}>
+                              맨 처음
+                          </button>
+                          <div id="paginationButtonGroup" className="pagination-container">
+                              {/* 여기서 firstPage부터 lastPage까지 버튼 생성 */}
+                              {Array.from(
+                                  { length: rooms.lastPage - rooms.firstPage + 1 },
+                                  (_, i) => rooms.firstPage + i
+                              ).map((page) => (
+                                  <button className="pagination-button" onClick={() => fetchRooms(page - 1)}
+                                  disabled={currentPage === page - 1}>
+                                      {page}
+                                  </button>
+                              ))}
+                          </div>
+                          <button onClick={() => fetchRooms(rooms.lastPage - 1)} className="pagination-button"
+                                  disabled={currentPage === rooms.lastPage - 1}>
+                              마지막
+                          </button>
+                      </div>
+                  </>
+              ) : <h2>프로젝트가 없습니다.</h2>}
         </div>
       </div>
   );
@@ -111,7 +148,6 @@ const Project = () => {
   };
 
     const enterRoom = (roomId) =>{
-        alert(roomId)
         closeSearchModal()
         setEnterRoomId(roomId)
         setEnterModal(true)
@@ -130,6 +166,7 @@ const Project = () => {
               if(isCorrect){
                   //비밀 번호가 맞다면, 방을 입장
                   <Link to="/topic" state={{roomId}}></Link>;
+                  closeEnterModal()
               }
           })
           .catch(() =>{
@@ -281,8 +318,7 @@ const Project = () => {
       <main>
 
         <form className="search_box" onSubmit={(e) => e.preventDefault()}>
-          <input id="roomSearchInput" className="project_search_txt" type="text" placeholder="프로젝트 이름을 입력하세요."
-            value={searchTitle} onChange={(e) => setSearchTitle(e.target.value)}/>
+          <input id="roomSearchInput" className="project_search_txt" type="text" placeholder="프로젝트 이름을 입력하세요."/>
           <button className="search_button" type="submit" onClick={() => handleSearch({page : 0})}>
             검색
           </button>
@@ -305,17 +341,24 @@ const Project = () => {
                     {roomData.num > 0 ? (
                         <>
                             <div className="card-container">
-                                {roomData.rooms.map((room) => (
-                                    <div key={room.roomId} className="card">
-                                        <div className="image-cap orange-cap">{room.title}</div>
-                                        <div className="card-body">
-                                            <h3 className="card-title">{room.topic}</h3>
-                                            <button className="card-button" onClick={() => {alert(room.roomId);enterRoom(room.roomId)}}>
-                                                참여하기
-                                            </button>
+                                {roomData.rooms.map((room) => {
+                                    // 랜덤 배경색 클래스 설정
+                                    const capColors = ["pink-cap", "green-cap", "orange-cap"];
+                                    const randomCapClass = capColors[Math.round(Math.random() * capColors.length)];
+
+                                    return (
+                                        <div key={room.roomId} className="card">
+                                            {/* 동적으로 랜덤 클래스 추가 */}
+                                            <div className={`image-cap ${randomCapClass}`}>{room.title}</div>
+                                            <div className="card-body">
+                                                <h3 className="card-title">{room.topic}</h3>
+                                                <button className="card-button" onClick={() => enterRoom(room.roomId)}>
+                                                    참여하기
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                             <div style={{ textAlign: 'center' }} className="pagination-container">
                                 <button onClick={handlePrevPage} className="pagination-button" disabled={page === 0}>
