@@ -1,0 +1,102 @@
+.card-container {
+    display: flex;
+    gap: 20px; /* 카드 간 간격 */
+    flex-wrap: wrap; /* 화면 크기에 맞춰 카드가 자동으로 줄 바꿈되도록 */
+    justify-content: center; /* 세로 중앙 정렬 */
+}
+
+.card {
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    width: 350px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 250px; /* 카드 최대 너비 */
+}
+
+.image-cap {
+    height: 150px;
+    background-color: #2b3035;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-size: 18px;
+}
+
+.orange-cap {
+    background-color: orange;
+}
+
+.green-cap {
+    background-color: green;
+}
+
+.pink-cap {
+    background-color: pink;
+}
+
+.card-body {
+    padding: 15px;
+}
+
+.card-title {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.card-text {
+    font-size: 14px;
+    margin-bottom: 15px;
+    color: white;
+}
+
+.button-group {
+    display: flex;
+    gap: 20px; /* 버튼 간 간격 */
+    flex-wrap: wrap; /* 화면 크기에 맞춰 자동으로 줄 바꿈되도록 */
+    justify-content: center; /* 세로 중앙 정렬 */
+}
+
+.card-button,
+.card-red-button {
+    padding: 10px;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+    display: block;
+    margin-top: auto;
+}
+
+/* 기본 버튼 스타일 */
+.card-button {
+    background-color: #3b81f4;
+}
+
+.card-button:hover {
+    background-color: #003fcb;
+}
+
+/* 빨간 버튼 스타일 */
+.card-red-button {
+    background-color: #ec9681;
+}
+
+.card-red-button:hover {
+    background-color: #c75436;
+}
+
+/* 반응형 디자인: 화면 크기에 따라 카드의 너비를 조정 */
+@media (max-width: 768px) {
+    .card {
+        flex: 1 1 calc(50% - 40px); /* 화면이 좁을 때는 2개의 카드가 한 줄에 나타나도록 설정 */
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        flex: 1 1 100%; /* 모바일 화면에서는 카드가 한 줄에 하나씩 나타나도록 설정 */
+    }
+}

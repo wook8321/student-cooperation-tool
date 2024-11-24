@@ -23,6 +23,7 @@ const Part = (roomId) => {
     const [reviewModal, setReviewModal] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false); // 드롭다운 열림/닫힘 상태
     const [chatModal, setChatModal] = useState(false);
+    const [reviewPartId, setReviewPartId] = useState(null);
 
     const [review, setReview] = useState({num: 0, reviews:[]}); // 기존 평가 내용
     const [reviewContent, setReviewContent] = useState(""); // 평가 내용
@@ -92,7 +93,7 @@ const Part = (roomId) => {
 
         return deletedPart;
       });
-    };
+
 
     const updatePart = (part_id, memberId) => {
 
@@ -116,7 +117,7 @@ const Part = (roomId) => {
     const closeAddModal = () => setAddModal(false);
     const openUpdateModal = () => setUpdateModal(true);
     const closeUpdateModal = () => setUpdateModal(false);
-    const openReviewModal = () => setReviewModal(true);
+    const openReviewModal = (partId) => setReviewPartId(partId); setReviewModal(true);
     const closeReviewModal = () => setReviewModal(false);
 
     const toggleMenu = (part_id) => {
