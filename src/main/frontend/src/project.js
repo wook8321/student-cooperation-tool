@@ -351,6 +351,13 @@ const Project = () => {
           members: prev.members.filter((member) => member !== result)
       }))};
 
+    const handleRemoveParticipant = (email) => {
+        setParticipant((prev) => ({
+            num: prev.num - 1, // num 값 감소
+            members: prev.members.filter((member) => member.email !== email),
+        }));
+    };
+
   const ParticipantList = () => {
 
     return (
@@ -359,8 +366,11 @@ const Project = () => {
         {participant.num > 0 ? (
             participant.members.map((participant) => (
                 <div key={participant.email} className="room_card">
-                  <img src={participant.profile || userImage} alt="프로필" />
-                  <h2>{participant.nickname}</h2>
+                    <img src={participant.profile || userImage} alt="프로필"/>
+                    <h2>{participant.nickname}</h2>
+                    <button onClick={() => handleRemoveParticipant(participant.email)}>
+                        X
+                    </button>
                 </div>
             ))
         ) : <h2>선택한 팀원이 없습니다.</h2>}
@@ -369,8 +379,8 @@ const Project = () => {
   }
 
 
-  return (
-    <div className="container">
+    return (
+        <div className="container">
       <Footer/>
 
       <main>
