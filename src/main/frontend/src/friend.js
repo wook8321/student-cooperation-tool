@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import searchIcon from "./images/search.svg";
+import personHeart from "./images/PersonHearts.svg"
 import {domain} from "./domain";
 import "./friend.css";
 import "./scrollbar.css"
@@ -38,7 +39,12 @@ const FriendsList = () => {
                 </li>)
             )}
           </ul>
-        ) : <h2 id="notExistH">아직 친구가 없습니다.</h2>}
+        ) : <h1 style={{textAlign : "center"}} id="notExistH">
+            <div>
+                <img src={personHeart} height="200" width="200"/>
+            </div>
+            아직 등록된 친구가 없습니다. 친구를 등록해 보세요!
+        </h1>}
       </div>
   );
 };
@@ -131,7 +137,7 @@ const Friend = () => {
 
       {modalOpen && (
         <div className="modal">
-          <div className="modal_overlay" onClick={handleCloseModal}></div>
+          <div className="modal_overlay"></div>
           <div className="modal_content">
             <h3>검색 결과</h3>
             <button className="close_button" onClick={handleCloseModal}>
