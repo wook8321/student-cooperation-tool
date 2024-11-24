@@ -5,7 +5,7 @@ import "./App.css";
 import ChatPage from "./chat.tsx";
 import chatImage from './images/chat.svg';
 import CheckImage from './images/check-circle.svg';
-import unCheckImage from './images/check.svg';
+import unCheckImage from './images/circle.svg';
 import userImage from './images/user.svg';
 
 const domain = "http://localhost:8080"
@@ -23,6 +23,7 @@ const Part = (roomId) => {
     const [reviewModal, setReviewModal] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false); // 드롭다운 열림/닫힘 상태
     const [chatModal, setChatModal] = useState(false);
+    const [reviewPartId, setReviewPartId] = useState(null);
 
     const [review, setReview] = useState({num: 0, reviews:[]}); // 기존 평가 내용
     const [reviewContent, setReviewContent] = useState(""); // 평가 내용
@@ -36,11 +37,11 @@ const Part = (roomId) => {
                 .catch(() => {
                     setError(new Error("Failed to get partslist"));
                 });
-        }, []);
+        }, [roomId]);
       }
     
     const stompClient = new Client({
-      brokerURL: `ws://http://localhost:8080/sub/rooms/${roomId}/part`, // 역할 추가 단계 WebSocket
+      brokerURL: `ws://sub/rooms/${roomId}/part`, // 역할 추가 단계 WebSocket
       reconnectDelay: 5000,
       onConnect: () => {
         stompClient.subscribe(`${domain}/sub/rooms/${roomId}/part`);
@@ -50,24 +51,20 @@ const Part = (roomId) => {
       },
     });
     
-    stompClient.activate();
+    useEffect(() => {
+      stompClient.activate();
+      return () => {
+          stompClient.deactivate();  // 연결 해제
+      };
+  }, []); // 초기화 시 한 번만 실행
 
     // 주제 추가 함수
     const addPart = (newPart) => {
       if (!newPart.trim()) return;
 
-      setParts((prev) => {
-        const newPartObject = [{
-          partId : prev.num + 1,
-          partName : newPart,
-          /* nickName : userId,
-          profile : userProfile, */
-          files : [],
-        }];
-
         const updatedParts = {
-          num: prev.num + 1,
-          parts: [...prev.parts, newPartObject],
+          roomId : roomId,
+          partName : newPart
         };
 
       stompClient.publish({
@@ -75,53 +72,68 @@ const Part = (roomId) => {
         body : updatedParts
       });
 
-      return updatedParts; // 상태 업데이트
-      });
+      setNewPartName("");
 
-      setNewPartName(""); // 입력 초기화
+      return updatedParts; // 상태 업데이트
     };
 
     const deletePart = (part_id) => {
-      setParts((prev) => {
-        const deletedPart = prev.parts.filter((part) => part.partId !== part_id);
+  
+      const deletedPart = {
+        roomId : roomId,
+        partId : part_id
+      };
 
         stompClient.publish({
           destination :`${domain}/pub/parts/delete`,
-          body : parts
+          body : deletedPart
         });
 
         return deletedPart;
-      });
     };
+
 
     const updatePart = (part_id, memberId) => {
 
-        const updatedParts = parts.parts.map((part) =>
+        const changedParts = parts.parts.map((part) =>
         part.partId === part_id
           ? { ...part, nickName: memberId } // 담당자만 변경
           : part // 다른 역할은 변경하지 않음
         );
         
-        setParts(updatedParts);
+        setParts(prevParts => ({
+          ...prevParts,
+          parts: changedParts
+        }));
+
+        const updatedPart = changedParts.find((part) => part.partId === part_id);
+
+        const updateRequest = {
+          roomId: roomId,                 
+          partId: updatedPart.partId,    
+          partName: updatedPart.partName,
+          memberId: memberId
+        }
 
         stompClient.publish({
           destination : `${domain}/pub/parts/update`,
-          body : parts
+          body : updateRequest
       });
     };
 
     const openAddModal = () => {
       setAddModal(true);
     }
+    
     const closeAddModal = () => setAddModal(false);
     const openUpdateModal = () => setUpdateModal(true);
     const closeUpdateModal = () => setUpdateModal(false);
-    const openReviewModal = () => setReviewModal(true);
+    const openReviewModal = (partId) => setReviewPartId(partId); setReviewModal(true);
     const closeReviewModal = () => setReviewModal(false);
 
     const toggleMenu = (part_id) => {
         setMenuOpen(!menuOpen); // 드롭다운 열림/닫힘 토글
-        if(menuOpen) setPartID(part_id); // 드롭다운이 열리면 주제 ID 저장
+        setPartID(part_id); // 주제 ID 저장
     };
     
     const [files, setFiles] = useState([]); //업로드한 파일 데이터 보관
@@ -137,7 +149,13 @@ const Part = (roomId) => {
         files.forEach((file) => {
             const reader = new FileReader();
             reader.onload = (event) => {
-            console.log("파일 내용:", event.target.result);
+              const fileData = {
+                fileName: file.name, // 실제 파일명
+                fileType: file.type || "unknown", // 파일 타입
+                filePath: "S3_URL/" + file.name, // S3에 저장된 파일 주소
+                originalName: file.name, // 업로드한 원본 파일명
+              };
+        
     
               // STOMP 메시지 전송
               if (stompClient.connected) {
@@ -172,7 +190,10 @@ const Part = (roomId) => {
 
         axios.post(`/api/v1/parts/${partId}/review`, payload)
           .then(() => {
-            setReview((prev) => [...prev, reviewContent]);
+            setReview((prev) => ({
+              ...prev,
+              reviews: [...prev.reviews, { content: reviewContent }],
+          }));
             setReviewContent(""); // 입력창 초기화
           })
           .catch(() => {
@@ -181,22 +202,17 @@ const Part = (roomId) => {
     };
 
     const ClickMember = (part_name) => {
-      const [isClicked, setIsClicked] = useState(false);
       const filteredPart = parts.parts.filter((part) => part.partName === part_name);
       
-      const changeLike = useCallback(() => {
-        setIsClicked(!isClicked);
-      }, [isClicked]);
-
-      if(isClicked) {
+      const changeClick = () => {
         setSelectedMember(filteredPart.nickName);
         setNewPartName(filteredPart.partName);
       }
 
       return (
         <div className="member-container">
-          <button className="check-button" onClick={() => changeLike}>
-            <MemberImage Click={isClicked} />
+          <button className="check-button" onClick={() => changeClick()}>
+            <MemberImage Click={filteredPart.nickName === selectedMember} />
           </button>
         </div>
       )
@@ -257,23 +273,41 @@ const Part = (roomId) => {
 
     const closeErrorModal = () => { setError(null) };
 
-    const downloadFile = (file) => {
-      const url = URL.createObjectURL(file); // 파일 객체를 Blob URL로 변환
+    const downloadFile = (fileName) => {
+      axios.get(`/api/v1/files/${fileName}`)
+        .then((res) => {
+          const fileData = res.data.data;
+
+      if (!fileData || !fileData.contentAsByteArray)
+        setError(new Error("Failed to bring fileData"));
+
+      const byteCharacters = atob(fileData.contentAsByteArray); // Base64 디코딩
+      const byteNumbers = Array.from(byteCharacters).map((char) => char.charCodeAt(0)); // 각 문자를 배열의 요소로 하나씩 변환 후 각 문자의 아스키코드 값으로 변환
+      const byteArray = new Uint8Array(byteNumbers); 
+  
+      const blob = new Blob([byteArray], { type: "application/octet-stream" }); // blob의 미디어 타입을 일반적인 바이너리 데이터 타입으로 지정
+
+      const url = URL.createObjectURL(blob); // 파일 객체를 Blob URL로 변환
       const link = document.createElement("a"); // <a> 태그 생성으로 파일 다운로드
       link.href = url;
-      link.download = file.name; // 원래 파일 이름으로 다운로드
+      link.download = fileData.filename; // 원래 파일 이름으로 다운로드
       link.click();
       URL.revokeObjectURL(url); // Blob URL 해제
-  };
+      })
+        .catch((error) => {
+          setError(new Error("Failed to download file"));
+        });
+    };
 
-    const deleteFile = (file) => {
-        setFiles((prevFiles) =>
-          prevFiles.filter((_, i) => i !== file)
+    // 파일 삭제
+    const deleteFile = (fileName) => { 
+        setFiles((prev) =>
+          prev.filter((file) => file.fileName !== fileName)
         );
       
         stompClient.publish({
           destination: "/pub/part/file/delete"});
-    }
+    };
 
     return (
     <>
@@ -283,7 +317,7 @@ const Part = (roomId) => {
           {parts.map((part) => (
             <li key={part.partId}>
               {part.partName} : {part.memberId}
-              <button className="arrow-button" onClick={toggleMenu(part.partId)}>
+              <button className="arrow-button" onClick={() => toggleMenu(part.partId)}>
                 ▼
               </button>
             </li>
@@ -299,7 +333,7 @@ const Part = (roomId) => {
             <div className="modal-overlay">
               <div className="modal" onClick={(e) => e.stopPropagation()}>
                 <h3 className="modal-title">역할 추가</h3>
-                <button className="modal-close-button" onClick={() => closeAddModal}></button>
+                <button className="modal-close-button" onClick={closeAddModal}></button>
                 <form>
                   <label htmlFor="partName">역할 이름</label>
                   <input
@@ -318,7 +352,7 @@ const Part = (roomId) => {
                         </li>
                     ))}
                   </ul>
-                  <button className="add-button" type="submit" onClick={addPart(newPartName)}>
+                  <button className="add-button" type="submit" onClick={() => addPart(newPartName)}>
                     생성
                   </button>
                 </form>
@@ -351,7 +385,7 @@ const Part = (roomId) => {
                           <button className="download-file-button" onClick={() => downloadFile(file)}>
                             다운로드
                           </button>
-                          <button className="delete-file-button" onClick={() => deleteFile(index)}>
+                          <button className="delete-file-button" onClick={() => deleteFile(file)}>
                             삭제
                           </button>
                         </li>
