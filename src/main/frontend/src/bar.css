@@ -1,0 +1,21 @@
+/* 상위 섹션 스타일 */
+.upper-section {
+    padding: 20px;
+    background-color: #f0f0f0;
+    text-align: center;
+}
+
+/* 하위를 나누는 선 스타일 */
+.divider-bar {
+    height: 1px; /* 두께 */
+    background-color: #484a50; /* 선 색상 */
+    margin: 10px 0; /* 위아래 여백 */
+    border-radius: 2px; /* 둥근 모서리 */
+}
+
+/* 하위 섹션 스타일 */
+.lower-section {
+    padding: 20px;
+    background-color: #ffffff;
+    text-align: center;
+}
