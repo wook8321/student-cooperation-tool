@@ -34,6 +34,7 @@ const Project = () => {
   const [effect, setEffect] = useState(false);
   const [deleteRoomId, setDeleteRoomId] = useState(null);
   const [toggleOpen, setToggleOpen] = useState(false);
+  const [searchResult, setSearchResult] = useState({num:0, members: []});
   useEffect(() => {
         axios
             .get(domain + "/api/v1/rooms?page=0")
@@ -53,6 +54,10 @@ const Project = () => {
           roomCardToDelete.remove();
       }
   }, [deleteRoomId]);
+
+  useEffect(() => {
+
+  })
 
     const openToggle = () => {
         setToggleOpen((prev) => !prev);
@@ -124,12 +129,15 @@ const Project = () => {
 
     const closeCreateModal = () => {
     setCreateModal(false);
-    setRoomData(null);
+    setRoomData({num:0, rooms: []});
+    setParticipant({num: 0, members: []});
+    setRoomTitle("");
+    setPassword("");
   };
 
   const closeSearchModal = () => {
     setSearchModal(false);
-    setRoomData(null);
+    setRoomData({num:0, rooms: []});
   }
 
   const closeSearchFriendModal = () => {
@@ -154,49 +162,50 @@ const Project = () => {
         .catch(() => {
           console.log("Failed to list friend")
         })
-
-        {
-          result.num > 0 ? (
-              result.members.map((result) => (
-                  <div key={result.email} className="friend_card">
-                    <img src={result.profile || userImage} alt="프로필"/>
-                    <h2>{result.nickname}</h2>
-                    <button onClick={() => addResult(result.id, result.email, result.nickname, result.profile)}> 초대</button>
-                    <button onClick={() => setFriendModal(false)}>X</button>
-                  </div>
-              ))
-          ) : <h2>친구가 없습니다.</h2>
-        }
   }
   /* 참여할 유저 ( 친구 상태 ) 검색 */
-  const handleFriend = ({name}) => {
-    axios.get(`${domain}/api/v1/friends/search?relation=true&name=${name}`)
+  const handleFriend = () => {
+    axios.get(`${domain}/api/v1/friends/search?relation=true&name=${searchFriend}`)
         .then((res) => {
-          setResult(res.data.data);
+            const allResults = res.data.data; // 검색 결과
+            console.log(allResults);
+            const filteredResults = participant.num > 0
+                ? allResults.filter((result) =>
+                    !participant.members.some((member) => member.id === result.id)
+                )
+                : allResults;
+            console.log(filteredResults);
+            setSearchResult(filteredResults)
           setSearchFriendModal(true);
         })
         .catch(() => {
           console.log("Failed to search friend");
         });
 
-    return (
-        <div className="participant_grid">
-          {result.num > 0 ? (
-              result.members.map((result) => (
-                  <div key={result.email} className="participant_card">
-                    <img src={result.profile || userImage} alt="프로필"/>
-                    <h2>{result.nickname}</h2>
-                    <button onClick={() => addResult(result.id, result.email, result.nickname, result.profile)}> 초대 </button>
-                <button onClick={() => setFriendModal(false)}>X</button>
-              </div>
-            ))
-          ) : <h2>검색 한 친구가 없습니다.</h2>}
-        </div>
-      );
+        return (
+            <div className="participant_grid">
+              {result.num > 0 ? (
+                  result.members.map((result) => (
+                      <div key={result.email} className="participant_card">
+                        <img src={result.profile || userImage} alt="프로필"/>
+                        <h2>{result.nickname}</h2>
+                        <button onClick={() => addResult(result, true)}> 초대 </button>
+                    <button onClick={() => setFriendModal(false)}>X</button>
+                  </div>
+                ))
+              ) : <h2>검색 한 친구가 없습니다.</h2>}
+            </div>
+          );
   };
 
-  const addResult = (result) => {
+  const addResult = (result, isSearch) => {
     setParticipant(prev => ({ num: prev.num + 1, members: [...prev.members, result ]})); // 참가자들 리스트 추가
+      if(isSearch){
+          setSearchResult((prev) => ({
+              num: prev.num - 1,
+              members: prev.members.filter((member) => member !== result)
+          }))}
+
       setResult((prev) => ({
           num: prev.num - 1,
           members: prev.members.filter((member) => member !== result)
@@ -424,7 +433,7 @@ const Project = () => {
                     value={searchFriend}
                     onChange={(e) => setSearchFriend(e.target.value)}
                 />
-                <button className="search_icon" onClick={() => {handleFriend(searchFriend)}}>검색</button>
+                <button className="search_icon" onClick={() => {handleFriend()}}>검색</button>
                 <button onClick={() => setFriendModal(false)}> X</button>
                 <div className="friend_list">
                     {result.num > 0 ? (
@@ -433,7 +442,7 @@ const Project = () => {
                                 <img src={member.profile || userImage} alt="프로필"/>
                                 <h2>{member.nickname}</h2>
                                 <button className="add_result_button"
-                                    onClick={() => addResult(member)}> 초대
+                                    onClick={() => addResult(member,false)}> 초대
                                 </button>
                             </div>
                         ))
@@ -443,16 +452,16 @@ const Project = () => {
             </div>
         )}
 
-        /*{searchFriendModal && (
+        {searchFriendModal && (
             <div className="search_friend_modal">
-                <button onClick={() => setSearchFriendModal(false)}> X</button>
-                {result.num > 0 ? (
-                    result.members.map((result) => (
+                <button onClick={() => closeSearchFriendModal()}> X</button>
+                {searchResult.num > 0 ? (
+                    searchResult.members.map((result) => (
                         <div key={result.email} className="friend_card">
                             <img src={result.profile || userImage} alt="프로필"/>
                             <h2>{result.nickname}</h2>
                             <button
-                                onClick={() => addResult(result.id, result.email, result.nickname, result.profile)}> 초대
+                                onClick={() => addResult(result, true)}> 초대
                             </button>
                         </div>
                     ))
@@ -460,7 +469,7 @@ const Project = () => {
 
             </div>
 
-        )}*/
+        )}
     </div>
   );
 };
