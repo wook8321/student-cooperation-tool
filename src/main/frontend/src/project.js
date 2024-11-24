@@ -11,6 +11,8 @@ import "./paginationButton.css"
 
 
 const RoomList = () => {
+  const [enterModal, setEnterModal] = useState(false);
+  const [enterRoomId, setEnterRoomId] = useState(0)
   const [rooms, setRooms] = useState({num: 0, roomList: []});
   const handleDeleteRoom = () => {
     axios
@@ -34,14 +36,20 @@ const RoomList = () => {
         });
   }, []);
 
+    const enterRoom = (roomId) =>{
+        alert(roomId)
+        setEnterRoomId(roomId);
+        setEnterModal(true);
+    }
+
   return (
       <div className="room_list">
         <h3> 참여한 프로젝트 : {rooms.num}</h3>
         <div className="card-container">
             {rooms.num > 0 ? (
                 rooms.roomList.map((room) => (
-                    <div key={room.id} className="card">
-                        <button onClick={() => handleDeleteRoom(room.id)}>X</button>
+                    <div key={room.roomId} className="card">
+                        <button onClick={() => handleDeleteRoom(room.roomId)}>X</button>
                         <div className="image-cap pink-cap">
                             {room.title}
                         </div>
@@ -56,7 +64,9 @@ const RoomList = () => {
                                 <div className="arrow">→</div>
                                 <div className="process_step">발표 준비</div>
                             </div>
-                            <button className="card-button">참여하기</button>
+                            <button className="card-button" onClick={() => enterRoom(room.roomId)}>
+                                참여하기
+                            </button>
                         </div>
                     </div>
                 ))
@@ -72,6 +82,7 @@ const Project = () => {
   const [result, setResult] = useState({num:0, members:[]}); // 초대할 친구 정보
   const [participant, setParticipant] = useState({num:0, members:[]}); // 이미 초대된 친구들 정보
 
+  const [enterRoomId, setEnterRoomId] = useState(0)
   const [searchTitle, setSearchTitle] = useState("");
   const [searchFriend, setSearchFriend] = useState("");
   const [roomTitle, setRoomTitle] = useState("");
@@ -98,6 +109,34 @@ const Project = () => {
         console.log("Failed to search project.");
       });
   };
+
+    const enterRoom = (roomId) =>{
+        alert(roomId)
+        closeSearchModal()
+        setEnterRoomId(roomId)
+        setEnterModal(true)
+    }
+
+  const verifyPasswordAndEnterRoom = (roomId) =>{
+      const password = document.getElementById("roomPasswordInput").value
+      const data = {
+          roomId,
+          password
+      }
+      axios
+          .post(`${domain}/api/v1/rooms/enter-room`,data,{ "Content-Type": "application/json"})
+          .then((res) =>{
+              const isCorrect = res.data.data
+              if(isCorrect){
+                  //비밀 번호가 맞다면, 방을 입장
+                  <Link to="/topic" state={{roomId}}></Link>;
+              }
+          })
+          .catch(() =>{
+              const passwordInvalidDiv = document.getElementById("passwordInvalidDiv");
+              passwordInvalidDiv.innerHTML = '<span style="color:red;">해당 비밀번호는 틀렸습니다. 다시 입력해주세요.</span>'
+          })
+  }
 
   const handleLoadMore = () => {
         setPage((prevPage) => prevPage + 1);  // 페이지 번호 증가
@@ -139,6 +178,11 @@ const Project = () => {
     setPage(0);
     setSearchModal(false);
     setRoomData(null);
+  }
+
+  const closeEnterModal = () => {
+      setEnterRoomId(0)
+      setEnterModal(false)
   }
 
   const handleDeleteRoom = () => {
@@ -262,11 +306,13 @@ const Project = () => {
                         <>
                             <div className="card-container">
                                 {roomData.rooms.map((room) => (
-                                    <div key={room.id} className="card">
+                                    <div key={room.roomId} className="card">
                                         <div className="image-cap orange-cap">{room.title}</div>
                                         <div className="card-body">
                                             <h3 className="card-title">{room.topic}</h3>
-                                            <a href="#" className="card-button">참여하기</a>
+                                            <button className="card-button" onClick={() => {alert(room.roomId);enterRoom(room.roomId)}}>
+                                                참여하기
+                                            </button>
                                         </div>
                                     </div>
                                 ))}
@@ -324,10 +370,7 @@ const Project = () => {
 
                   <div className="modal_section">
                     <label className="modal_label">비밀번호</label>
-                      <input className="modal_input" type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
+                      <input className="modal_input" type="password" value={password}/>
                   </div>
 
                   <div className="modal_section">
@@ -361,18 +404,22 @@ const Project = () => {
       </main>
 
         {enterModal && (
-          <div className="modal_section">
-            <label className="modal_label">비밀번호</label>
-
-            <input className="modal_input" type="password" value={inputPassword}
-              onChange={(e) => setInputPassword(e.target.value)}/>
+          <div className="modal_overlay">
+              <div className="modal_content"  style={{textAlign : "center"}}>
+                  <button className="close_button" onClick={() => closeEnterModal()}>
+                      X
+                  </button>
+                  <div id="passwordInvalidDiv"></div>
+                  <label className="modal_label">비밀번호</label>
+                  <input className="modal_input" id="roomPasswordInput" type="password"/>
+                  <button onClick={() => verifyPasswordAndEnterRoom(enterRoomId)}> 입장 </button>
+              </div>
           </div>
         )}
 
         {error && (
           <div>
             <p className="error_message"> 비밀번호가 틀렸습니다. 다시 시도해 주세요. </p>
-
             <button className="check_password_button" onClick={() => handlePasswordCheck}>
               확인
             </button>
