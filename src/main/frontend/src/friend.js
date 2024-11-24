@@ -130,9 +130,8 @@ const Friend = () => {
       <Footer/>
 
       {modalOpen && (
-        <div className="modal">
-          <div className="modal_overlay" onClick={handleCloseModal}></div>
-          <div className="modal_content">
+          <div className="modal_overlay" onClick={handleCloseModal}>
+          <div className="modal_content" onClick={(e) => e.stopPropagation()} >
             <h3>검색 결과</h3>
             <button className="close_button" onClick={handleCloseModal}>
               X
@@ -142,6 +141,7 @@ const Friend = () => {
                     <ul>
                       {friendData.members.map(friend => (
                           <li key={friend.email}>
+                              <div className = "profile">
                             <div className="profile-icon">
                               <img src={friend.profile} alt="프로필"/>
                             </div>
@@ -149,6 +149,7 @@ const Friend = () => {
                             <button className="add_friend_button" onClick={() => handleAddFriend(friend.email,friend.profile,friend.nickname)}>
                               친구 추가
                             </button>
+                              </div>
                           </li>)
                       )}
                     </ul>)
