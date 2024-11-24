@@ -64,9 +64,7 @@ const RoomList = () => {
                                       <button className="card-button" onClick={() => enterRoom(room.roomId)}>
                                           입장하기
                                       </button>
-                                      <button className="card-red-button" onClick={() => handleDeleteRoom(room.roomId)}>
-                                          삭제하기
-                                      </button>
+
                                   </div>
                               </div>
                           </div>
@@ -136,11 +134,18 @@ const Project = () => {
       }
   }, [deleteRoomId]);
 
+    useEffect(() => {
+        setResult(prev => ({
+            num: prev.num-1,
+            members : prev.members.filter(
+                (member) => searchResult.members.some((res) => res.id === member.id))
+            }));
+    }, [effect]);
     const openToggle = () => {
         setToggleOpen((prev) => !prev);
     };
 
-    const handleDeleteRoom = (roomId, updated) => {
+    const handleDeleteRoom = (roomId) => {
         axios
             .delete(`${domain}/api/v1/rooms`, {
                 data: {
@@ -148,10 +153,7 @@ const Project = () => {
                 },
             })
             .then(() => {
-                setEffect((prev) => !prev);
-                if(updated){
                     setDeleteRoomId(roomId);
-                }
             })
             .catch(() => {
                 console.log("Failed to delete room");
@@ -229,7 +231,6 @@ const Project = () => {
           const updatedRoom = res.data.data;
         console.log("Successed to create project.")
         closeCreateModal();
-        setEffect((prev)=>!prev);
         createRoomDiv(updatedRoom);
       })
       .catch(() => {
@@ -246,7 +247,7 @@ const Project = () => {
         <button>X</button> `;
 
         const deleteButton = roomCard.querySelector('button');
-        deleteButton.addEventListener('click', () => handleDeleteRoom(updatedRoom.roomId, true));
+        deleteButton.addEventListener('click', () => handleDeleteRoom(updatedRoom.roomId));
 
         newRoomDiv.prepend(roomCard);
     }
@@ -269,7 +270,8 @@ const Project = () => {
 
   const closeSearchFriendModal = () => {
       setSearchFriendModal(false);
-      setSearchFriend(null);
+      setSearchResult({num:0, members:[]})
+      setSearchFriend("");
   }
 
   const closeEnterModal = () => {
@@ -300,7 +302,7 @@ const Project = () => {
   const handleFriend = () => {
     axios.get(`${domain}/api/v1/friends/search?relation=true&name=${searchFriend}`)
         .then((res) => {
-            const allResults = res.data.data; // 검색 결과
+            const allResults = res.data.data.members; // 검색 결과
             console.log(allResults);
             const filteredResults = participant.num > 0
                 ? allResults.filter((result) =>
@@ -308,17 +310,18 @@ const Project = () => {
                 )
                 : allResults;
             console.log(filteredResults);
-            setSearchResult(filteredResults)
+            setSearchResult({num: filteredResults.length, members: filteredResults});
           setSearchFriendModal(true);
         })
-        .catch(() => {
+        .catch((reason) => {
           console.log("Failed to search friend");
+          console.log(reason);
         });
 
         return (
             <div className="participant_grid">
-              {result.num > 0 ? (
-                  result.members.map((result) => (
+              {searchResult.num > 0 ? (
+                  searchResult.members.map((result) => (
                       <div key={result.email} className="participant_card">
                         <img src={result.profile || userImage} alt="프로필"/>
                         <h2>{result.nickname}</h2>
@@ -338,12 +341,15 @@ const Project = () => {
           setSearchResult((prev) => ({
               num: prev.num - 1,
               members: prev.members.filter((member) => member !== result)
-          }))}
+          }));
+          setEffect((prev) => !prev);
+          return;
+      }
 
       setResult((prev) => ({
           num: prev.num - 1,
           members: prev.members.filter((member) => member !== result)
-      }));
+      }))};
 
   const ParticipantList = () => {
 
@@ -376,7 +382,7 @@ const Project = () => {
           </button>
         </form>
           <div className="room_list">
-              <h2 className={`collapsible ${toggleOpen ? "" : "collapsed"}` onClick={openToggle}>          
+              <h2 className={`collapsible ${toggleOpen ? "" : "collapsed"}`} onClick={openToggle}>
                   새로운 프로젝트
               </h2>
               <div className={`collapsible-content ${toggleOpen ? "visible" : ""}`} id="newRoomDiv">
@@ -459,20 +465,21 @@ const Project = () => {
                 <button className="close_button" onClick={() => closeCreateModal()}>
                   X
                 </button>
-
                 <div className="modal_body">
                   <div className="modal_section">
                     <label className="modal_label">방 제목</label>
 
                     <input className="modal_input" type="text"
-                      value={roomTitle}
-                      onChange={(e) => setRoomTitle(e.target.value)}
+
                     />
                   </div>
 
                   <div className="modal_section">
                     <label className="modal_label">비밀번호</label>
-                      <input className="modal_input" type="password" value={password}/>
+                      <input className="modal_input" type="password"
+                             value={password}
+                             onChange={(e) => setPassword(e.target.value)}
+                      />
                   </div>
 
                   <div className="modal_section">
@@ -488,19 +495,19 @@ const Project = () => {
                       <div className="process_step">발표 준비</div>
                     </div>
                   </div>
-
+                </div>
                   <div className="add_friend">
                     <button className="add_friend_button" onClick={() => {handleFriendList()}}>
                       +
                     </button>
                   <ParticipantList /> {/* 참가할 친구 리스트 */}
-                  </div>
                   <button className="create_complete_btn" onClick={() => handleCreateClick()}>생성</button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        )}
+        )}</div>
       </main>
 
         {enterModal && (
