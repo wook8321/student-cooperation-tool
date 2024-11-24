@@ -23,11 +23,11 @@ function Login() {
 
   const inPlatformLogin = async (e) => {
     e.preventDefault();
-    console.log(username, password)
 
     // id, pw확인 코드 (id는 test, pw는 1234임.)
     if (username === "test" && password === "1234") {
-      console.log('success')
+      // 로그인 성공시. 이후에 Auth 바꾸는 코드 필요함!!!
+      console.log('로그인 성공. 이후에 Auth 바꾸는 코드 필요해요')
     }
   }
 
