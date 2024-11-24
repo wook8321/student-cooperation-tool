@@ -92,7 +92,6 @@ const Part = (roomId) => {
         return deletedPart;
     };
 
-
     const updatePart = (part_id, memberId) => {
 
         const changedParts = parts.parts.map((part) =>

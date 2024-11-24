@@ -1,6 +1,6 @@
 package com.stool.studentcooperationtools.domain.room.service;
 
-import com.google.auth.http.HttpCredentialsAdapter;
+import com.stool.studentcooperationtools.domain.PagingUtils;
 import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.member.repository.MemberRepository;
 import com.stool.studentcooperationtools.domain.participation.Participation;
@@ -15,9 +15,7 @@ import com.stool.studentcooperationtools.domain.room.controller.response.RoomAdd
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomSearchResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomsFindResponse;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
-import com.stool.studentcooperationtools.domain.slide.SlidesFactory;
 import com.stool.studentcooperationtools.domain.topic.repository.TopicRepository;
-import com.stool.studentcooperationtools.security.credential.GoogleCredentialProvider;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,8 +26,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,16 +35,15 @@ import java.util.Objects;
 public class RoomService {
 
     private final RoomRepository roomRepository;
-    private final int pageSize = 6;
     private final MemberRepository memberRepository;
     private final TopicRepository topicRepository;
     private final ParticipationRepository participationRepository;
     private final PresentationService presentationService;
 
     public RoomsFindResponse findRooms(SessionMember member, final int page) {
-        Pageable pageable = PageRequest.of(page, pageSize);
+        Pageable pageable = PageRequest.of(page, PagingUtils.ROOM_PAGING_PARSE);
         Page<Room> rooms = roomRepository.findRoomsByMemberIdWithPage(member.getMemberSeq(), pageable);
-        return RoomsFindResponse.of(rooms.getContent());
+        return RoomsFindResponse.of(rooms.getTotalElements(), page ,rooms.getTotalPages(), rooms.getContent());
     }
 
     @Transactional
@@ -79,9 +74,9 @@ public class RoomService {
     }
 
     public RoomSearchResponse searchRoom(final String title, final int page) {
-        Pageable pageable = PageRequest.of(page, pageSize);
+        Pageable pageable = PageRequest.of(page, PagingUtils.ROOM_PAGING_PARSE);
         Page<Room> rooms = roomRepository.findRoomsByTitleWithPage(title, pageable);
-        return RoomSearchResponse.of(rooms.getContent());
+        return RoomSearchResponse.of(rooms.isLast(),rooms.getContent());
     }
 
     @Transactional
@@ -116,7 +111,6 @@ public class RoomService {
         Member user = memberRepository.findById(member.getMemberSeq())
                 .orElseThrow(() -> new IllegalArgumentException("유저 정보가 올바르지 않습니다"));
         if(!participationRepository.existsByMemberIdAndRoomId(member.getMemberSeq(), room.getId())){
-            room.addParticipant();
             participationRepository.save(Participation.of(user, room));
         }
     }
