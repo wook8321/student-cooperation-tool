@@ -1,24 +1,29 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';// 방 id를 받아오기 위해 선언한 import
 import axios from "axios";
 import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 import { Link } from 'react-router-dom';
 import './topic.css';
 import ChatPage from "./chat.tsx";
 import chatImage from './images/chat.svg';
 import likeImage from './images/like.svg';
+import {domain} from "./domain";
 
-const domain = "http://localhost:8080"
-
-const Topic = ({ roomId }) => {
+const Topic = () => {
   const [topics, setTopics] = useState({num: 0, topics: []});
   const [newTopic, setNewTopic] = useState("");
   const [error, setError] = useState(null);
   const [addModal, setAddModal] = useState(false);
   const [chatModal, setChatModal] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false); // TopicList를 그렸는지 여부
+  const [isConnected, setIsConnected] = useState(false); // 웹소켓 연결 상태 관리
+  const location = useLocation(); // 방 id를 받아오기 위해 선언한 hook
+  const { roomId } = location.state || {}; //방 id를 받아온다.
+  const stompClient = useRef(null); //
 
   // 방의 주제를 가져오는 함수
-  const TopicsList = ({roomId}) => {
-    useEffect(() => {
+  const TopicsList = () => {
       axios.get(`${domain}/api/v1/rooms/${roomId}/topics`)
           .then((res) => {
             setTopics(res.data.data);
@@ -26,41 +31,106 @@ const Topic = ({ roomId }) => {
           .catch(() => {
             setError('failed to load friends');
           });
-    }, []);
   }
 
-  const stompClient = new Client({
-    brokerURL: `ws://http://localhost:8080/sub/rooms/${roomId}/topics`, // 주제 선정 단계 WebSocket
-    reconnectDelay: 5000,
-    onConnect: () => {
-      stompClient.subscribe(`${domain}/sub/rooms/${roomId}/topics`);
-    },
-  });
+  const receiveMessage = (frame) => {
+    //3-1 구독한 url에서 온 메세지를 받았을 때
+    alert(JSON.stringify(frame.body))
+
+    if (!isSubscribed) {
+      // 구독이 처음 성공한 경우에만 TopicsList 호출 및 렌더링 시작
+      TopicsList();
+      setIsSubscribed(true); // 이제 구독이 완료되었으므로 이후에는 실행되지 않음
+      setIsConnected(true); // 연결 성공 후 렌더링 가능 이후에는 실행되지 않음
+      return
+    }
+
+    switch (frame.body.messageType){
+      case "TOPIC_ADD" :
+        // 누군가 주제를 추가한 메세지를 받았을 때
+        return
+      case "TOPIC_DELETE" :
+        // 누군가 주제를 삭제한 메세지를 받았을 때
+        return
+      case "VOTE_ADD" :
+        // 누군가 투표한 메세지를 받았을 때
+        return
+      case "VOTE_DELETE" :
+        // 누군가 투표를 취소한 메세지를 받았을 때
+        return
+    }
+  }
+
+  const receiveError = (error) => {
+    //3-2 구독한 url에서 온 메세지를 못 받아 에러가 발생했을 때
+
+  }
+
+  const onConnect = () => {
+    //2-1 연결 성공의 경우
+    stompClient.current.subscribe(`/sub/rooms/${roomId}/topics`, receiveMessage, receiveError);
+  }
+
+  const onStompError = (error) => {
+    //2-2 연결 실패의 경우
+    alert("방에 입장에 실패하였습니다.");
+    console.error("STOMP Error", error);
+    window.location.href = "/";
+  }
+
+  useEffect(() => {
+
+
+    //1. WebSocket 클라이언트 초기화 및 broker endPoint에 연결, WebsocketConfig에 설정한 EndPoint를 말함
+    stompClient.current = new Client({
+      webSocketFactory: () => new SockJS(`${domain}/ws-stomp`),
+      reconnectDelay: 5000,
+      onConnect,
+      onStompError,
+    });
+
+    stompClient.current.activate();
+
+    // 컴포넌트 언마운트 시 WebSocket 연결 해제
+    return () => {
+      if (stompClient.current) {
+        stompClient.current.deactivate();
+      }
+    };
+  }, [roomId]);
 
   // 주제 추가 함수
   const addTopic = () => {
     const newTopic = {roomId, title: newTopic,};
     setTopics([...topics, newTopic]); // 새 주제 추가
-    stompClient.publish(`${domain}/pub/topics/add`);
+    stompClient.current.publish(`/pub/topics/add`);
     setNewTopic(""); // 입력 초기화
   };
 
   const deleteTopic = (topic_Id) => {
     const updatedTopic = topics.filter((topic) => topic.topicId !== topic_Id);
     setTopics(updatedTopic);
-    stompClient.publish(`${domain}/pub/topics/delete`);
+    stompClient.current.publish(`/pub/topics/delete`);
   }
 
   const addVote = () => {
-    stompClient.publish(`${domain}/pub/votes/add`);
+    stompClient.current.publish(`/pub/votes/add`);
   }
 
   const deleteVote = () => {
-    stompClient.publish(`${domain}/pub/votes/delete`);
+    stompClient.current.publish(`/pub/votes/delete`);
   }
 
   if (error) {
     return <p>{error}</p>;
+  }
+
+  const testWebsocket = () => {
+    alert("웹소켓 테스트")
+    stompClient.current.publish({
+      destination: "/pub/topics/add", // 발행할 경로
+      body: JSON.stringify({ roomId: roomId, topic : "웹소켓 테스트 주제"}), // 메시지 내용
+    });
   }
 
   const ClickLike = () => {
@@ -98,6 +168,16 @@ const Topic = ({ roomId }) => {
     );
   };
 
+  if (!isConnected) {
+    // 연결 중인 상태일 때는 로딩 상태로
+    return   <div className="loading">
+                <div className="loading-container">
+                  <div className="spinner"></div>
+                  <p>로딩 중...</p>
+                </div>
+             </div>;
+  }
+
   return (
       <>
         <div>
@@ -109,7 +189,6 @@ const Topic = ({ roomId }) => {
         <div className="background">
           <div className="topics_overlay">
             <div className="topics_container">
-              <TopicsList/>
               {topics.num > 0 ? (
                   topics.topics.map((topic) => (
                       <div className="topics_content" key={topic.topicId}>
@@ -123,7 +202,9 @@ const Topic = ({ roomId }) => {
                   ))
               ) : <h2>해당 방의 주제가 없습니다.</h2>}
             </div>
-
+            <div>
+              <button onClick={() => testWebsocket()}> 웹소켓 테스트 버튼</button>
+            </div>
             <div>
               <button onClick={()=>setAddModal(true)} className="add_topic">
                 주제 추가
