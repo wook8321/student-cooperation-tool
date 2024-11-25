@@ -73,6 +73,12 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
                                                 .description("응답 상태"),
                                         fieldWithPath("data").type(OBJECT)
                                                 .description("응답 데이터"),
+                                        fieldWithPath("data.totalPage").type(NUMBER)
+                                                .description("전체 페이지"),
+                                        fieldWithPath("data.firstPage").type(NUMBER)
+                                                .description("화면에 첫번째 페이지"),
+                                        fieldWithPath("data.lastPage").type(NUMBER)
+                                                .description("화면에 마지막 페이지"),
                                         fieldWithPath("data.num").type(NUMBER)
                                                 .description("조회된 방 개수"),
                                         fieldWithPath("data.rooms[]").type(ARRAY)
@@ -188,6 +194,8 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
                                                 .description("응답 데이터"),
                                         fieldWithPath("data.num").type(NUMBER)
                                                 .description("검색된 방 개수"),
+                                        fieldWithPath("data.last").type(BOOLEAN)
+                                                .description("마지막 페이지를 나타내는 값"),
                                         fieldWithPath("data.rooms[]").type(ARRAY)
                                                 .description("방 정보 리스트"),
                                         fieldWithPath("data.rooms[].roomId").type(NUMBER)
