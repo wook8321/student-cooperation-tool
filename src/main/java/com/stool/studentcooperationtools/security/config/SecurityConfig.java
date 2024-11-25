@@ -35,7 +35,7 @@ public class SecurityConfig {
                     authorize.anyRequest().authenticated();
                 })
                 .oauth2Login((oauth)->oauth
-                        .loginPage("/login")
+                        .loginPage("/")
                         .userInfoEndpoint((endPoint)->endPoint
                                 .userService(customOAuth2UserService) // OAuth2유저의 정보의 EndPoint
                         )
