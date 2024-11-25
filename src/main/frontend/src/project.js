@@ -14,12 +14,11 @@ import { useNavigate } from 'react-router-dom';
 import "./juaFont.css"
 import searchIcon from "./images/search.svg";
 import emptyBox from "./images/emptyBox.svg"
-import personHeart from "./images/PersonHearts.svg";
 
 const RoomList = () => {
     const [rooms, setRooms] = useState({num: 0, roomList: []});
     const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태 추가
-
+    const navigate = useNavigate();
     // 방 목록 가져오기 (페이지에 따라 호출)
     const fetchRooms = (page) => {
         axios
@@ -68,7 +67,7 @@ const RoomList = () => {
                 const isCorrect = res.data.data
                 if(isCorrect){
                     //비밀 번호가 맞다면, 방을 입장
-                    <Link to="/topic" state={{roomId}}></Link>;
+                    navigate('/topic', {state : {roomId}});
                     closeEnterModal()
                 }
             })
@@ -104,7 +103,9 @@ const RoomList = () => {
 
     return (
         <div className="room_list">
-            <h2> 참여한 프로젝트 : {rooms.num}</h2>
+            <div id="newRoomDiv" className="newRoom-container"></div>
+            <div id="barDiv"></div>
+            <h2 id="roomsListH">프로젝트 목록( 참여한 프로젝트 : {rooms.num} )</h2>
             <div>
                 {rooms.num > 0 ? (
                     <>
@@ -113,24 +114,26 @@ const RoomList = () => {
                                 const capColors = ["pink-cap", "green-cap", "orange-cap"];
                                 const randomCapClass = capColors[Math.round(Math.random() * capColors.length)];
                                 return (
-                                    <div id={ "room" + room.roomId} className="card">
+                                    <div id={"room" + room.roomId} className="card">
                                         <div className={`image-cap ${randomCapClass}`}>
                                             {room.title}
                                         </div>
                                         <div className="card-body">
-                                        <span style={{ fontSize: "small", justifyContent: "end", color: "white" }}>
+                                        <span style={{fontSize: "small", justifyContent: "end", color: "white"}}>
                                             참가자 : {room.participationNum}
                                         </span>
-                                        <h3 className="card-title">주제 : {room.topic}</h3>
-                                        <div className="button-group">
-                                            <button className="card-button" onClick={() => openRoomModal(room.roomId)}>
-                                                입장하기
-                                            </button>
-                                            <button className="card-red-button" onClick={() => deleteRoom(room.roomId)}>
-                                                삭제하기
-                                            </button>
+                                            <h3 className="card-title">주제 : {room.topic}</h3>
+                                            <div className="button-group">
+                                                <button className="card-button"
+                                                        onClick={() => openRoomModal(room.roomId)}>
+                                                    입장하기
+                                                </button>
+                                                <button className="card-red-button"
+                                                        onClick={() => deleteRoom(room.roomId)}>
+                                                    삭제하기
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
                                     </div>
                                 );
                             })}
@@ -143,7 +146,7 @@ const RoomList = () => {
                             <div id="paginationButtonGroup" className="pagination-container">
                                 {/* 여기서 firstPage부터 lastPage까지 버튼 생성 */}
                                 {Array.from(
-                                    { length: rooms.lastPage - rooms.firstPage + 1 },
+                                    {length: rooms.lastPage - rooms.firstPage + 1},
                                     (_, i) => rooms.firstPage + i
                                 ).map((page) => (
                                     <button className="pagination-button" onClick={() => fetchRooms(page - 1)}
@@ -158,7 +161,7 @@ const RoomList = () => {
                             </button>
                         </div>
                     </>
-                ) : <h1 style={{textAlign : "center"}} id="notExistProjectH">
+                ) : <h1 style={{textAlign: "center"}} id="notExistProjectH">
                     <div>
                         <img src={emptyBox} height="200" width="200"/>
                     </div>
@@ -171,30 +174,21 @@ const RoomList = () => {
 };
 
 const Project = () => {
-  const [createmodal, setCreateModal] = useState(false);
+    const [createmodal, setCreateModal] = useState(false);
   const [roomData, setRoomData] = useState({num:0, rooms:[]});
   const [result, setResult] = useState({num:0, members:[]}); // 초대할 친구 정보
   const [participant, setParticipant] = useState({num:0, members:[]}); // 이미 초대된 친구들 정보
 
   const [enterRoomId, setEnterRoomId] = useState(0)
-  const [searchTitle, setSearchTitle] = useState("");
   const [searchFriend, setSearchFriend] = useState("");
-  const [roomTitle, setRoomTitle] = useState("");
-
   const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-
   const [searchModal, setSearchModal] = useState(false);
   const [enterModal, setEnterModal] = useState(false);
   const [friendModal, setFriendModal] = useState(false);
-  const [password, setPassword] = useState("");
-  const [inputPassword, setInputPassword] = useState("");
-  const [error, setError] = useState(false);
-  const [searchFriendModal, setSearchFriendModal] = useState(false);
-  const [rooms, setRooms] = useState({num: 0, rooms: []});
   const [deleteRoomId, setDeleteRoomId] = useState(null);
-  const [toggleOpen, setToggleOpen] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [term, setTerm] = useState('');
+  const [debouncedTerm, setDebouncedTerm] = useState(term);
   const navigate = useNavigate();
   useEffect(() => {
       const roomCardToDelete = document.querySelector(`li[key="${deleteRoomId}"]`);
@@ -202,6 +196,19 @@ const Project = () => {
           roomCardToDelete.remove();
       }
   }, [deleteRoomId]);
+
+  useEffect(() => {
+      const timer = setTimeout(() =>
+      setTerm(debouncedTerm), 500);
+      return () => clearTimeout(timer);
+  }, [debouncedTerm]);
+
+    useEffect(() => {  if (term !== '') {
+        handleFriend(term);
+    } else {
+        clearResults();
+    }
+  }, [term]);
 
   useEffect(()=>{
       axios.get(`${domain}/api/v1/friends/search?relation=true&name=${searchFriend}`)
@@ -222,10 +229,7 @@ const Project = () => {
           });
   }, [searched])
 
-    const openToggle = () => {
-        setToggleOpen((prev) => !prev);
-    };
-
+    const clearResults = () => setResult({num: 0, members: []});
     const handleDeleteRoom = (roomId) => {
         axios
             .delete(`${domain}/api/v1/rooms`, {
@@ -271,7 +275,7 @@ const Project = () => {
                 const isCorrect = res.data.data
                 if(isCorrect){
                     //비밀 번호가 맞다면, 방을 입장
-                    <Link to="/topic" state={{roomId}}></Link>;
+                    navigate('/topic', {state : {roomId}});
                     closeEnterModal()
                 }
             })
@@ -309,6 +313,7 @@ const Project = () => {
           const updatedRoom = res.data.data;
         console.log("Successed to create project.")
         closeCreateModal();
+          console.log(updatedRoom);
         createRoomDiv(updatedRoom);
       })
       .catch(() => {
@@ -319,16 +324,41 @@ const Project = () => {
 
     function createRoomDiv(updatedRoom){
         const newRoomDiv = document.getElementById('newRoomDiv')
-        const roomCard = document.createElement('li');
-        roomCard.setAttribute('key', updatedRoom.roomId);
-        roomCard.className = 'room_card';
-        roomCard.innerHTML = `<h4>${updatedRoom.title}</h4>
-        <button>X</button> `;
+        console.log(`newRoomDiv: ${newRoomDiv}`);
+        if(newRoomDiv.querySelector('h2') === null){
+            newRoomDiv.innerHTML += `<h2>새로운 프로젝트</h2>`
+        }
+        const barDiv = document.querySelector('#barDiv');
+        const notExistH = document.querySelector('#notExistH');
 
-        const deleteButton = roomCard.querySelector('button');
-        deleteButton.addEventListener('click', () => handleDeleteRoom(updatedRoom.roomId));
+        if (notExistH) {
+            let roomsListH = document.querySelector('#roomsListH')
+            roomsListH.parentNode.removeChild(roomsListH)
+            notExistH.parentNode.removeChild(notExistH)
+        } else{
+            barDiv.setAttribute("class","divider-bar")
+        }
+        const capColors = ["pink-cap", "green-cap", "orange-cap"];
+        const randomCapClass = capColors[Math.round(Math.random() * capColors.length)];
+        newRoomDiv.innerHTML += `<li key="${updatedRoom.roomId}">
+            <div class="card">
+                <div class="image-cap ${randomCapClass}">${updatedRoom.title}</div>
+                <div class="card-body">
+                    <h3 class="card-title">미정</h3>
+                     <button class="card-button" id="enterRoomButton-${updatedRoom.roomId}">
+                        참여하기
+                    </button>
+                    <button class="card-red-button" id="deleteRoomButton-${updatedRoom.roomId}">
+                        X
+                    </button>
+                </div>
+            </div>
+        </li>
+    `;
 
-        newRoomDiv.prepend(roomCard);
+        document.getElementById(`enterRoomButton-${updatedRoom.roomId}`).addEventListener('click', () => enterRoom(updatedRoom.roomId));
+        document.getElementById(`deleteRoomButton-${updatedRoom.roomId}`).addEventListener('click', () => handleDeleteRoom(updatedRoom.roomId));
+
     }
 
 
@@ -337,8 +367,6 @@ const Project = () => {
     setCreateModal(false);
     setRoomData({num:0, rooms: []});
     setParticipant({num: 0, members: []});
-    setRoomTitle("");
-    setPassword("");
   };
 
   const closeSearchModal = () => {
@@ -347,6 +375,10 @@ const Project = () => {
     setRoomData({num:0, rooms: []});
   }
 
+  const closeFriendModal = () => {
+      setSearchFriend("");
+      setFriendModal(false);
+  }
 
   const closeEnterModal = () => {
       setEnterRoomId(0)
@@ -356,7 +388,15 @@ const Project = () => {
   const handleFriendList = () => {
     axios.get(`${domain}/api/v1/friends`)
         .then((res) => {
-          setResult(res.data.data);
+            const allResults = res.data.data.members; // 검색 결과
+            console.log(allResults);
+            const filteredResults = participant.num > 0
+                ? allResults.filter((result) =>
+                    !participant.members.some((member) => member.id === result.id)
+                )
+                : allResults;
+            console.log(filteredResults);
+            setResult({num: filteredResults.length, members: filteredResults})
           setFriendModal(true);
         })
         .catch(() => {
@@ -364,8 +404,7 @@ const Project = () => {
         })
   }
   /* 참여할 유저 ( 친구 상태 ) 검색 */
-  const handleFriend = async(e) => {
-      const value = e.target.value;
+  const handleFriend = (value) => {
       setSearchFriend(value.toLowerCase());
       setSearched((prev)=>!prev);
   };
@@ -410,24 +449,19 @@ const Project = () => {
                 <Footer/>
                 <main>
                     <form className="search_box" onSubmit={(e) => e.preventDefault()}>
-                        <input id="roomSearchInput" className="project_search_txt" type="text" placeholder="프로젝트 이름을 입력하세요."/>
-                        <button className="search_button" type="submit" onClick={() => handleSearch({page : 0})}>
+                        <input id="roomSearchInput" className="project_search_txt" type="text"
+                               placeholder="프로젝트 이름을 입력하세요."/>
+                        <button className="search_button" type="submit" onClick={() => handleSearch({page: 0})}>
                             <img src={searchIcon}/>
                         </button>
                     </form>
-                    <div className="room_list">
-                        <h2 className={`collapsible ${toggleOpen ? "" : "collapsed"}`} onClick={openToggle}>
-                            새로운 프로젝트
-                        </h2>
-                        <div className={`collapsible-content ${toggleOpen ? "visible" : ""}`} id="newRoomDiv">
-                        </div>
                         <form className="create_box" onSubmit={(e) => e.preventDefault()}>
-                            <button className="create_button" type="submit" onClick={()=>setCreateModal(true)}>
+                            <div className="button-container">
+                            <button className="create_button" type="submit" onClick={() => setCreateModal(true)}>
                                 프로젝트 생성
-                            </button>
+                            </button></div>
                         </form>
-                        <div className="divider-bar"></div>
-                        <RoomList />
+                        <RoomList/>
                         {searchModal && (
                             <div className="add_project_container">
                                 <div className="modal_overlay">
@@ -447,10 +481,12 @@ const Project = () => {
                                                             return (
                                                                 <div key={room.roomId} className="card">
                                                                     {/* 동적으로 랜덤 클래스 추가 */}
-                                                                    <div className={`image-cap ${randomCapClass}`}>{room.title}</div>
+                                                                    <div
+                                                                        className={`image-cap ${randomCapClass}`}>{room.title}</div>
                                                                     <div className="card-body">
                                                                         <h3 className="card-title">{room.topic}</h3>
-                                                                        <button className="card-button" onClick={() => enterRoom(room.roomId)}>
+                                                                        <button className="card-button"
+                                                                                onClick={() => enterRoom(room.roomId)}>
                                                                             참여하기
                                                                         </button>
                                                                     </div>
@@ -458,16 +494,18 @@ const Project = () => {
                                                             );
                                                         })}
                                                     </div>
-                                                    <div style={{ textAlign: 'center' }} className="pagination-container">
-                                                        <button onClick={handlePrevPage} className="pagination-button" disabled={page === 0}>
+                                                    <div style={{textAlign: 'center'}} className="pagination-container">
+                                                        <button onClick={handlePrevPage} className="pagination-button"
+                                                                disabled={page === 0}>
                                                             이전
                                                         </button>
-                                                        <button onClick={handleNextPage} className="pagination-button" disabled={roomData.last}>
+                                                        <button onClick={handleNextPage} className="pagination-button"
+                                                                disabled={roomData.last}>
                                                             다음
                                                         </button>
                                                     </div>
                                                 </>
-                                            ) :  <h2 style={{textAlign : "center"}} id="notExistProjectH">
+                                            ) : <h2 style={{textAlign: "center"}} id="notExistProjectH">
                                                 검색한 프로젝트가 존재하지 않습니다.</h2>}
                                         </div>
                                     </div>
@@ -475,40 +513,43 @@ const Project = () => {
                             </div>
                         )}
 
-        {createmodal && (
-            <div className="modal_overlay" onClick={()=> setCreateModal(false)}>
-                <div onClick={(e) => e.stopPropagation()}  className="modal_content">
-                <button className="close_button_friend" onClick={() => closeCreateModal()}>
-                </button>
-                <div className="modal_body">
-                  <div className="modal_section">
-                    <label className="modal_label">방 제목</label>
+                        {createmodal && (
+                            <div className="modal_overlay" onClick={() => setCreateModal(false)}>
+                                <div onClick={(e) => e.stopPropagation()} className="create_modal_content">
+                                    <button className="close_button" onClick={() => closeCreateModal()}>
+                                        X
+                                    </button>
+                                    <div className="modal_body">
+                                        <div className="modal_section">
+                                            <label className="modal_label">방 제목</label>
 
-                    <input className="modal_input"  id="createRoomTitle" type="text"                   
-                    />
-                  </div>
+                                            <input className="modal_input" id="createRoomTitle" type="text"
+                                            />
+                                        </div>
 
-                  <div className="modal_section">
-                    <label className="modal_label">비밀번호</label>
-                      <input className="modal_input" id="createRoomPassword" type="password"                             
-                      />
-                  </div>
-                </div>
-                  <div className="add_friend">
-                      <ParticipantList /> {/* 참가할 친구 리스트 */}
-                    <button className="common-button" onClick={() => {handleFriendList()}}>
-                      +
-                    </button>
-                  </div>
-                  <button className="common-button" onClick={() => handleCreateClick()}>생성</button>
-                </div>
-          </div>
-        )}</div>
-      </main>
+                                        <div className="modal_section">
+                                            <label className="modal_label">비밀번호</label>
+                                            <input className="modal_input" id="createRoomPassword" type="password"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="add_friend">
+                                        <ParticipantList/> {/* 참가할 친구 리스트 */}
+                                        <button className="common-button" onClick={() => {
+                                            handleFriendList()
+                                        }}>
+                                            +
+                                        </button>
+                                    </div>
+                                    <button className="common-button" onClick={() => handleCreateClick()}>생성</button>
+                                </div>
+                            </div>
+                        )}
+                </main>
 
-        {enterModal && (
-          <div className="modal_overlay">
-              <div className="modal_content"  style={{textAlign : "center"}}>
+                {enterModal && (
+                    <div className="modal_overlay">
+                        <div className="modal_content" style={{textAlign : "center"}}>
                   <button className="close_button" onClick={() => closeEnterModal()}>
                       X
                   </button>
@@ -520,26 +561,19 @@ const Project = () => {
           </div>
         )}
 
-        {error && (
-          <div>
-            <p className="error_message"> 비밀번호가 틀렸습니다. 다시 시도해 주세요. </p>
-            <button className="check_password_button" onClick={() => handlePasswordCheck}>
-              확인
-            </button>
-          </div>
-        )}
-
         {friendModal && (
-            <div className="friend_overlay" onClick={()=> setFriendModal(false)}>
+            <div className="friend_overlay" onClick={()=> closeFriendModal()}>
                 <div onClick={(e)=> e.stopPropagation()} className="friend_modal">
                 <input
                     className="friend_search_txt"
                     type="text"
                     placeholder="친구 이름을 입력하세요."
-                    value={searchFriend}
-                    onChange={handleFriend}
+                    onChange={(e) => setDebouncedTerm(e.target.value)}
+                    value={debouncedTerm}
                 />
-                    <button className="close_button_friend" onClick={() => setFriendModal(false)}></button>
+                    <button className="close_button" onClick={() => closeFriendModal()}>
+                        X
+                    </button>
                 <div className="friend_list">
                     {result.num > 0 ? (
                         result.members.map((member) => (
