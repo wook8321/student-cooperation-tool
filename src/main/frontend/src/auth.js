@@ -29,7 +29,7 @@ function Auth({ children }) {
     }
 
     if(isAuthenticated === false){
-        alert("로그인을 하지않아 메인화면으로 행합니다")
+        alert("로그인이 필요합니다.\n메인화면의 버튼을 눌러주세요")
         return <Navigate to="/" />
     } else if(isAuthenticated === true){
         return children;
