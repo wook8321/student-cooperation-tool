@@ -445,7 +445,8 @@ const Project = () => {
                     <label className="modal_label">방 제목</label>
 
                     <input className="modal_input" type="text"
-
+                           value={roomTitle}
+                           onChange={(e) => setRoomTitle(e.target.value)}
                     />
                   </div>
 
