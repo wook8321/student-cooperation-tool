@@ -9,11 +9,12 @@ import "./scrollbar.css"
 import "./card.css"
 import "./customModal.css"
 import "./paginationButton.css"
+import "./buttons.css"
+import { useNavigate } from 'react-router-dom';
 import "./juaFont.css"
 import searchIcon from "./images/search.svg";
 import emptyBox from "./images/emptyBox.svg"
 import personHeart from "./images/PersonHearts.svg";
-
 
 const RoomList = () => {
     const [rooms, setRooms] = useState({num: 0, roomList: []});
@@ -170,44 +171,62 @@ const RoomList = () => {
 };
 
 const Project = () => {
-    const [createmodal, setCreateModal] = useState(false);
-    const [roomData, setRoomData] = useState({num:0, rooms:[]});
-    const [result, setResult] = useState({num:0, members:[]}); // 초대할 친구 정보
-    const [participant, setParticipant] = useState({num:0, members:[]}); // 이미 초대된 친구들 정보
+  const [createmodal, setCreateModal] = useState(false);
+  const [roomData, setRoomData] = useState({num:0, rooms:[]});
+  const [result, setResult] = useState({num:0, members:[]}); // 초대할 친구 정보
+  const [participant, setParticipant] = useState({num:0, members:[]}); // 이미 초대된 친구들 정보
 
-    const [enterRoomId, setEnterRoomId] = useState(0)
-    const [searchTitle, setSearchTitle] = useState("");
-    const [searchFriend, setSearchFriend] = useState("");
-    const [roomTitle, setRoomTitle] = useState("");
+  const [enterRoomId, setEnterRoomId] = useState(0)
+  const [searchTitle, setSearchTitle] = useState("");
+  const [searchFriend, setSearchFriend] = useState("");
+  const [roomTitle, setRoomTitle] = useState("");
 
-    const [page, setPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
-    const [searchModal, setSearchModal] = useState(false);
-    const [enterModal, setEnterModal] = useState(false);
-    const [friendModal, setFriendModal] = useState(false);
-    const [password, setPassword] = useState("");
-    const [inputPassword, setInputPassword] = useState("");
-    const [error, setError] = useState(false);
-    const [searchFriendModal, setSearchFriendModal] = useState(false);
-    const [rooms, setRooms] = useState({num: 0, rooms: []});
-    const [effect, setEffect] = useState(false);
-    const [deleteRoomId, setDeleteRoomId] = useState(null);
-    const [toggleOpen, setToggleOpen] = useState(false);
-    const [searchResult, setSearchResult] = useState({num:0, members: []});
+  const [searchModal, setSearchModal] = useState(false);
+  const [enterModal, setEnterModal] = useState(false);
+  const [friendModal, setFriendModal] = useState(false);
+  const [password, setPassword] = useState("");
+  const [inputPassword, setInputPassword] = useState("");
+  const [error, setError] = useState(false);
+  const [searchFriendModal, setSearchFriendModal] = useState(false);
+  const [rooms, setRooms] = useState({num: 0, rooms: []});
+  const [deleteRoomId, setDeleteRoomId] = useState(null);
+  const [toggleOpen, setToggleOpen] = useState(false);
+  const [searched, setSearched] = useState(false);
+  const navigate = useNavigate();
+  useEffect(() => {
+      const roomCardToDelete = document.querySelector(`li[key="${deleteRoomId}"]`);
+      if (roomCardToDelete) {
+          roomCardToDelete.remove();
+      }
+  }, [deleteRoomId]);
 
-    useEffect(() => {
-        const roomCardToDelete = document.querySelector(`li[key="${deleteRoomId}"]`);
-        if (roomCardToDelete) {
-            roomCardToDelete.remove();
-        }
-    }, [deleteRoomId]);
+  useEffect(()=>{
+      axios.get(`${domain}/api/v1/friends/search?relation=true&name=${searchFriend}`)
+          .then((res) => {
+              const allResults = res.data.data.members; // 검색 결과
+              console.log(allResults);
+              const filteredResults = participant.num > 0
+                  ? allResults.filter((result) =>
+                      !participant.members.some((member) => member.id === result.id)
+                  )
+                  : allResults;
+              console.log(filteredResults);
+              setResult({num: filteredResults.length, members: filteredResults});
+          })
+          .catch((reason) => {
+              console.log("Failed to search friend");
+              console.log(reason);
+          });
+  }, [searched])
 
     const openToggle = () => {
         setToggleOpen((prev) => !prev);
     };
 
-    const handleDeleteRoom = (roomId, updated) => {
+    const handleDeleteRoom = (roomId) => {
         axios
             .delete(`${domain}/api/v1/rooms`, {
                 data: {
@@ -215,10 +234,7 @@ const Project = () => {
                 },
             })
             .then(() => {
-                setEffect((prev) => !prev);
-                if(updated){
                     setDeleteRoomId(roomId);
-                }
             })
             .catch(() => {
                 console.log("Failed to delete room");
@@ -243,7 +259,6 @@ const Project = () => {
         setEnterRoomId(roomId)
         setEnterModal(true)
     }
-
     const verifyPasswordAndEnterRoom = (roomId) =>{
         const password = document.getElementById("roomPasswordInput").value
         const data = {
@@ -280,25 +295,27 @@ const Project = () => {
         handleSearch({ page: page + 1 });
     };
 
-    const handleCreateClick = () => {
-        const password = document.getElementById("createRoomPassword").value
-        axios
-            .post(`${domain}/api/v1/rooms`,  {
-                title : roomTitle,
-                password,
-                participation : participant.members.map((member) => member.id)
-            })
-            .then((res) => {
-                const updatedRoom = res.data.data;
-                console.log("Successed to create project.")
-                closeCreateModal();
-                setEffect((prev)=>!prev);
-                createRoomDiv(updatedRoom);
-            })
-            .catch(() => {
-                console.log("Failed to create project.");
-            });
-    };
+
+  const handleCreateClick = () => {
+    const password = document.getElementById("createRoomPassword").value
+    const roomTitle = document.getElementById("createRoomTitle").value
+    axios
+      .post(`${domain}/api/v1/rooms`,  {
+          title : roomTitle,
+          password,
+          participation : participant.members.map((member) => member.id)
+      })
+      .then((res) => {
+          const updatedRoom = res.data.data;
+        console.log("Successed to create project.")
+        closeCreateModal();
+        createRoomDiv(updatedRoom);
+      })
+      .catch(() => {
+        console.log("Failed to create project.");
+      });
+  };
+
 
     function createRoomDiv(updatedRoom){
         const newRoomDiv = document.getElementById('newRoomDiv')
@@ -309,124 +326,85 @@ const Project = () => {
         <button>X</button> `;
 
         const deleteButton = roomCard.querySelector('button');
-        deleteButton.addEventListener('click', () => handleDeleteRoom(updatedRoom.roomId, true));
+        deleteButton.addEventListener('click', () => handleDeleteRoom(updatedRoom.roomId));
 
         newRoomDiv.prepend(roomCard);
     }
 
 
-    const closeCreateModal = () => {
-        setCreateModal(false);
-        setRoomData({num:0, rooms: []});
-        setParticipant({num: 0, members: []});
-        setRoomTitle("");
-        setPassword("");
-    };
+   const closeCreateModal = () => {
 
-    const closeSearchModal = () => {
-        setPage(0);
-        setSearchModal(false);
-        setRoomData({num:0, rooms: []});
-    }
+    setCreateModal(false);
+    setRoomData({num:0, rooms: []});
+    setParticipant({num: 0, members: []});
+    setRoomTitle("");
+    setPassword("");
+  };
 
-
-    const closeSearchFriendModal = () => {
-        setSearchFriendModal(false);
-        setSearchFriend(null);
-    }
-
-    const closeEnterModal = () => {
-        setEnterRoomId(0)
-        setEnterModal(false)
-    }
+  const closeSearchModal = () => {
+    setPage(0);
+    setSearchModal(false);
+    setRoomData({num:0, rooms: []});
+  }
 
 
-    const handlePasswordCheck = () => {
-        if (inputPassword === password) {
-            <Link to="/subject"></Link>;
-        } else {
-            setError(true);
-        }
-    };
+  const closeEnterModal = () => {
+      setEnterRoomId(0)
+      setEnterModal(false)
+  }
 
-    const handleFriendList = () => {
-        axios.get(`${domain}/api/v1/friends`)
-            .then((res) => {
-                setResult(res.data.data);
-                setFriendModal(true);
-            })
-            .catch(() => {
-                console.log("Failed to list friend")
-            })
-    }
-    /* 참여할 유저 ( 친구 상태 ) 검색 */
-    const handleFriend = () => {
-        axios.get(`${domain}/api/v1/friends/search?relation=true&name=${searchFriend}`)
-            .then((res) => {
-                const allResults = res.data.data; // 검색 결과
-                console.log(allResults);
-                const filteredResults = participant.num > 0
-                    ? allResults.filter((result) =>
-                        !participant.members.some((member) => member.id === result.id)
-                    )
-                    : allResults;
-                console.log(filteredResults);
-                setSearchResult(filteredResults)
-                setSearchFriendModal(true);
-            })
-            .catch(() => {
-                console.log("Failed to search friend");
-            });
-
-        return (
-            <div className="participant_grid">
-                {result.num > 0 ? (
-                    result.members.map((result) => (
-                        <div key={result.email} className="participant_card">
-                            <img src={result.profile || userImage} alt="프로필"/>
-                            <h2>{result.nickname}</h2>
-                            <button onClick={() => addResult(result, true)}> 초대 </button>
-                            <button onClick={() => setFriendModal(false)}>X</button>
-                        </div>
-                    ))
-                ) : <h2>해당 유저는 존재하지 않습니다! 다시 검색해 볼까요?</h2>}
-            </div>
-        );
-    };
+  const handleFriendList = () => {
+    axios.get(`${domain}/api/v1/friends`)
+        .then((res) => {
+          setResult(res.data.data);
+          setFriendModal(true);
+        })
+        .catch(() => {
+          console.log("Failed to list friend")
+        })
+  }
+  /* 참여할 유저 ( 친구 상태 ) 검색 */
+  const handleFriend = async(e) => {
+      const value = e.target.value;
+      setSearchFriend(value.toLowerCase());
+      setSearched((prev)=>!prev);
+  };
 
 
-    const addResult = (result, isSearch) => {
-        setParticipant(prev => ({num: prev.num + 1, members: [...prev.members, result]})); // 참가자들 리스트 추가
-        if (isSearch) {
-            setSearchResult((prev) => ({
-                num: prev.num - 1,
-                members: prev.members.filter((member) => member !== result)
-            }))
-        }
+  const addResult = (result, isSearch) => {
+    setParticipant(prev => ({ num: prev.num + 1, members: [...prev.members, result ]})); // 참가자들 리스트 추가
+      setResult((prev) => ({
+          num: prev.num - 1,
+          members: prev.members.filter((member) => member !== result)
+      }))};
 
-        setResult((prev) => ({
-            num: prev.num - 1,
-            members: prev.members.filter((member) => member !== result)
+    const handleRemoveParticipant = (email) => {
+        setParticipant((prev) => ({
+            num: prev.num - 1, // num 값 감소
+            members: prev.members.filter((member) => member.email !== email),
         }));
-    }
-        const ParticipantList = () => {
+    };
+ 
 
-            return (
-                <div className="participant_list">
-                    <h3>팀원 목록</h3>
-                    {participant.num > 0 ? (
-                        participant.members.map((participant) => (
-                            <div key={participant.email} className="room_card">
-                                <img src={participant.profile || userImage} alt="프로필" />
-                                <h2>{participant.nickname}</h2>
-                            </div>
-                        ))
-                    ) : <h2>선택한 팀원이 없습니다.</h2>}
+     const ParticipantList = () => {
+
+    return (
+      <div className="participant_list">
+        <h2>팀원 목록</h2>
+        {participant.num > 0 ? (
+            participant.members.map((participant) => (
+                <div key={participant.email} className="room_card">
+                    <img src={participant.profile || userImage} alt="프로필"/>
+                    <h2>{participant.nickname}</h2>
+                    <button onClick={() => handleRemoveParticipant(participant.email)}>
+                        X
+                    </button>
                 </div>
-            );
-        }
-
-
+            ))
+        ) : <h3>선택한 팀원이 없습니다.</h3>}
+      </div>
+    );
+  }
         return (
             <div className="container">
                 <Footer/>
@@ -496,146 +474,91 @@ const Project = () => {
                                 </div>
                             </div>
                         )}
-                        {/*
 
-            <div className="pagination">
-                <button onClick={() => {
-                    const newPage = Math.max(page - 1, 1);
-                    setPage(newPage);
-                }} disabled={page === 1}>이전</button>
+        {createmodal && (
+            <div className="modal_overlay" onClick={()=> setCreateModal(false)}>
+                <div onClick={(e) => e.stopPropagation()}  className="modal_content">
+                <button className="close_button_friend" onClick={() => closeCreateModal()}>
+                </button>
+                <div className="modal_body">
+                  <div className="modal_section">
+                    <label className="modal_label">방 제목</label>
 
-                <span>{page} / {totalPages}</span>
+                    <input className="modal_input"  id="createRoomTitle" type="text"                   
+                    />
+                  </div>
 
-                <button onClick={() => {
-                    const newPage = Math.min(page + 1, totalPages);
-                    setPage(newPage);
-                }} disabled={page === totalPages}>다음</button>
-            </div>
+                  <div className="modal_section">
+                    <label className="modal_label">비밀번호</label>
+                      <input className="modal_input" id="createRoomPassword" type="password"                             
+                      />
+                  </div>
+                </div>
+                  <div className="add_friend">
+                      <ParticipantList /> {/* 참가할 친구 리스트 */}
+                    <button className="common-button" onClick={() => {handleFriendList()}}>
+                      +
+                    </button>
+                  </div>
+                  <button className="common-button" onClick={() => handleCreateClick()}>생성</button>
+                </div>
+          </div>
+        )}</div>
+      </main>
 
-            */}
+        {enterModal && (
+          <div className="modal_overlay">
+              <div className="modal_content"  style={{textAlign : "center"}}>
+                  <button className="close_button" onClick={() => closeEnterModal()}>
+                      X
+                  </button>
+                  <div id="passwordInvalidDiv"></div>
+                  <label className="modal_label">비밀번호</label>
+                  <input className="modal_input" id="roomPasswordInput" type="password"/>
+                  <button onClick={() => verifyPasswordAndEnterRoom(enterRoomId)}> 입장 </button>
+              </div>
+          </div>
+        )}
 
-                        {createmodal && (
-                            <div className="add_project_container ">
-                                <div className="custom_modal_overlay">
-                                    <div onClick={(e) => e.stopPropagation()} className="custom_add_project_container">
-                                        <div className="custom_modal_content">
-                                            <button className="custom_close_button" onClick={() => closeCreateModal()}>
-                                                X
-                                            </button>
-                                            <div className="custom_modal_body">
-                                                <div className="custom_modal_section">
-                                                    <label className="custom_modal_label">방 제목</label>
-                                                    <input className="custom_modal_input" type="text"
-                                                           value={roomTitle}
-                                                           onChange={(e) => setRoomTitle(e.target.value)}
-                                                    />
-                                                </div>
+        {error && (
+          <div>
+            <p className="error_message"> 비밀번호가 틀렸습니다. 다시 시도해 주세요. </p>
+            <button className="check_password_button" onClick={() => handlePasswordCheck}>
+              확인
+            </button>
+          </div>
+        )}
 
-                                                <div className="custom_modal_section">
-                                                    <label className="custom_modal_label">비밀번호</label>
-                                                    <input className="custom_modal_input" id="createRoomPassword" type="password"/>
-                                                </div>
-
-                                                <div className="custom_modal_section">
-                                                    <label className="custom_modal_label">프로세스</label>
-                                                    <div className="custom_process_flow">
-                                                        <div className="custom_process_step">주제선정</div>
-                                                        <div className="custom_arrow">→</div>
-                                                        <div className="custom_process_step">자료 조사</div>
-                                                        <div className="custom_arrow">→</div>
-                                                        <div className="custom_process_step">발표 자료</div>
-                                                        <div className="custom_arrow">→</div>
-                                                        <div className="custom_process_step">발표 준비</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="custom_add_friend">
-                                                <button className="custom_add_friend_button" onClick={() => {handleFriendList()}}>
-                                                    +
-                                                </button>
-                                                <ParticipantList /> {/* 참가할 친구 리스트 */}
-                                                <button className="custom_create_complete_btn" onClick={() => handleCreateClick()}>생성</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+        {friendModal && (
+            <div className="friend_overlay" onClick={()=> setFriendModal(false)}>
+                <div onClick={(e)=> e.stopPropagation()} className="friend_modal">
+                <input
+                    className="friend_search_txt"
+                    type="text"
+                    placeholder="친구 이름을 입력하세요."
+                    value={searchFriend}
+                    onChange={handleFriend}
+                />
+                    <button className="close_button_friend" onClick={() => setFriendModal(false)}></button>
+                <div className="friend_list">
+                    {result.num > 0 ? (
+                        result.members.map((member) => (
+                            <div key={member.email} className="friend_card">
+                                <img src={member.profile || userImage} alt="프로필"/>
+                                <h2>{member.nickname}</h2>
+                                <button className="add_result_button"
+                                    onClick={() => addResult(member)}> 초대
+                                </button>
                             </div>
-                        )}
-                    </div>
-                </main>
-
-                {enterModal && (
-                    <div className="modal_overlay">
-                        <div className="modal_content"  style={{textAlign : "center"}}>
-                            <button className="close_button" onClick={() => closeEnterModal()}>
-                                X
-                            </button>
-                            <div id="passwordInvalidDiv"></div>
-                            <label className="modal_label">비밀번호</label>
-                            <input className="modal_input" id="roomPasswordInput" type="password"/>
-                            <button onClick={() => verifyPasswordAndEnterRoom(enterRoomId)}> 입장 </button>
-                        </div>
-                    </div>
-                )}
-
-                {error && (
-                    <div>
-                        <p className="error_message"> 비밀번호가 틀렸습니다. 다시 시도해 주세요. </p>
-                        <button className="check_password_button" onClick={() => handlePasswordCheck}>
-                            확인
-                        </button>
-                    </div>
-                )}
-
-                {friendModal && (
-                    <div className="friend_overlay">
-                        <div onClick={(e)=> e.stopPropagation()} className="friend_modal">
-                            <input
-                                className="friend_search_txt"
-                                type="text"
-                                placeholder="참여시킬 친구 이름을 입력하세요."
-                                value={searchFriend}
-                                onChange={(e) => setSearchFriend(e.target.value)}
-                            />
-                            <button className="search_icon" onClick={() => {handleFriend()}}>검색</button>
-                            <button onClick={() => setFriendModal(false)}> X</button>
-                            <div className="friend_list">
-                                {result.num > 0 ? (
-                                    result.members.map((member) => (
-                                        <div key={member.email} className="friend_card">
-                                            <img src={member.profile || userImage} alt="프로필"/>
-                                            <h2>{member.nickname}</h2>
-                                            <button className="add_result_button"
-                                                    onClick={() => addResult(member,false)}> 초대
-                                            </button>
-                                        </div>
-                                    ))
-                                ) : <h2>친구가 없습니다.</h2>}
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {searchFriendModal && (
-                    <div className="search_friend_modal">
-                        <button onClick={() => closeSearchFriendModal()}> X</button>
-                        {searchResult.num > 0 ? (
-                            searchResult.members.map((result) => (
-                                <div key={result.email} className="friend_card">
-                                    <img src={result.profile || userImage} alt="프로필"/>
-                                    <h2>{result.nickname}</h2>
-                                    <button
-                                        onClick={() => addResult(result, true)}> 초대
-                                    </button>
-                                </div>
-                            ))
-                        ) : <h2>검색한 친구가 없습니다.</h2>}
-
-                    </div>
-
-                )}
+                        ))
+                    ) : <h2>친구가 없습니다.</h2>}
+                </div>
+                </div>
             </div>
-        );
-    };
+        )}
+    </div>
+  );
+};
+
 
 export default Project;
