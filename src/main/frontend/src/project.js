@@ -10,6 +10,7 @@ import "./card.css"
 import "./paginationButton.css"
 import "./buttons.css"
 import searchIcon from "./images/search.svg";
+import { useNavigate } from 'react-router-dom';
 
 const RoomList = () => {
   const [enterModal, setEnterModal] = useState(false);
@@ -126,7 +127,7 @@ const Project = () => {
   const [deleteRoomId, setDeleteRoomId] = useState(null);
   const [toggleOpen, setToggleOpen] = useState(false);
   const [searched, setSearched] = useState(false);
-
+  const navigate = useNavigate();
   useEffect(() => {
       const roomCardToDelete = document.querySelector(`li[key="${deleteRoomId}"]`);
       if (roomCardToDelete) {
@@ -203,7 +204,7 @@ const Project = () => {
               const isCorrect = res.data.data
               if(isCorrect){
                   //비밀 번호가 맞다면, 방을 입장
-                  <Link to="/topic" state={{roomId}}></Link>;
+                  navigate('/topic', { state: { roomId } });
                   closeEnterModal()
               }
           })
