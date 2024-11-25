@@ -20,7 +20,6 @@ function Auth({ children }) {
 
     if (isAuthenticated === null) {
         // 인증 상태를 확인 중일 때 로딩 상태 표시
-        alert("로그인을 하지않아 메인화면으로 향합니다.")
         return   <div className="loading">
                     <div className="loading-container">
                         <div className="spinner"></div>
@@ -29,7 +28,12 @@ function Auth({ children }) {
                  </div>;
     }
 
-    return isAuthenticated ? children : <Navigate to="/" />;
+    if(isAuthenticated === false){
+        alert("로그인을 하지않아 메인화면으로 행합니다")
+        return <Navigate to="/" />
+    } else if(isAuthenticated === true){
+        return children;
+    }
 }
 
 export default Auth;
