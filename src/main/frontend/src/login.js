@@ -3,13 +3,14 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import "./login.css";
 import "./scrollbar.css";
+import "./juaFont.css"
 import {domain} from "./domain";
 
 function Login() {
 
   return (
     <div className="full">
-      <div className="login">
+      <div>
         <h1>로그인</h1>
         <div className="Social-Login">
           <a

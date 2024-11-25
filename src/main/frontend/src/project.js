@@ -9,6 +9,7 @@ import "./scrollbar.css"
 import "./card.css"
 import "./customModal.css"
 import "./paginationButton.css"
+import "./juaFont.css"
 import searchIcon from "./images/search.svg";
 import emptyBox from "./images/emptyBox.svg"
 import personHeart from "./images/PersonHearts.svg";
@@ -122,7 +123,7 @@ const RoomList = () => {
                     <div>
                         <img src={emptyBox} height="200" width="200"/>
                     </div>
-                    아직 참여하는 프로젝트가 없습니다. 프로젝트에 찾아 참여해 보세요!
+                    아직 참여하는 프로젝트가 없네요. 프로젝트에 참여해볼까요?
                 </h1>}
             </div>
         </div>
@@ -349,7 +350,7 @@ const Project = () => {
                             <button onClick={() => setFriendModal(false)}>X</button>
                         </div>
                     ))
-                ) : <h2>검색 한 친구가 없습니다.</h2>}
+                ) : <h2>해당 유저는 존재하지 않습니다! 다시 검색해 볼까요?</h2>}
             </div>
         );
     };

@@ -6,6 +6,7 @@ import {domain} from "./domain";
 import "./friend.css";
 import "./scrollbar.css"
 import "./bar.css"
+import "./juaFont.css"
 import Footer from "./footer";
 
 
@@ -43,7 +44,7 @@ const FriendsList = () => {
             <div>
                 <img src={personHeart} height="200" width="200"/>
             </div>
-            아직 등록된 친구가 없습니다. 친구를 등록해 보세요!
+            아직 등록된 친구가 없습니다. 친구들을 찾아 볼까요?
         </h1>}
       </div>
   );
@@ -159,7 +160,7 @@ const Friend = () => {
                       )}
                     </ul>)
                     : (
-                        <p>검색 결과가 없습니다.</p>)}
+                        <p > 해당하는 친구는 없네요. 다시 확인하고 입력해주세요.</p>)}
             </div>
           </div>
         </div>
