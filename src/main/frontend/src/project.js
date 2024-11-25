@@ -520,14 +520,6 @@ const Project = () => {
           </div>
         )}
 
-        {error && (
-          <div>
-            <p className="error_message"> 비밀번호가 틀렸습니다. 다시 시도해 주세요. </p>
-            <button className="check_password_button" onClick={() => handlePasswordCheck}>
-              확인
-            </button>
-          </div>
-        )}
 
         {friendModal && (
             <div className="friend_overlay" onClick={()=> setFriendModal(false)}>
