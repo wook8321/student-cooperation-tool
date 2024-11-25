@@ -5,6 +5,10 @@ import "./juaFont.css"
 
 
 const Main = () => {
+    const goGoogleLoginScreen = () => {
+        window.location.href = "/oauth2/authorization/google"; // /logout URL로 리디렉션
+    }
+
     return (
         <div className="container">
             <main className="main-page">
@@ -13,7 +17,7 @@ const Main = () => {
                     저희는 보다 간편한 협업툴을 지향합니다.<br />
                     학생 분들을 보다 간편하고 즐거운 협업을 도와주기 위함이 저희 목적입니다.
                 </p>
-                <button className="gradient-button">Let's Go!</button>
+                <button onClick={() => goGoogleLoginScreen()} className="gradient-button">Let's Go!</button>
             </main>
            <Footer/>
         </div>

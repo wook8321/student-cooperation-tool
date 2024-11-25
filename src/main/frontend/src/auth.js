@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import "./loading.css"
+import Footer from "./footer";
 
 function Auth({ children }) {
     const [isAuthenticated, setIsAuthenticated] = useState(null); // 초기 상태는 null (확인 전)
@@ -18,10 +20,16 @@ function Auth({ children }) {
 
     if (isAuthenticated === null) {
         // 인증 상태를 확인 중일 때 로딩 상태 표시
-        return <div>Loading...</div>;
+        alert("로그인을 하지않아 메인화면으로 향합니다.")
+        return   <div className="loading">
+                    <div className="loading-container">
+                        <div className="spinner"></div>
+                        <p>로딩 중...</p>
+                    </div>
+                 </div>;
     }
 
-    return isAuthenticated ? children : <Navigate to="/login" />;
+    return isAuthenticated ? children : <Navigate to="/" />;
 }
 
 export default Auth;
