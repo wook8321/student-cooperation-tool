@@ -8,7 +8,7 @@
 }
 
 main {
-  background-color: #f4f3ee;
+    background: linear-gradient(135deg, #f9f9f9, #faf7f7, #f1cac1); /* 그라데이션 추가 */
 }
 
 /* Sidebar 스타일 */
@@ -113,7 +113,7 @@ footer > a > img:hover {
   color: #ffffff;
   text-align: center;
   padding: 10px;
-  border-radius: 8px 8px 0 0;
+  border-radius: 8px 8px 0 ㅁ0;
   margin-bottom: 10px;
 }
 
