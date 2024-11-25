@@ -1,0 +1,137 @@
+/* 모달 배경 오버레이 */
+.custom_modal_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+/* 모달 컨테이너 */
+.custom_add_project_container {
+    background: #fff;
+    border-radius: 10px;
+    padding: 30px;
+    width: 450px;
+    max-width: 90%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* 모달 내용 */
+.custom_modal_content {
+    display: flex;
+    flex-direction: column;
+}
+
+/* 닫기 버튼 */
+.custom_close_button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    color: #888;
+    cursor: pointer;
+}
+
+.custom_close_button:hover {
+    color: #333;
+}
+
+/* 모달 본문 */
+.custom_modal_body {
+    margin-top: 20px;
+}
+
+/* 각 섹션 */
+.custom_modal_section {
+    margin-bottom: 20px;
+}
+
+.custom_modal_label {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.custom_modal_input {
+    padding: 10px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    outline: none;
+}
+
+.custom_modal_input:focus {
+    border-color: #007BFF;
+}
+
+/* 프로세스 흐름 */
+.custom_process_flow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.custom_process_step {
+    font-size: 16px;
+    color: #333;
+}
+
+.custom_arrow {
+    font-size: 20px;
+    color: #007BFF;
+}
+
+/* 친구 추가 및 생성 버튼 영역 */
+.custom_add_friend {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+.custom_add_friend_button {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.custom_add_friend_button:hover {
+    background-color: #218838;
+}
+
+.custom_create_complete_btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.custom_create_complete_btn:hover {
+    background-color: #0056b3;
+}
+
+/* 참가자 리스트 스타일 */
+.custom_ParticipantList {
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: #666;
+}

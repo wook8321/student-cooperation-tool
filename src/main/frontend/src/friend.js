@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import searchIcon from "./images/search.svg";
+import personHeart from "./images/PersonHearts.svg"
 import {domain} from "./domain";
 import "./friend.css";
 import "./scrollbar.css"
 import "./bar.css"
+import "./juaFont.css"
 import Footer from "./footer";
 
 
@@ -38,7 +40,12 @@ const FriendsList = () => {
                 </li>)
             )}
           </ul>
-        ) : <h2 id="notExistH">아직 친구가 없습니다.</h2>}
+        ) : <h1 style={{textAlign : "center"}} id="notExistH">
+            <div>
+                <img src={personHeart} height="200" width="200"/>
+            </div>
+            아직 등록된 친구가 없습니다. 친구들을 찾아 볼까요?
+        </h1>}
       </div>
   );
 };
@@ -130,8 +137,10 @@ const Friend = () => {
       <Footer/>
 
       {modalOpen && (
+
           <div className="modal_overlay" onClick={handleCloseModal}>
           <div className="modal_content" onClick={(e) => e.stopPropagation()} >
+
             <h3>검색 결과</h3>
             <button className="close_button" onClick={handleCloseModal}>
               X
@@ -154,7 +163,7 @@ const Friend = () => {
                       )}
                     </ul>)
                     : (
-                        <p>검색 결과가 없습니다.</p>)}
+                        <p > 해당하는 친구는 없네요. 다시 확인하고 입력해주세요.</p>)}
             </div>
           </div>
         </div>

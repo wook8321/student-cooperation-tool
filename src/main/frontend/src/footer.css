@@ -1,0 +1,56 @@
+/* Footer 스타일 */
+.footer {
+    overflow-y: auto; /* 세로 스크롤 허용 */
+    height: 100vh; /* 화면 높이 전체 채우기 */
+    background-color: #f3d3c5; /* 배경색 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    margin: 0;
+    border-right: 1px solid #e0e0e0; /* 오른쪽 테두리 */
+}
+
+/* Footer 안의 링크 스타일 */
+.footer a {
+    text-decoration: none; /* 밑줄 제거 */
+    color: #6c63ff; /* 링크 색상 */
+    font-size: 16px; /* 텍스트 크기 */
+    margin: 20px 0; /* 각 링크 간 간격 */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 텍스트와 이미지를 가운데 정렬 */
+    font-family: Arial, sans-serif;
+}
+
+/* 링크 텍스트 호버 효과 */
+.footer a:hover {
+    color: #4e44cc; /* 호버 시 색상 변경 */
+    text-decoration: underline; /* 호버 시 밑줄 추가 */
+}
+
+/* 이미지 스타일 */
+.footer img {
+    width: 40px; /* 이미지 크기 조정 */
+    height: 40px;
+    margin-bottom: 8px; /* 이미지와 텍스트 사이 간격 */
+}
+
+/* 스크롤바 스타일 */
+.footer::-webkit-scrollbar {
+    width: 10px; /* 스크롤바 너비 */
+}
+
+.footer::-webkit-scrollbar-thumb {
+    background: #6c63ff; /* 스크롤바 색상 */
+    border-radius: 5px; /* 둥근 모서리 */
+}
+
+.footer::-webkit-scrollbar-thumb:hover {
+    background: #4e44cc; /* 스크롤바 호버 색상 */
+}
+
+.footer::-webkit-scrollbar-track {
+    background: #f3f3f3; /* 스크롤 트랙 색상 */
+    border-radius: 5px;
+}

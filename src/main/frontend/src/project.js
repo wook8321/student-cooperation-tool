@@ -7,16 +7,18 @@ import Footer from "./footer";
 import {domain} from "./domain";
 import "./scrollbar.css"
 import "./card.css"
+import "./customModal.css"
 import "./paginationButton.css"
 import "./buttons.css"
-import searchIcon from "./images/search.svg";
 import { useNavigate } from 'react-router-dom';
+import "./juaFont.css"
+import searchIcon from "./images/search.svg";
+import emptyBox from "./images/emptyBox.svg"
+import personHeart from "./images/PersonHearts.svg";
 
 const RoomList = () => {
-  const [enterModal, setEnterModal] = useState(false);
-  const [enterRoomId, setEnterRoomId] = useState(0)
-  const [rooms, setRooms] = useState({num: 0, roomList: []});
-  const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태 추가
+    const [rooms, setRooms] = useState({num: 0, roomList: []});
+    const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태 추가
 
     // 방 목록 가져오기 (페이지에 따라 호출)
     const fetchRooms = (page) => {
@@ -37,69 +39,135 @@ const RoomList = () => {
         fetchRooms(0); // 첫 페이지로 초기화
     }, []);
 
-    const enterRoom = (roomId) =>{
-        setEnterRoomId(roomId);
-        setEnterModal(true);
+    const deleteRoom = (roomId) => {
+        axios
+            .delete(`${domain}/api/v1/rooms`, {
+                data: {
+                    roomId,
+                },
+            })
+            .then((res) => {
+                const roomCard = document.getElementById('room'+`${roomId}`);
+                fetchRooms(currentPage)
+            })
+            .catch(() => {
+                alert("프로젝트를 삭제하지 못했습니다.")
+                console.log("Failed to delete room");
+            });
     }
 
-  return (
-      <div className="room_list">
-        <h3> 참여한 프로젝트 : {rooms.num}</h3>
-          <div>
-              {rooms.num > 0 ? (
-                  <>
-                      <div className="card-container">
-                      {rooms.rooms.map((room) => {
-                          const capColors = ["pink-cap", "green-cap", "orange-cap"];
-                          const randomCapClass = capColors[Math.round(Math.random() * capColors.length)];
-                          return (
-                          <div key={room.roomId} className="card">
-                              <div className={`image-cap ${randomCapClass}`}>
-                                  {room.title}
-                              </div>
-                              <div className="card-body">
-                            <span style={{ fontSize: "small", justifyContent: "end", color: "white" }}>
-                                참가자 : {room.participationNum}
-                            </span>
-                                  <h3 className="card-title">주제 : {room.topic}</h3>
-                                  <div className="button-group">
-                                      <button className="card-button" onClick={() => enterRoom(room.roomId)}>
-                                          입장하기
-                                      </button>
+    function verifyPasswordAndEnterRoom(roomId){
+        const password = document.getElementById("roomPasswordInput").value
+        const data = {
+            roomId,
+            password
+        }
+        axios
+            .post(`${domain}/api/v1/rooms/enter-room`,data,{ "Content-Type": "application/json"})
+            .then((res) =>{
+                const isCorrect = res.data.data
+                if(isCorrect){
+                    //비밀 번호가 맞다면, 방을 입장
+                    <Link to="/topic" state={{roomId}}></Link>;
+                    closeEnterModal()
+                }
+            })
+            .catch(() =>{
+                const passwordInvalidDiv = document.getElementById("passwordInvalidDiv");
+                passwordInvalidDiv.innerHTML = '<span style="color:red;">해당 비밀번호는 틀렸습니다. 다시 입력해주세요.</span>'
+            })
+    }
 
-                                  </div>
-                              </div>
-                          </div>
-                      );
-                      })}
-                      </div>
-                      <div id="paginationButtonGroup" className="pagination-container">
-                          <button className="pagination-button" onClick={() => fetchRooms(rooms.firstPage - 1)}
-                                  disabled={currentPage === rooms.firstPage - 1}>
-                              맨 처음
-                          </button>
-                          <div id="paginationButtonGroup" className="pagination-container">
-                              {/* 여기서 firstPage부터 lastPage까지 버튼 생성 */}
-                              {Array.from(
-                                  { length: rooms.lastPage - rooms.firstPage + 1 },
-                                  (_, i) => rooms.firstPage + i
-                              ).map((page) => (
-                                  <button className="pagination-button" onClick={() => fetchRooms(page - 1)}
-                                  disabled={currentPage === page - 1}>
-                                      {page}
-                                  </button>
-                              ))}
-                          </div>
-                          <button onClick={() => fetchRooms(rooms.lastPage - 1)} className="pagination-button"
-                                  disabled={currentPage === rooms.lastPage - 1}>
-                              마지막
-                          </button>
-                      </div>
-                  </>
-              ) : <h2>프로젝트가 없습니다.</h2>}
+
+
+    function closeEnterModal(){
+        const passwordModalDiv = document.getElementById("passwordModalDiv");
+        passwordModalDiv.remove()
+    }
+
+    function openRoomModal(roomId){
+        const enterRoomModalDiv = document.getElementById("enterRoomModalDiv")
+        enterRoomModalDiv.innerHTML += `
+                <div class="modal_overlay" id="passwordModalDiv">
+                    <div class="modal_content" style="text-align: center;">
+                        <button class="close_button" id="closeModalButton">X</button>
+                        <div id="passwordInvalidDiv"></div>
+                        <label class="modal_label">비밀번호</label>
+                        <input class="modal_input" id="roomPasswordInput" type="password"/>
+                        <button id="verifyRoomButton">입장</button>
+                    </div>
+                </div>
+            `
+        document.getElementById("closeModalButton").onclick = closeEnterModal;
+        document.getElementById("verifyRoomButton").onclick = () => verifyPasswordAndEnterRoom(roomId);
+    }
+
+    return (
+        <div className="room_list">
+            <h2> 참여한 프로젝트 : {rooms.num}</h2>
+            <div>
+                {rooms.num > 0 ? (
+                    <>
+                        <div className="card-container">
+                            {rooms.rooms.map((room) => {
+                                const capColors = ["pink-cap", "green-cap", "orange-cap"];
+                                const randomCapClass = capColors[Math.round(Math.random() * capColors.length)];
+                                return (
+                                    <div id={ "room" + room.roomId} className="card">
+                                        <div className={`image-cap ${randomCapClass}`}>
+                                            {room.title}
+                                        </div>
+                                        <div className="card-body">
+                                        <span style={{ fontSize: "small", justifyContent: "end", color: "white" }}>
+                                            참가자 : {room.participationNum}
+                                        </span>
+                                        <h3 className="card-title">주제 : {room.topic}</h3>
+                                        <div className="button-group">
+                                            <button className="card-button" onClick={() => openRoomModal(room.roomId)}>
+                                                입장하기
+                                            </button>
+                                            <button className="card-red-button" onClick={() => deleteRoom(room.roomId)}>
+                                                삭제하기
+                                            </button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <div id="paginationButtonGroup" className="pagination-container">
+                            <button className="pagination-button" onClick={() => fetchRooms(rooms.firstPage - 1)}
+                                    disabled={currentPage === rooms.firstPage - 1}>
+                                맨 처음
+                            </button>
+                            <div id="paginationButtonGroup" className="pagination-container">
+                                {/* 여기서 firstPage부터 lastPage까지 버튼 생성 */}
+                                {Array.from(
+                                    { length: rooms.lastPage - rooms.firstPage + 1 },
+                                    (_, i) => rooms.firstPage + i
+                                ).map((page) => (
+                                    <button className="pagination-button" onClick={() => fetchRooms(page - 1)}
+                                            disabled={currentPage === page - 1}>
+                                        {page}
+                                    </button>
+                                ))}
+                            </div>
+                            <button onClick={() => fetchRooms(rooms.lastPage - 1)} className="pagination-button"
+                                    disabled={currentPage === rooms.lastPage - 1}>
+                                마지막
+                            </button>
+                        </div>
+                    </>
+                ) : <h1 style={{textAlign : "center"}} id="notExistProjectH">
+                    <div>
+                        <img src={emptyBox} height="200" width="200"/>
+                    </div>
+                    아직 참여하는 프로젝트가 없네요. 프로젝트에 참여해볼까요?
+                </h1>}
+            </div>
+            <div id="enterRoomModalDiv" className=""></div>
         </div>
-      </div>
-  );
+    );
 };
 
 const Project = () => {
@@ -173,51 +241,45 @@ const Project = () => {
             });
     };
 
-  const handleSearch = ({page}) => {
-      const searchTitle = document.getElementById("roomSearchInput").value;
-    axios
-      .get(`${domain}/api/v1/rooms/search?title=${searchTitle}&page=${page}`)
-      .then((res) => {
-          setRoomData(res.data.data);
-          setSearchModal(true);  // 모달 열기
-      })
-      .catch(() => {
-        console.log("Failed to search project.");
-      });
-  };
+    const handleSearch = ({page}) => {
+        const searchTitle = document.getElementById("roomSearchInput").value;
+        axios
+            .get(`${domain}/api/v1/rooms/search?title=${searchTitle}&page=${page}`)
+            .then((res) => {
+                setRoomData(res.data.data);
+                setSearchModal(true);  // 모달 열기
+            })
+            .catch(() => {
+                console.log("Failed to search project.");
+            });
+    };
 
     const enterRoom = (roomId) =>{
         closeSearchModal()
         setEnterRoomId(roomId)
         setEnterModal(true)
     }
-
-  const verifyPasswordAndEnterRoom = (roomId) =>{
-      const password = document.getElementById("roomPasswordInput").value
-      const data = {
-          roomId,
-          password
-      }
-      axios
-          .post(`${domain}/api/v1/rooms/enter-room`,data,{ "Content-Type": "application/json"})
-          .then((res) =>{
-              const isCorrect = res.data.data
-              if(isCorrect){
-                  //비밀 번호가 맞다면, 방을 입장
-                  navigate('/topic', { state: { roomId } });
-                  closeEnterModal()
-              }
-          })
-          .catch(() =>{
-              const passwordInvalidDiv = document.getElementById("passwordInvalidDiv");
-              passwordInvalidDiv.innerHTML = '<span style="color:red;">해당 비밀번호는 틀렸습니다. 다시 입력해주세요.</span>'
-          })
-  }
-
-  const handleLoadMore = () => {
-        setPage((prevPage) => prevPage + 1);  // 페이지 번호 증가
-        handleSearch({ page: page + 1 });     // 다음 페이지 데이터 요청
-  };
+    const verifyPasswordAndEnterRoom = (roomId) =>{
+        const password = document.getElementById("roomPasswordInput").value
+        const data = {
+            roomId,
+            password
+        }
+        axios
+            .post(`${domain}/api/v1/rooms/enter-room`,data,{ "Content-Type": "application/json"})
+            .then((res) =>{
+                const isCorrect = res.data.data
+                if(isCorrect){
+                    //비밀 번호가 맞다면, 방을 입장
+                    <Link to="/topic" state={{roomId}}></Link>;
+                    closeEnterModal()
+                }
+            })
+            .catch(() =>{
+                const passwordInvalidDiv = document.getElementById("passwordInvalidDiv");
+                passwordInvalidDiv.innerHTML = '<span style="color:red;">해당 비밀번호는 틀렸습니다. 다시 입력해주세요.</span>'
+            })
+    }
 
     // 이전 페이지 버튼 클릭
     const handlePrevPage = () => {
@@ -233,7 +295,10 @@ const Project = () => {
         handleSearch({ page: page + 1 });
     };
 
+
   const handleCreateClick = () => {
+    const password = document.getElementById("createRoomPassword").value
+    const roomTitle = document.getElementById("createRoomTitle").value
     axios
       .post(`${domain}/api/v1/rooms`,  {
           title : roomTitle,
@@ -251,6 +316,7 @@ const Project = () => {
       });
   };
 
+
     function createRoomDiv(updatedRoom){
         const newRoomDiv = document.getElementById('newRoomDiv')
         const roomCard = document.createElement('li');
@@ -266,7 +332,8 @@ const Project = () => {
     }
 
 
-    const closeCreateModal = () => {
+   const closeCreateModal = () => {
+
     setCreateModal(false);
     setRoomData({num:0, rooms: []});
     setParticipant({num: 0, members: []});
@@ -285,15 +352,6 @@ const Project = () => {
       setEnterRoomId(0)
       setEnterModal(false)
   }
-
-
-  const handlePasswordCheck = () => {
-    if (inputPassword === password) {
-      <Link to="/subject"></Link>;
-    } else {
-      setError(true);
-    }
-  };
 
   const handleFriendList = () => {
     axios.get(`${domain}/api/v1/friends`)
@@ -326,8 +384,9 @@ const Project = () => {
             members: prev.members.filter((member) => member.email !== email),
         }));
     };
+ 
 
-  const ParticipantList = () => {
+     const ParticipantList = () => {
 
     return (
       <div className="participant_list">
@@ -346,95 +405,75 @@ const Project = () => {
       </div>
     );
   }
+        return (
+            <div className="container">
+                <Footer/>
+                <main>
+                    <form className="search_box" onSubmit={(e) => e.preventDefault()}>
+                        <input id="roomSearchInput" className="project_search_txt" type="text" placeholder="프로젝트 이름을 입력하세요."/>
+                        <button className="search_button" type="submit" onClick={() => handleSearch({page : 0})}>
+                            <img src={searchIcon}/>
+                        </button>
+                    </form>
+                    <div className="room_list">
+                        <h2 className={`collapsible ${toggleOpen ? "" : "collapsed"}`} onClick={openToggle}>
+                            새로운 프로젝트
+                        </h2>
+                        <div className={`collapsible-content ${toggleOpen ? "visible" : ""}`} id="newRoomDiv">
+                        </div>
+                        <form className="create_box" onSubmit={(e) => e.preventDefault()}>
+                            <button className="create_button" type="submit" onClick={()=>setCreateModal(true)}>
+                                프로젝트 생성
+                            </button>
+                        </form>
+                        <div className="divider-bar"></div>
+                        <RoomList />
+                        {searchModal && (
+                            <div className="add_project_container">
+                                <div className="modal_overlay">
+                                    <div className="modal_content">
+                                        <button className="close_button" onClick={() => closeSearchModal()}>
+                                            X
+                                        </button>
+                                        <div className="room_grid scrollbar">
+                                            {roomData.num > 0 ? (
+                                                <>
+                                                    <div className="card-container">
+                                                        {roomData.rooms.map((room) => {
+                                                            // 랜덤 배경색 클래스 설정
+                                                            const capColors = ["pink-cap", "green-cap", "orange-cap"];
+                                                            const randomCapClass = capColors[Math.round(Math.random() * capColors.length)];
 
-
-    return (
-        <div className="container">
-      <Footer/>
-
-      <main>
-
-        <form className="search_box" onSubmit={(e) => e.preventDefault()}>
-          <input id="roomSearchInput" className="project_search_txt" type="text" placeholder="프로젝트 이름을 입력하세요."/>
-            <button className="search_button" type="submit" onClick={() => handleSearch({page: 0})}>
-                <img src={searchIcon} alt="검색"/>
-            </button>
-        </form>
-          <div className="room_list">
-              <h2 className={`collapsible ${toggleOpen ? "" : "collapsed"}`} onClick={openToggle}>
-                  새로운 프로젝트
-              </h2>
-              <div className={`collapsible-content ${toggleOpen ? "visible" : ""}`} id="newRoomDiv">
-              </div>
-          <form className="create_box" onSubmit={(e) => e.preventDefault()}>
-              <button className="common-button" type="submit" onClick={()=>setCreateModal(true)}>
-                  프로젝트 생성
-              </button>
-          </form>
-        <RoomList />
-
-        {searchModal && (
-            <div className="add_project_container">
-              <div className="modal_overlay">
-                <div className="modal_content">
-                  <button className="close_button" onClick={() => closeSearchModal()}>
-                    X
-                  </button>
-                  <div className="room_grid scrollbar">
-                    {roomData.num > 0 ? (
-                        <>
-                            <div className="card-container">
-                                {roomData.rooms.map((room) => {
-                                    // 랜덤 배경색 클래스 설정
-                                    const capColors = ["pink-cap", "green-cap", "orange-cap"];
-                                    const randomCapClass = capColors[Math.round(Math.random() * capColors.length)];
-
-                                    return (
-                                        <div key={room.roomId} className="card">
-                                            {/* 동적으로 랜덤 클래스 추가 */}
-                                            <div className={`image-cap ${randomCapClass}`}>{room.title}</div>
-                                            <div className="card-body">
-                                                <h3 className="card-title">{room.topic}</h3>
-                                                <button className="card-button" onClick={() => enterRoom(room.roomId)}>
-                                                    참여하기
-                                                </button>
-                                            </div>
+                                                            return (
+                                                                <div key={room.roomId} className="card">
+                                                                    {/* 동적으로 랜덤 클래스 추가 */}
+                                                                    <div className={`image-cap ${randomCapClass}`}>{room.title}</div>
+                                                                    <div className="card-body">
+                                                                        <h3 className="card-title">{room.topic}</h3>
+                                                                        <button className="card-button" onClick={() => enterRoom(room.roomId)}>
+                                                                            참여하기
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                    <div style={{ textAlign: 'center' }} className="pagination-container">
+                                                        <button onClick={handlePrevPage} className="pagination-button" disabled={page === 0}>
+                                                            이전
+                                                        </button>
+                                                        <button onClick={handleNextPage} className="pagination-button" disabled={roomData.last}>
+                                                            다음
+                                                        </button>
+                                                    </div>
+                                                </>
+                                            ) :  <h2 style={{textAlign : "center"}} id="notExistProjectH">
+                                                검색한 프로젝트가 존재하지 않습니다.</h2>}
                                         </div>
-                                    );
-                                })}
+                                    </div>
+                                </div>
                             </div>
-                            <div style={{ textAlign: 'center' }} className="pagination-container">
-                                <button onClick={handlePrevPage} className="pagination-button" disabled={page === 0}>
-                                        이전
-                                </button>
-                                <button onClick={handleNextPage} className="pagination-button" disabled={roomData.last}>
-                                    다음
-                                </button>
-                            </div>
-                        </>
-                    ) : <h2>검색한 프로젝트가 없습니다.</h2>}
-                  </div>
-                </div>
-              </div>
-            </div>
-        )}
-            {/*
-
-            <div className="pagination">
-                <button onClick={() => {
-                    const newPage = Math.max(page - 1, 1);
-                    setPage(newPage);
-                }} disabled={page === 1}>이전</button>
-
-                <span>{page} / {totalPages}</span>
-
-                <button onClick={() => {
-                    const newPage = Math.min(page + 1, totalPages);
-                    setPage(newPage);
-                }} disabled={page === totalPages}>다음</button>
-            </div>
-
-            */}
+                        )}
 
         {createmodal && (
             <div className="modal_overlay" onClick={()=> setCreateModal(false)}>
@@ -445,17 +484,13 @@ const Project = () => {
                   <div className="modal_section">
                     <label className="modal_label">방 제목</label>
 
-                    <input className="modal_input" type="text"
-                           value={roomTitle}
-                           onChange={(e) => setRoomTitle(e.target.value)}
+                    <input className="modal_input"  id="createRoomTitle" type="text"                   
                     />
                   </div>
 
                   <div className="modal_section">
                     <label className="modal_label">비밀번호</label>
-                      <input className="modal_input" type="password"
-                             value={password}
-                             onChange={(e) => setPassword(e.target.value)}
+                      <input className="modal_input" id="createRoomPassword" type="password"                             
                       />
                   </div>
                 </div>
@@ -524,5 +559,6 @@ const Project = () => {
     </div>
   );
 };
+
 
 export default Project;
