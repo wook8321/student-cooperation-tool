@@ -16,8 +16,6 @@ import personHeart from "./images/PersonHearts.svg";
 
 
 const RoomList = () => {
-    const [enterModal, setEnterModal] = useState(false);
-    const [enterRoomId, setEnterRoomId] = useState(0)
     const [rooms, setRooms] = useState({num: 0, roomList: []});
     const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태 추가
 
@@ -41,7 +39,6 @@ const RoomList = () => {
     }, []);
 
     const deleteRoom = (roomId) => {
-        alert(roomId)
         axios
             .delete(`${domain}/api/v1/rooms`, {
                 data: {
@@ -58,9 +55,50 @@ const RoomList = () => {
             });
     }
 
-    const enterRoom = (roomId) =>{
-        setEnterRoomId(roomId);
-        setEnterModal(true);
+    function verifyPasswordAndEnterRoom(roomId){
+        const password = document.getElementById("roomPasswordInput").value
+        const data = {
+            roomId,
+            password
+        }
+        axios
+            .post(`${domain}/api/v1/rooms/enter-room`,data,{ "Content-Type": "application/json"})
+            .then((res) =>{
+                const isCorrect = res.data.data
+                if(isCorrect){
+                    //비밀 번호가 맞다면, 방을 입장
+                    <Link to="/topic" state={{roomId}}></Link>;
+                    closeEnterModal()
+                }
+            })
+            .catch(() =>{
+                const passwordInvalidDiv = document.getElementById("passwordInvalidDiv");
+                passwordInvalidDiv.innerHTML = '<span style="color:red;">해당 비밀번호는 틀렸습니다. 다시 입력해주세요.</span>'
+            })
+    }
+
+
+
+    function closeEnterModal(){
+        const passwordModalDiv = document.getElementById("passwordModalDiv");
+        passwordModalDiv.remove()
+    }
+
+    function openRoomModal(roomId){
+        const enterRoomModalDiv = document.getElementById("enterRoomModalDiv")
+        enterRoomModalDiv.innerHTML += `
+                <div class="modal_overlay" id="passwordModalDiv">
+                    <div class="modal_content" style="text-align: center;">
+                        <button class="close_button" id="closeModalButton">X</button>
+                        <div id="passwordInvalidDiv"></div>
+                        <label class="modal_label">비밀번호</label>
+                        <input class="modal_input" id="roomPasswordInput" type="password"/>
+                        <button id="verifyRoomButton">입장</button>
+                    </div>
+                </div>
+            `
+        document.getElementById("closeModalButton").onclick = closeEnterModal;
+        document.getElementById("verifyRoomButton").onclick = () => verifyPasswordAndEnterRoom(roomId);
     }
 
     return (
@@ -84,7 +122,7 @@ const RoomList = () => {
                                         </span>
                                         <h3 className="card-title">주제 : {room.topic}</h3>
                                         <div className="button-group">
-                                            <button className="card-button" onClick={() => enterRoom(room.roomId)}>
+                                            <button className="card-button" onClick={() => openRoomModal(room.roomId)}>
                                                 입장하기
                                             </button>
                                             <button className="card-red-button" onClick={() => deleteRoom(room.roomId)}>
@@ -126,6 +164,7 @@ const RoomList = () => {
                     아직 참여하는 프로젝트가 없네요. 프로젝트에 참여해볼까요?
                 </h1>}
             </div>
+            <div id="enterRoomModalDiv" className=""></div>
         </div>
     );
 };
@@ -521,7 +560,8 @@ const Project = () => {
                                     </div>
                                 </div>
                             </div>
-                        )}</div>
+                        )}
+                    </div>
                 </main>
 
                 {enterModal && (
