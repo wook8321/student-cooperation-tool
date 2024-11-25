@@ -98,30 +98,28 @@ main {
 
 /* 친구 목록 스타일 */
 .friend_list {
-    list-style-type: none; /* Bullet 포인트 제거 */
-    padding: 0; /* 기본 패딩 제거 */
-    margin: 0; /* 기본 마진 제거 */
-    display: flex;
-    flex-direction: column;
-    gap: 15px; /* 항목 간 간격 */
+    padding: 20px;
+    width: 100%;
+    max-width: 900px;  /* 컨테이너 최대 너비 설정 */
+    margin: 0 auto;    /* 중앙 정렬 */
 }
 
 .friend_list ul {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);  /* 3열 그리드 */
+    gap: 20px;  /* 아이템 간 간격 */
     padding: 0;
-    margin: 0;
+    list-style: none;
 }
 
-/* 각 친구 항목 */
 .friend_list li {
     display: flex;
     align-items: center;
     padding: 15px;
-    margin: 20px;
-    background-color: #ffffff;
+    background: white;
     border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    min-height: 80px;  /* 카드 최소 높이 설정 */
 }
 
 .friend_list li:hover {
@@ -131,18 +129,16 @@ main {
 
 /* 프로필 이미지 */
 .profile-icon {
-    flex-shrink: 0; /* 이미지 크기 고정 */
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    overflow: hidden;
+    width: 50px;      /* 프로필 아이콘 크기 조절 */
+    height: 50px;
     margin-right: 15px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
 }
 
 .profile-icon img {
     width: 100%;
     height: 100%;
+    border-radius: 50%;
     object-fit: cover;
 }
 
@@ -153,6 +149,30 @@ main {
     color: #333;
     flex-grow: 1; /* 이름이 남은 공간을 차지 */
     text-align: left; /* 왼쪽 정렬 */
+}
+
+#notExistH {
+    text-align: center;
+    padding: 20px;
+}
+
+#notExistH img {
+    width: 150px;  /* 이미지 크기 조절 */
+    height: 150px;
+    margin-bottom: 15px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .friend_list ul {
+        grid-template-columns: repeat(2, 1fr);  /* 화면이 작을 때는 2열로 변경 */
+    }
+}
+
+@media (max-width: 480px) {
+    .friend_list ul {
+        grid-template-columns: 1fr;  /* 모바일에서는 1열로 변경 */
+    }
 }
 
 .modal_overlay {
@@ -171,28 +191,49 @@ main {
 
 .modal_content {
     z-index: 1001;
-    background-color: #ffffff;
-    border-radius : 10px;
-    width: 60%;
-    height: 80%;
-    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
-    padding: 40px;
+    display: flex;
+    flex-direction: column; /* 위에서 아래로 정렬 */
+    justify-content: flex-start; /* 모든 내용이 위쪽에 정렬 */
+    align-items: center; /* 가운데 정렬 */
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    margin: auto;
+    position: relative;
+    height: 80vh; /* 모달 높이를 고정 */
+    overflow: hidden;
 }
 
 .close_button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    color: #333;
-    background: none;
+    background-color: #f05454;
+    color: #ffffff;
     border: none;
-    font-size: 18px;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 1.2em;
+    font-weight: bold;
     cursor: pointer;
-    transition: color 0.3s ease;
+    transition: background-color 0.2s ease-in-out;
 }
 
 .close_button:hover {
-    color: #888;
+    color: #ff6b6b;
+}
+
+.friend_result {
+    display: flex;
+    flex-direction: column; /* 요소를 세로로 정렬 */
+    justify-content: flex-start; /* 수직 위쪽 정렬 */
+    align-items: center; /* 수평 가운데 정렬 */
+    overflow-y: auto; /* 세로 스크롤 가능 */
+    width: 100%;
+    max-height: calc(90vh - 100px); /* 전체 화면의 90% 크기, 여백 제외 */
+    padding: 16px;
+    box-sizing: border-box;
+    margin-right: 20px; /* 커스텀 스크롤바 공간을 확보 */
 }
 
 .add_friend_button {
@@ -222,8 +263,10 @@ main {
 
 /* 스크롤바 스타일 */
 .scrollbar {
-    max-height: 100%;
-    padding: 10px;
+    width: 100%;
+    height: 100%; /* 스크롤 영역의 전체 높이 */
+    overflow-y: auto; /* 세로 스크롤 */
+    box-sizing: content-box;
 }
 
 .scrollbar::-webkit-scrollbar {
@@ -251,4 +294,26 @@ ul {
     list-style-type: none; /* 점 제거 */
     padding: 0; /* 기본 들여쓰기 제거 */
     margin: 0; /* 기본 여백 제거 */
+}
+
+.newFriend-container h2 {
+    grid-column: 1 / -1; /* 첫 번째 열을 전체 차지하도록 설정 */
+    display: flex;
+    justify-content: flex-start; /* 세로로 정렬될 수 있도록 */
+    align-items: flex-start; /* 세로로 정렬 */
+    margin-bottom: 16px; /* h2와 친구 목록 간격 */
+}
+
+.newFriend-container{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* 3열 반응형 */
+    gap: 16px; /* 카드 간격 */
+    padding: 16px;
+    list-style: none;
+}
+
+@media (max-width: 600px) {
+    .newFriend-container {
+        grid-template-columns: 1fr; /* 작은 화면에서는 한 열 */
+    }
 }
