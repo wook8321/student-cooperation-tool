@@ -101,7 +101,7 @@ const Topic = ({ roomId }) => {
   return (
       <>
         <div>
-          <Link to={"/api/v1/rooms/topics"} className="back_link">
+          <Link to={"/project"} className="back_link">
             뒤로 가기
           </Link>
         </div>
@@ -116,7 +116,7 @@ const Topic = ({ roomId }) => {
                         <button onClick={ClickLike}>
                           <h3>{topic.title}</h3>
                         </button>
-                        <button onClick={deleteTopic(topic.topicId)}>
+                        <button onClick={()=>deleteTopic(topic.topicId)}>
                           X
                         </button>
                       </div>
@@ -125,7 +125,7 @@ const Topic = ({ roomId }) => {
             </div>
 
             <div>
-              <button onClick={setAddModal(true)} className="add_topic">
+              <button onClick={()=>setAddModal(true)} className="add_topic">
                 주제 추가
               </button>
             </div>
