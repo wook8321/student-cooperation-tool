@@ -28,7 +28,7 @@ const FriendsList = () => {
       <div className="friend_list">
         <div id="newFriendDiv" className="newFriend-container"></div>
         <div id="barDiv"></div>
-        <h3 id="friendsListH">친구 목록</h3>
+        <h2 id="friendsListH">친구 목록</h2>
         {friends.num > 0 ? (
           <ul>
             {friends.members.map(friend => (
