@@ -24,6 +24,7 @@ import static com.stool.studentcooperationtools.security.config.SecurityConfig.S
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
 public class WebsocketSecurityInterceptor implements ChannelInterceptor {
 
+    private final String SUB_URL_HEADER = "SubscribeUrl";
     private final JdbcIndexedSessionRepository jdbcIndexedSessionRepository;
     private final RoomRepository roomRepository;
     @Override
@@ -52,9 +53,10 @@ public class WebsocketSecurityInterceptor implements ChannelInterceptor {
 
     private void validMemberInRoom(final StompHeaderAccessor accessor, final OAuth2AuthenticationToken authentication) {
         // 방에 들어가서 구독할 권한이 없는지 확인하는
-        if(SimpMessageType.SUBSCRIBE.equals(accessor.getMessageType())){
+        if(SimpMessageType.CONNECT.equals(accessor.getMessageType())){
             //방에 들어갈 권한이 없는 경우
-            Long roomId =  getRoomIdBy(accessor.getDestination());
+            String subUrl = accessor.getFirstNativeHeader(SUB_URL_HEADER);
+            Long roomId =  getRoomIdBy(subUrl);
             String email = authentication.getPrincipal().getAttribute("email");
             if(!roomRepository.existMemberInRoom(email, roomId)){
                 throw new AccessDeniedException("Authentication Failed");
