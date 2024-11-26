@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.websocket.controller.topic.request;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TopicDeleteSocketRequest {
 
+    @NotNull
     private Long topicId;
+
+    @NotNull
     private Long roomId;
 
     @Builder

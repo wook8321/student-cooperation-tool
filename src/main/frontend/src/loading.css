@@ -1,5 +1,5 @@
-/* 화면 중앙에 로딩 컨테이너 */
-.loading{
+/* 화면 중앙에 로딩 컨테이너 배치 */
+.loading {
     margin: 0;
     padding: 0;
     width: 100%;
@@ -16,6 +16,10 @@
     align-items: center;
     text-align: center;
     color: #555;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .spinner {

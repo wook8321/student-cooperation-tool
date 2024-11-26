@@ -4,10 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.websocket.controller.request.WebsocketResponse;
 import com.stool.studentcooperationtools.websocket.converter.SessionMemberMessageConverter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -54,8 +56,13 @@ public abstract class WebsocketTestSupport {
     @MockBean
     SessionMemberMessageConverter sessionMemberMessageConverter;
 
+    @MockBean
+    RoomRepository roomRepository;
+
     @BeforeEach
     void setUp() throws ExecutionException, InterruptedException, TimeoutException, JsonProcessingException {
+        Mockito.when(roomRepository.existMemberInRoom(Mockito.anyString(),Mockito.anyLong()))
+                .thenReturn(true);
         URL = "ws://localhost:%d/ws-stomp".formatted(port);
         stompClient = createStompClient();
         executeSql("sql/SpringSessionDelete.sql");

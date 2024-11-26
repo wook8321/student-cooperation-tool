@@ -1,5 +1,5 @@
 .background {
-    background: #82c91e;
+    background: linear-gradient(135deg, #f9f9f9, #faf7f7, #f1cac1); /* 그라데이션 추가 */
     height: 100vh;
     padding: 20px;
 }

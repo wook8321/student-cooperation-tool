@@ -7,6 +7,7 @@ import com.stool.studentcooperationtools.websocket.controller.request.WebsocketR
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicAddSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicDeleteSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.topic.response.TopicAddSocketResponse;
+import com.stool.studentcooperationtools.websocket.controller.topic.response.TopicDeleteSocketResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -65,8 +66,11 @@ class TopicWebsocketControllerTest extends WebsocketTestSupport {
                 .roomId(1L)
                 .topicId(1L)
                 .build();
+        TopicDeleteSocketResponse topicDeleteSocketResponse = TopicDeleteSocketResponse.builder()
+                .topicId(1L)
+                .build();
         Mockito.when(topicService.deleteTopic(Mockito.any(TopicDeleteSocketRequest.class),Mockito.any(SessionMember.class)))
-                .thenReturn(true);
+                .thenReturn(topicDeleteSocketResponse);
 
         stompSession.subscribe(TopicDecisionSubUrl,resultHandler);
         //when
