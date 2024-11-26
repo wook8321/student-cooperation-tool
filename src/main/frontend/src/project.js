@@ -15,7 +15,7 @@ import "./juaFont.css"
 import searchIcon from "./images/search.svg";
 import emptyBox from "./images/emptyBox.svg"
 
-const RoomList = () => {
+const RoomList = ({setCreateModal}) => {
     const [rooms, setRooms] = useState({num: 0, roomList: []});
     const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태 추가
     const navigate = useNavigate();
@@ -105,7 +105,13 @@ const RoomList = () => {
         <div className="room_list">
             <div id="newRoomDiv" className="newRoom-container"></div>
             <div id="barDiv"></div>
-            <h2 id="roomsListH">프로젝트 목록( 참여한 프로젝트 : {rooms.num} )</h2>
+            <h2 id="roomsListH">프로젝트 목록( 참여한 프로젝트 : {rooms.num} )
+            <form className="create_box" onSubmit={(e) => e.preventDefault()}>
+                    <button className="create_button" type="submit" onClick={() => setCreateModal(true)}>
+                        +
+                    </button>
+            </form>
+            </h2>
             <div>
                 {rooms.num > 0 ? (
                     <>
@@ -161,7 +167,7 @@ const RoomList = () => {
                             </button>
                         </div>
                     </>
-                ) : <h1 style={{textAlign: "center"}} id="notExistProjectH">
+                ) : <h1 style={{textAlign: "center"}} id="notExistH">
                     <div>
                         <img src={emptyBox} height="200" width="200"/>
                     </div>
@@ -175,11 +181,11 @@ const RoomList = () => {
 
 const Project = () => {
     const [createmodal, setCreateModal] = useState(false);
-  const [roomData, setRoomData] = useState({num:0, rooms:[]});
-  const [result, setResult] = useState({num:0, members:[]}); // 초대할 친구 정보
-  const [participant, setParticipant] = useState({num:0, members:[]}); // 이미 초대된 친구들 정보
+    const [roomData, setRoomData] = useState({num: 0, rooms: []});
+    const [result, setResult] = useState({num: 0, members: []}); // 초대할 친구 정보
+    const [participant, setParticipant] = useState({num: 0, members: []}); // 이미 초대된 친구들 정보
 
-  const [enterRoomId, setEnterRoomId] = useState(0)
+    const [enterRoomId, setEnterRoomId] = useState(0)
   const [searchFriend, setSearchFriend] = useState("");
   const [page, setPage] = useState(0);
   const [searchModal, setSearchModal] = useState(false);
@@ -345,12 +351,14 @@ const Project = () => {
                 <div class="image-cap ${randomCapClass}">${updatedRoom.title}</div>
                 <div class="card-body">
                     <h3 class="card-title">미정</h3>
+                     <div class="button-group">
                      <button class="card-button" id="enterRoomButton-${updatedRoom.roomId}">
-                        참여하기
+                        입장하기
                     </button>
                     <button class="card-red-button" id="deleteRoomButton-${updatedRoom.roomId}">
-                        X
+                        삭제하기
                     </button>
+                    </div>
                 </div>
             </div>
         </li>
@@ -455,13 +463,7 @@ const Project = () => {
                             <img src={searchIcon}/>
                         </button>
                     </form>
-                        <form className="create_box" onSubmit={(e) => e.preventDefault()}>
-                            <div className="button-container">
-                            <button className="create_button" type="submit" onClick={() => setCreateModal(true)}>
-                                프로젝트 생성
-                            </button></div>
-                        </form>
-                        <RoomList/>
+                        <RoomList setCreateModal={setCreateModal}/>
                         {searchModal && (
                             <div className="add_project_container">
                                 <div className="modal_overlay">
