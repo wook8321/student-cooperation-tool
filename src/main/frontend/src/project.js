@@ -493,8 +493,8 @@ const Project = () => {
                         <RoomList setCreateModal={setCreateModal}/>
                         {searchModal && (
                             <div className="add_project_container">
-                                <div className="modal_overlay">
-                                    <div className="modal_content">
+                                <div className="modal_overlay" onClick={closeSearchModal}>
+                                    <div className="modal_content" onClick={(e)=> e.stopPropagation()}>
                                         <button className="close_button" onClick={() => closeSearchModal()}>
                                             X
                                         </button>
@@ -587,8 +587,8 @@ const Project = () => {
                 </main>
 
                 {enterModal && (
-                    <div className="modal_overlay">
-                        <div className="modal_content" style={{textAlign: "center"}}>
+                    <div className="modal_overlay" onClick={closeEnterModal}>
+                        <div className="modal_content" style={{textAlign: "center"}} onClick={(e)=> e.stopPropagation()}>
                             <button className="close_button" onClick={() => closeEnterModal()}>
                       X
                   </button>
