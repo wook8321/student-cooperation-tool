@@ -7,8 +7,14 @@
   color: #4a403a;
 }
 
+.div-divider {
+    border-bottom: 2px solid #D1D1D1; /* 회색 구분선 */
+    margin: 20px 0; /* 위와 아래 여백 */
+}
+
 main {
     background: linear-gradient(135deg, #f9f9f9, #faf7f7, #f1cac1); /* 그라데이션 추가 */
+    padding: 20px;
 }
 
 /* Sidebar 스타일 */
@@ -81,6 +87,35 @@ footer > a > img:hover {
   background-color: #463F3A;
 }
 
+.create_modal_content{
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    justify-content: space-between;
+    height: auto;           /* 모달 높이를 자동 조정 */
+    min-height: 60%;        /* 최소 높이 설정 */
+    max-height: 90%;        /* 최대 높이 설정 */
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+    width: 90%;             /* 화면 너비의 90% 사용 */
+    max-width: 600px;       /* 최대 너비 설정 */
+    position: relative;
+    overflow: auto;         /* 잘리는 내용 스크롤 가능 */
+    margin: auto;           /* 화면 가운데 배치 */
+}
+
+.create_button {
+    background-color: #1a252f; /* 보색 청록색 */
+    color: #ffffff;
+    border: none; /* 테두리 없음 */
+    padding: 5px 10px; /* 여백 설정 */
+    font-size: 20px; /* 글자 크기 */
+    border-radius: 8px; /* 모서리 둥글게 */
+    cursor: pointer; /* 마우스 커서 변경 */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* 부드러운 애니메이션 */
+}
+
 /* 프로젝트 카드 컨테이너 */
 .card-container {
   display: grid;
@@ -94,7 +129,6 @@ footer > a > img:hover {
   background-color: #ffffff;
   border-radius: 10px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -113,7 +147,7 @@ footer > a > img:hover {
   color: #ffffff;
   text-align: center;
   padding: 10px;
-  border-radius: 8px 8px 0 ㅁ0;
+  border-radius: 8px 8px 0px;
   margin-bottom: 10px;
 }
 
@@ -131,6 +165,36 @@ footer > a > img:hover {
   flex-direction: column;
   align-items: center;
   text-align: center;
+}
+
+.project-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.project-list {
+    margin-top: 10px;
+}
+
+#notExistH {
+    position: absolute;
+    top: 50%; /* 화면 높이의 50% */
+    left: 50%; /* 화면 너비의 50% */
+    transform: translate(-50%, -50%); /* 요소 중심으로 이동 */
+}
+
+#notExistH img {
+    width: 150px;  /* 이미지 크기 조절 */
+    height: 150px;
+    margin-bottom: 15px;
+}
+
+#newRoomDiv {
+    list-style-type: none; /* 목록 표시자 제거 */
+    padding: 0; /* 기본 여백 제거 */
+    margin: 0; /* 기본 여백 제거 */
 }
 
 .card-title {
@@ -182,6 +246,7 @@ footer > a > img:hover {
   position: relative;
 }
 
+
 .modal_section {
     display: flex;
     justify-content: center;  /* 내용 중앙 정렬 */
@@ -195,12 +260,14 @@ footer > a > img:hover {
 
 .modal_section label {
     margin-right: 15px; /* 레이블과 입력 필드 사이 간격 */
+    font-size: 16px;         /* 텍스트 크기 */
+    white-space: nowrap;
 }
 
 .modal_input {
     width: 80%;
     padding: 10px;
-    margin-bottom: 16px;
+    box-sizing: border-box;
     border: 1px solid #D1C4B0; /* 부드러운 테두리 */
     border-radius: 5px;
 }
@@ -311,6 +378,7 @@ footer > a > img:hover {
 }
 
 .friend_search_txt {
+    margin-top: 20px;
     width: 100%;
     padding: 12px 16px;
     font-size: 16px;
@@ -326,34 +394,6 @@ footer > a > img:hover {
 .friend_search_txt:focus {
     border-color: #d08a7e;  /* 포커스시 색상 */
     background-color: #fff;
-}
-
-.close_button_friend {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 40px;
-    height: 40px;
-    background-color: #e0afa0;
-    border: none;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px; /* X 크기 */
-    color: #fff;
-    cursor: pointer;
-}
-
-.close_button_friend::before {
-    content: "×"; /* X 표시 */
-    font-size: 22px; /* X 크기 */
-    font-weight: bold;
-    text-align: center;
-}
-
-.close_button_friend:focus {
-    outline: none; /* 클릭했을 때 외곽선 제거 */
 }
 
 .search_icon {
@@ -383,43 +423,6 @@ footer > a > img:hover {
     height: 40px;
     border-radius: 50%;
     margin-right: 10px;
-}
-
-
-/* 기본 스타일 */
-.collapsible {
-    cursor: pointer;
-    padding: 10px 15px;
-    font-size: 18px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    display: inline-block;
-    width: fit-content;
-    user-select: none;
-}
-
-/* 접혔을 때 화살표 방향 */
-.collapsible.collapsed::before {
-    content: "▶ ";
-}
-
-/* 펼쳐졌을 때 화살표 방향 */
-.collapsible::before {
-    content: "▽ ";
-}
-
-/* 숨겨진 콘텐츠 */
-.collapsible-content {
-    display: none;
-    padding: 10px 15px;
-    border: 1px solid #ddd;
-    border-top: none;
-    margin-top: -1px;
-    border-radius: 0 0 5px 5px;
-}
-
-.collapsible-content.visible {
-    display: block;
 }
 
 /* 팀원 리스트 */
@@ -452,4 +455,68 @@ footer > a > img:hover {
 
 h3, h2 {
     color: #4A403A; /* 따뜻한 브라운 톤 */
+}
+
+#notExistH {
+    text-align: center;
+    padding: 20px;
+}
+
+#notExistH img {
+    width: 150px;  /* 이미지 크기 조절 */
+    height: 150px;
+    margin-bottom: 15px;
+}
+
+#roomsListH {
+    display: flex;
+    gap: 10px; /* 좌우로 요소 배치 */
+    align-items: center; /* 세로 축 중앙 정렬 */
+}
+
+.newRoom-container h2 {
+    grid-column: 1 / -1; /* 첫 번째 열을 전체 차지하도록 설정 */
+    display: flex;
+    justify-content: flex-start; /* 세로로 정렬될 수 있도록 */
+    align-items: flex-start; /* 세로로 정렬 */
+    margin-bottom: 16px; /* h2와 친구 목록 간격 */
+}
+
+.newRoom-container{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* 3열 반응형 */
+    gap: 16px; /* 카드 간격 */
+    padding: 16px;
+    list-style: none;
+}
+
+@media (max-width: 600px) {
+    .newRoom-container {
+        grid-template-columns: 1fr; /* 작은 화면에서는 한 열 */
+    }
+}
+
+@media (max-width: 768px) {
+    .create_modal_content {
+        width: 90%;         /* 화면 너비 거의 전체 사용 */
+        height: auto;       /* 자동으로 높이 조정 */
+        max-height: 80%;    /* 최대 높이 설정 */
+    }
+
+    .modal_input {
+        width: 100%;        /* 입력 필드 전체 너비 사용 */
+    }
+
+    .modal_section {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .modal_section label {
+        margin-bottom: 10px; /* 필드 위 간격 추가 */
+        margin-right: 0;     /* 오른쪽 여백 제거 */
+    }
 }

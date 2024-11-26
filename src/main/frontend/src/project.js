@@ -105,13 +105,14 @@ const RoomList = ({setCreateModal}) => {
         <div className="room_list">
             <div id="newRoomDiv" className="newRoom-container"></div>
             <div id="barDiv"></div>
-            <h2 id="roomsListH">프로젝트 목록( 참여한 프로젝트 : {rooms.num} )
+            <h2 id="roomsListH">프로젝트 목록( 참여한 프로젝트 : {rooms.num} )</h2>
             <form className="create_box" onSubmit={(e) => e.preventDefault()}>
+                <div className="button-container">
                     <button className="create_button" type="submit" onClick={() => setCreateModal(true)}>
-                        +
+                        프로젝트 생성
                     </button>
+                </div>
             </form>
-            </h2>
             <div>
                 {rooms.num > 0 ? (
                     <>
