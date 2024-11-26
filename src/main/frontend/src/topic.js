@@ -33,23 +33,20 @@ const Topic = () => {
           });
   }
 
-  const receiveMessage = (frame) => {
+  const receiveMessage = (message) => {
     //3-1 구독한 url에서 온 메세지를 받았을 때
-    alert(JSON.stringify(frame.body))
+    const frame = JSON.parse(message.body)
 
-    switch (frame.body.messageType){
-      case "TOPIC_ADD" :
-        // 누군가 주제를 추가한 메세지를 받았을 때
-        break;
-      case "TOPIC_DELETE" :
-        // 누군가 주제를 삭제한 메세지를 받았을 때
-        break;
-      case "VOTE_ADD" :
-        // 누군가 투표한 메세지를 받았을 때
-        break;
-      case "VOTE_DELETE" :
-        // 누군가 투표를 취소한 메세지를 받았을 때
-        break;
+    if(frame.messageType === "TOPIC_ADD"){
+      updateTopicInScreen(frame.data)
+    } else if(frame.messageType === "TOPIC_DELETE"){
+      deleteTopicInScreen(frame.data)
+    } else if(frame.messageType === "VOTE_ADD"){
+
+    } else if(frame.messageType === "VOTE_DELETE"){
+
+    } else{
+      console.log("Not Supported Message Type")
     }
   }
 
@@ -96,28 +93,58 @@ const Topic = () => {
       }
     };
   }, [roomId]);
+  // ================================================ 토픽 제거 ======================================
+
+  const deleteTopicInScreen = (topic) => {
+    setTopics((prevTopics) => ({
+      ...prevTopics,
+      topics: prevTopics.topics.filter((t) => t.topicId !== topic.topicId), // topicId가 일치하지 않는 토픽만 남김
+    }));
+  };
+  const deleteTopic = (topicId) => {
+    alert(topicId + "번 삭제하기")
+    const data = {
+      roomId : roomId,
+      topicId : topicId
+    }
+    stompClient.current.publish({
+      destination: '/pub/topics/delete',
+      body: JSON.stringify(data)
+    })
+  }
+  // ================================================ 토픽 제거 ======================================
+  // ================================================ 토픽 생성 ======================================
+
+  const updateTopicInScreen = (topic) => {
+    setTopics((prevTopics) => ({
+      ...prevTopics,
+      num: prevTopics.num + 1, // 주제 개수 증가
+      topics: [...prevTopics.topics, topic], // 기존 토픽 배열에 새 토픽 추가
+    }));
+  };
 
   // 주제 추가 함수
   const addTopic = () => {
-    const newTopic = {roomId, title: newTopic,};
-    setTopics([...topics, newTopic]); // 새 주제 추가
-    stompClient.current.publish(`/pub/topics/add`);
-    setNewTopic(""); // 입력 초기화
+    setAddModal(false)
+    const topic = document.getElementById("topicTitleInput").value;
+    const data = {
+        topic : topic,
+        roomId : roomId
+    }
+    stompClient.current.publish({
+        destination: '/pub/topics/add',
+        body: JSON.stringify(data)
+    })
   };
 
-  const deleteTopic = (topic_Id) => {
-    const updatedTopic = topics.filter((topic) => topic.topicId !== topic_Id);
-    setTopics(updatedTopic);
-    stompClient.current.publish(`/pub/topics/delete`);
-  }
+  // ================================================ 토픽 생성 ======================================
+  // ================================================ 투표 생성 ======================================
+
 
   const addVote = () => {
     stompClient.current.publish(`/pub/votes/add`);
   }
 
-  const deleteVote = () => {
-    stompClient.current.publish(`/pub/votes/delete`);
-  }
 
   const testWebsocket = () => {
     alert("웹소켓 테스트")
@@ -126,32 +153,6 @@ const Topic = () => {
       body: JSON.stringify({ roomId: roomId, topic : "웹소켓 테스트 주제"}), // 메시지 내용
     });
   }
-
-  const ClickLike = () => {
-    const [isClicked, setIsClicked] = useState(false);
-    const [changeNum, setChangeNum] = useState(0); //버튼 클릭 시 숫자가 변경되는 함수
-
-    const changeLike = useCallback(() => {
-      //버튼을 클릭할 때 마다 현재의 반대 상태로 변경
-      setIsClicked(!isClicked);
-      setChangeNum((prev) => (isClicked ? prev - 1 : prev + 1)); // 좋아요 수 조정
-
-      if (!isClicked)
-        addVote();
-      else
-        deleteVote();
-
-    }, [isClicked]);
-
-    return (
-        <div className="like-container">
-          <button className="like-button" onClick={changeLike}>
-            <LikeImage likeClick={isClicked}/>
-          </button>
-          <span className="like-count">{changeNum}</span>
-        </div>
-    );
-  };
 
   //LikeImage : 버튼 클릭 시 이미지가 변경되는 컴포넌트
   const LikeImage = ({likeClick}) => {
@@ -182,22 +183,24 @@ const Topic = () => {
 
         <div className="background">
           <div className="topics_overlay">
-            <div className="topics_container">
+            <div className="card-container" id="topicsDiv">
               {topics.num > 0 ? (
                   topics.topics.map((topic) => (
-                      <div className="topics_content" key={topic.topicId}>
-                          <button onClick={ClickLike}>
-                          <h3>{topic.title}</h3>
-                        </button>
-                        <button onClick={()=>deleteTopic(topic.topicId)}>
+                      <div className="card" id={ "topic" + topic.topicId}>
+                        <button className="card-button" onClick={() => deleteTopic(topic.topicId)}>
                           X
                         </button>
+                        <h3 className="card-title">
+                          {topic.title}
+                        </h3>
+                        <span className="card-text">좋아요 : 3</span>
+                        <span className="card-text">싫어요 : 3</span>
                       </div>
                   ))
-              ) : <h2>해당 방의 주제가 없습니다.</h2>}
-            </div>
-            <div>
-              <button onClick={() => testWebsocket()}> 웹소켓 테스트 버튼</button>
+              ) : <h2 id="notExsistTopicH">
+                    해당 방의 주제가 없습니다.
+                  </h2>
+              }
             </div>
             <div>
               <button onClick={()=>setAddModal(true)} className="add_topic">
@@ -207,17 +210,16 @@ const Topic = () => {
           </div>
 
           {addModal && (
-              <div className="modal_section">
-                <label className="modal_label">주제 추가</label>
-                <input
-                    className="modal_input"
-                    type="Topic_Add"
-                    value={newTopic}
-                />
-                <button
-                    className="add_button"
-                    onClick={addTopic}
-                />
+              <div className="modal">
+                <div className="modal_overlay">
+                  <div className="modal_content">
+                    <label className="modal_label">주제 추가</label>
+                    <input className="modal_input" id="topicTitleInput" type="text"/>
+                    <button onClick={() => addTopic()}>
+                      등록하기
+                    </button>
+                  </div>
+                </div>
               </div>
           )}
 
