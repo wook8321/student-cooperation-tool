@@ -307,26 +307,52 @@ const Project = () => {
     };
 
 
-  const handleCreateClick = () => {
-    const password = document.getElementById("createRoomPassword").value
-    const roomTitle = document.getElementById("createRoomTitle").value
-    axios
-      .post(`${domain}/api/v1/rooms`,  {
-          title : roomTitle,
-          password,
-          participation : participant.members.map((member) => member.id)
-      })
-      .then((res) => {
-          const updatedRoom = res.data.data;
-        console.log("Successed to create project.")
-        closeCreateModal();
-          console.log(updatedRoom);
-        createRoomDiv(updatedRoom);
-      })
-      .catch(() => {
-        console.log("Failed to create project.");
-      });
-  };
+    const handleCreateClick = () => {
+        const passwordInput = document.getElementById("createRoomPassword");
+        const roomTitleInput = document.getElementById("createRoomTitle");
+        const errorMessageDiv = document.getElementById('createRoomErrorMessage');
+
+        const password = passwordInput.value.trim();
+        const roomTitle = roomTitleInput.value.trim();
+
+        // 에러 메시지 초기화 및 숨김
+        errorMessageDiv.textContent = '';
+        errorMessageDiv.style.display = 'none';
+
+
+        axios
+            .post(`${domain}/api/v1/rooms`, {
+                title: roomTitle,
+                password,
+                participation: participant.members.map((member) => member.id)
+            })
+            .then((res) => {
+                const updatedRoom = res.data.data;
+                console.log("Succeeded to create project.");
+                closeCreateModal();
+                createRoomDiv(updatedRoom);
+            })
+            .catch((error) => {
+                // 에러 처리
+                if (error.response) {
+                    switch (error.response.status) {
+                        case 400:  // Bad Request
+                            errorMessageDiv.textContent = '제목과 비밀번호를 모두 입력해주세요.';
+                            break;
+                        case 409:  // Conflict (Data Integrity Violation)
+                            errorMessageDiv.textContent = `이미 '${roomTitle}' 프로젝트가 존재합니다.`;
+                            break;
+                        default:
+                            errorMessageDiv.textContent = '프로젝트 생성 중 오류가 발생했습니다.';
+                    }
+                    errorMessageDiv.style.display = 'block';
+                } else {
+                    console.error("Error creating project:", error);
+                    errorMessageDiv.textContent = '네트워크 오류가 발생했습니다.';
+                    errorMessageDiv.style.display = 'block';
+                }
+            });
+    };
 
 
     function createRoomDiv(updatedRoom){
@@ -522,6 +548,16 @@ const Project = () => {
                                     <button className="close_button" onClick={() => closeCreateModal()}>
                                         X
                                     </button>
+                                    <div
+                                        id="createRoomErrorMessage"
+                                        className="error-message"
+                                        style={{
+                                            color: 'red',
+                                            textAlign: 'center',
+                                            marginTop: '10px',
+                                            display: 'none'  // 초기에는 숨김
+                                        }}
+                                    ></div>
                                     <div className="modal_body">
                                         <div className="modal_section">
                                             <label className="modal_label">방 제목</label>
@@ -552,8 +588,8 @@ const Project = () => {
 
                 {enterModal && (
                     <div className="modal_overlay">
-                        <div className="modal_content" style={{textAlign : "center"}}>
-                  <button className="close_button" onClick={() => closeEnterModal()}>
+                        <div className="modal_content" style={{textAlign: "center"}}>
+                            <button className="close_button" onClick={() => closeEnterModal()}>
                       X
                   </button>
                   <div id="passwordInvalidDiv"></div>
