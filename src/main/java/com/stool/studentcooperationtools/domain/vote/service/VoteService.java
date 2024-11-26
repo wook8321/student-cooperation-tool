@@ -30,7 +30,7 @@ public class VoteService {
                 .orElseThrow(() -> new IllegalArgumentException("투표할 주제가 존재하지 않습니다."));
         Vote vote = Vote.of(member, topic);
         voteRepository.save(vote);
-        return VoteAddWebSocketResponse.of(vote,member);
+        return VoteAddWebSocketResponse.of(vote,member,topic);
     }
 
     @Transactional
