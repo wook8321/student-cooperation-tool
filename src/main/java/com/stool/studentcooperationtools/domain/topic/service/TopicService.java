@@ -12,6 +12,7 @@ import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicAddSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicDeleteSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.topic.response.TopicAddSocketResponse;
+import com.stool.studentcooperationtools.websocket.controller.topic.response.TopicDeleteSocketResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -50,12 +51,12 @@ public class TopicService {
     }
 
     @Transactional(rollbackFor = AccessDeniedException.class)
-    public Boolean deleteTopic(final TopicDeleteSocketRequest request,SessionMember member) {
+    public TopicDeleteSocketResponse deleteTopic(final TopicDeleteSocketRequest request, SessionMember member) {
         voteRepository.deleteAllByTopicId(request.getTopicId());
         if(topicRepository.deleteTopicByLeaderOrOwner(request.getTopicId(), member.getMemberSeq()) == 0){
             //본인,방장이 아닌 경우는 삭제를 할 수 없다.
             throw new AccessDeniedException("주제를 삭제할 권한이 없습니다.");
         };
-        return true;
+        return TopicDeleteSocketResponse.of(request.getTopicId());
     }
 }
