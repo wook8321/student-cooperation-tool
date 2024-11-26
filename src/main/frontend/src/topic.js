@@ -16,7 +16,7 @@ const Topic = () => {
   const [error, setError] = useState(null);
   const [addModal, setAddModal] = useState(false);
   const [chatModal, setChatModal] = useState(false);
-  const [isSubscribed, setIsSubscribed] = useState(false); // TopicList를 그렸는지 여부
+  const [isSubscribed, setIsSubscribed] = useState(true); // TopicList를 그렸는지 여부
   const [isConnected, setIsConnected] = useState(false); // 웹소켓 연결 상태 관리
   const location = useLocation(); // 방 id를 받아오기 위해 선언한 hook
   const { roomId } = location.state || {}; //방 id를 받아온다.
@@ -29,7 +29,7 @@ const Topic = () => {
             setTopics(res.data.data);
           })
           .catch(() => {
-            setError('failed to load friends');
+            alert('주제를 불러오는데 실패 했습니다.');
           });
   }
 
@@ -37,37 +37,34 @@ const Topic = () => {
     //3-1 구독한 url에서 온 메세지를 받았을 때
     alert(JSON.stringify(frame.body))
 
-    if (!isSubscribed) {
-      // 구독이 처음 성공한 경우에만 TopicsList 호출 및 렌더링 시작
-      TopicsList();
-      setIsSubscribed(true); // 이제 구독이 완료되었으므로 이후에는 실행되지 않음
-      setIsConnected(true); // 연결 성공 후 렌더링 가능 이후에는 실행되지 않음
-      return
-    }
-
     switch (frame.body.messageType){
       case "TOPIC_ADD" :
         // 누군가 주제를 추가한 메세지를 받았을 때
-        return
+        break;
       case "TOPIC_DELETE" :
         // 누군가 주제를 삭제한 메세지를 받았을 때
-        return
+        break;
       case "VOTE_ADD" :
         // 누군가 투표한 메세지를 받았을 때
-        return
+        break;
       case "VOTE_DELETE" :
         // 누군가 투표를 취소한 메세지를 받았을 때
-        return
+        break;
     }
   }
 
   const receiveError = (error) => {
     //3-2 구독한 url에서 온 메세지를 못 받아 에러가 발생했을 때
-
+    alert("방에 입장에 실패하였습니다.");
+    setIsSubscribed(false)
+    console.error("STOMP Error", error);
+    window.location.href = "/";
   }
 
   const onConnect = () => {
     //2-1 연결 성공의 경우
+    TopicsList()
+    setIsConnected(true)
     stompClient.current.subscribe(`/sub/rooms/${roomId}/topics`, receiveMessage, receiveError);
   }
 
@@ -79,11 +76,12 @@ const Topic = () => {
   }
 
   useEffect(() => {
-
-
     //1. WebSocket 클라이언트 초기화 및 broker endPoint에 연결, WebsocketConfig에 설정한 EndPoint를 말함
     stompClient.current = new Client({
       webSocketFactory: () => new SockJS(`${domain}/ws-stomp`),
+      connectHeaders: {
+        SubscribeUrl : `/sub/rooms/${roomId}/topics` // 어디에 구독할 지 헤더에 담아서 보냄
+      },
       reconnectDelay: 5000,
       onConnect,
       onStompError,
@@ -119,10 +117,6 @@ const Topic = () => {
 
   const deleteVote = () => {
     stompClient.current.publish(`/pub/votes/delete`);
-  }
-
-  if (error) {
-    return <p>{error}</p>;
   }
 
   const testWebsocket = () => {
@@ -192,7 +186,7 @@ const Topic = () => {
               {topics.num > 0 ? (
                   topics.topics.map((topic) => (
                       <div className="topics_content" key={topic.topicId}>
-                        <button onClick={ClickLike}>
+                          <button onClick={ClickLike}>
                           <h3>{topic.title}</h3>
                         </button>
                         <button onClick={()=>deleteTopic(topic.topicId)}>
