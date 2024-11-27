@@ -34,6 +34,7 @@ class ChatWebsocketControllerTest extends WebsocketTestSupport {
         Long memberId = 1L;
         String content = "hi";
         Long chatId = 1L;
+        String memberNickname = "test";
 
         ChatAddWebsocketRequest request = ChatAddWebsocketRequest.builder()
                 .content("채팅 내용")
@@ -44,6 +45,7 @@ class ChatWebsocketControllerTest extends WebsocketTestSupport {
                 .memberId(memberId)
                 .content(content)
                 .chatId(chatId)
+                .nickname(memberNickname)
                 .build();
 
         Mockito.when(chatService.addChat(
