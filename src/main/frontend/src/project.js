@@ -67,7 +67,12 @@ const RoomList = ({setCreateModal}) => {
                 const isCorrect = res.data.data
                 if(isCorrect){
                     //비밀 번호가 맞다면, 방을 입장
-                    navigate('/topic', {state : {roomId}});
+                    navigate('/topic', {
+                        state: {
+                            roomId,
+                            subUrl: `/sub/rooms/${roomId}/topics`
+                        }
+                    });
                     closeEnterModal()
                 }
             })
@@ -282,7 +287,12 @@ const Project = () => {
                 const isCorrect = res.data.data
                 if(isCorrect){
                     //비밀 번호가 맞다면, 방을 입장
-                    navigate('/topic', {state : {roomId}});
+                    navigate('/topic', {
+                        state: {
+                            roomId,
+                            subUrl: `/sub/rooms/${roomId}/topics`
+                        }
+                    });
                     closeEnterModal()
                 }
             })
