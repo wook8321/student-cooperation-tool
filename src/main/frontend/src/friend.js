@@ -26,9 +26,9 @@ const FriendsList = () => {
 
   return (
       <div className="friend_list">
-        <div id="newFriendDiv"></div>
+        <div id="newFriendDiv" className="newFriend-container"></div>
         <div id="barDiv"></div>
-        <h3 id="friendsListH">친구 목록</h3>
+        <h2 id="friendsListH">친구 목록</h2>
         {friends.num > 0 ? (
           <ul>
             {friends.members.map(friend => (
@@ -163,7 +163,7 @@ const Friend = () => {
                       )}
                     </ul>)
                     : (
-                        <p > 해당하는 친구는 없네요. 다시 확인하고 입력해주세요.</p>)}
+                        <p > 해당하는 친구가 없어요. 다시 확인하고 입력해주세요.</p>)}
             </div>
           </div>
         </div>

@@ -59,7 +59,7 @@ public class RoomService {
         try {
             roomRepository.save(room);
         } catch (DataIntegrityViolationException e){
-            throw new IllegalArgumentException("방 정보 오류입니다");
+            throw new DataIntegrityViolationException("방 제목 중복 오류입니다");
         }
         participationRepository.save(Participation.of(user, room));
         List<Member> memberList = memberRepository.findMembersByMemberIdList(request.getParticipation());
