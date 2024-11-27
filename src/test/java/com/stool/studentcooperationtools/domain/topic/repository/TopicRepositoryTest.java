@@ -59,7 +59,7 @@ class TopicRepositoryTest extends IntegrationTest {
                 .voter(member)
                 .topic(topic)
                 .build();
-        topic.addVote(vote);
+        topic.addVoteNum();
         topicRepository.save(topic);
         voteRepository.save(vote);
 
@@ -73,7 +73,6 @@ class TopicRepositoryTest extends IntegrationTest {
         assertThat(topics.get(0).getMember())
                 .extracting("email","nickName","profile")
                 .containsExactly(member.getEmail(),member.getNickName(),member.getProfile());
-        assertThat(topics.get(0).getVotes().get(0).getId()).isNotNull();
     }
 
     @DisplayName("방장 id를 받아서 주제를 제거한다.")
