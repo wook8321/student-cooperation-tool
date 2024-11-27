@@ -40,12 +40,10 @@ const Topic = () => {
     if(frame.messageType === "TOPIC_ADD"){
       updateTopicInScreen(frame.data)
     } else if(frame.messageType === "TOPIC_DELETE"){
-      deleteTopicInScreen(frame.data)
-    } else if(frame.messageType === "VOTE_ADD"){
-
-    } else if(frame.messageType === "VOTE_DELETE"){
-
-    } else{
+      decreaseTopicInScreen(frame.data)
+    } else if(frame.messageType === "VOTE_UPDATE"){
+      updateVoteNumInScreen(frame.data)
+    } else {
       console.log("Not Supported Message Type")
     }
   }
@@ -93,14 +91,41 @@ const Topic = () => {
       }
     };
   }, [roomId]);
-  // ================================================ 토픽 제거 ======================================
 
-  const deleteTopicInScreen = (topic) => {
+  // ================================================ 투표 업데이트 ======================================
+
+  const updateVoteNumInScreen = (frame) => {
+    // 투표 상태 업데이트
     setTopics((prevTopics) => ({
       ...prevTopics,
-      topics: prevTopics.topics.filter((t) => t.topicId !== topic.topicId), // topicId가 일치하지 않는 토픽만 남김
+      topics: prevTopics.topics.map((topic) =>
+          topic.topicId === frame.topicId
+              ? { ...topic, voteNum: frame.voteNum } // 좋아요 수 업데이트
+              : topic
+      ),
     }));
   };
+  const toggleVote = (topicId) => {
+    const data = {
+      roomId : roomId,
+      topicId : topicId
+    }
+    stompClient.current.publish({
+      destination: '/pub/votes/update',
+      body: JSON.stringify(data)
+    })
+  }
+
+  // ================================================ 토픽 제거 ======================================
+
+  const decreaseTopicInScreen = (topic) => {
+    setTopics((prevTopics) => ({
+      ...prevTopics,
+      num: prevTopics.num - 1, // 주제 개수 증가
+      topics: [...prevTopics.topics, topic], // 기존 토픽 배열에 새 토픽 추가
+    }));
+  };
+
   const deleteTopic = (topicId) => {
     alert(topicId + "번 삭제하기")
     const data = {
@@ -112,7 +137,6 @@ const Topic = () => {
       body: JSON.stringify(data)
     })
   }
-  // ================================================ 토픽 제거 ======================================
   // ================================================ 토픽 생성 ======================================
 
   const updateTopicInScreen = (topic) => {
@@ -137,40 +161,17 @@ const Topic = () => {
     })
   };
 
-  // ================================================ 토픽 생성 ======================================
-  // ================================================ 투표 생성 ======================================
+  // ===============================================================================================
 
-
-  const addVote = () => {
-    stompClient.current.publish(`/pub/votes/add`);
-  }
-
-
-  const testWebsocket = () => {
-    alert("웹소켓 테스트")
-    stompClient.current.publish({
-      destination: "/pub/topics/add", // 발행할 경로
-      body: JSON.stringify({ roomId: roomId, topic : "웹소켓 테스트 주제"}), // 메시지 내용
-    });
-  }
-
-  //LikeImage : 버튼 클릭 시 이미지가 변경되는 컴포넌트
-  const LikeImage = ({likeClick}) => {
-    return likeClick ? (
-        <img src={likeImage} width={24} height={24} fill="red"/>
-    ) : (
-        <img src={likeImage} width={24} height={24} fill="gray"/>
-    );
-  };
 
   if (!isConnected) {
     // 연결 중인 상태일 때는 로딩 상태로
-    return   <div className="loading">
+    return (<div className="loading">
                 <div className="loading-container">
                   <div className="spinner"></div>
                   <p>로딩 중...</p>
                 </div>
-             </div>;
+             </div>);
   }
 
   return (
@@ -186,24 +187,21 @@ const Topic = () => {
             <div className="card-container" id="topicsDiv">
               {topics.num > 0 ? (
                   topics.topics.map((topic) => (
-                      <div className="card" id={ "topic" + topic.topicId}>
+                      <div className="card" id={`topic${topic.topicId}`}
+                           onClick={() => toggleVote(topic.topicId)}>
                         <button className="card-button" onClick={() => deleteTopic(topic.topicId)}>
                           X
                         </button>
-                        <h3 className="card-title">
-                          {topic.title}
-                        </h3>
-                        <span className="card-text">좋아요 : 3</span>
-                        <span className="card-text">싫어요 : 3</span>
+                        <h3 className="card-title">{topic.title}</h3>
+                        <span className="card-text">좋아요 : {topic.voteNum === undefined ? 0 : topic.voteNum}</span>
                       </div>
                   ))
-              ) : <h2 id="notExsistTopicH">
-                    해당 방의 주제가 없습니다.
-                  </h2>
-              }
+              ) : (
+                  <h2 id="notExsistTopicH">해당 방의 주제가 없습니다.</h2>
+              )}
             </div>
             <div>
-              <button onClick={()=>setAddModal(true)} className="add_topic">
+              <button onClick={() => setAddModal(true)} className="add_topic">
                 주제 추가
               </button>
             </div>
