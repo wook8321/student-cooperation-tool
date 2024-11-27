@@ -10,19 +10,22 @@ import java.time.LocalDate;
 @Getter
 public class ChatAddWebsocketResponse {
 
-    private LocalDate createdTime;
+    private Long memberId;
+    private String content;
     private Long chatId;
 
     @Builder
-    public ChatAddWebsocketResponse(final LocalDate createdTime, final Long chatId) {
-        this.createdTime = createdTime;
+    public ChatAddWebsocketResponse(final Long memberId, final Long chatId, final String content) {
+        this.memberId = memberId;
+        this.content = content;
         this.chatId = chatId;
     }
 
     public static ChatAddWebsocketResponse of(final Chat chat) {
         return ChatAddWebsocketResponse.builder()
+                .memberId(chat.getMember().getId())
                 .chatId(chat.getId())
-                .createdTime(chat.getCreatedTime())
+                .content(chat.getContent())
                 .build();
     }
 }

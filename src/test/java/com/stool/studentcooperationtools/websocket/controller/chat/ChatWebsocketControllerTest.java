@@ -31,7 +31,8 @@ class ChatWebsocketControllerTest extends WebsocketTestSupport {
         //given
         Long roomId = 1L;
         String chatSubUrl = "/sub/rooms/"+ roomId +"/chat";
-        LocalDate now = LocalDate.of(2024, 11, 1);
+        Long memberId = 1L;
+        String content = "hi";
         Long chatId = 1L;
 
         ChatAddWebsocketRequest request = ChatAddWebsocketRequest.builder()
@@ -40,8 +41,9 @@ class ChatWebsocketControllerTest extends WebsocketTestSupport {
                 .build();
 
         ChatAddWebsocketResponse response = ChatAddWebsocketResponse.builder()
+                .memberId(memberId)
+                .content(content)
                 .chatId(chatId)
-                .createdTime(now)
                 .build();
 
         Mockito.when(chatService.addChat(
