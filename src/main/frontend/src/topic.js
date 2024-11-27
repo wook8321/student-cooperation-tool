@@ -222,7 +222,7 @@ const Topic = () => {
               <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
             </button>
             <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
-              {chatModal && <ChatPage roomId={roomId}/>}
+              {chatModal && <ChatPage/>}
             </div>
           </div>
 
