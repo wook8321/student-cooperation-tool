@@ -13,14 +13,14 @@ public class ChatAddWebsocketResponse {
     private Long memberId;
     private String content;
     private Long chatId;
-    private String nickname;
+    private String nickName;
 
     @Builder
-    public ChatAddWebsocketResponse(final Long memberId, final Long chatId, final String content, final String nickname) {
+    public ChatAddWebsocketResponse(final Long memberId, final Long chatId, final String content, final String nickName) {
         this.memberId = memberId;
         this.content = content;
         this.chatId = chatId;
-        this.nickname = nickname;
+        this.nickName = nickName;
     }
 
     public static ChatAddWebsocketResponse of(final Chat chat) {
@@ -28,7 +28,7 @@ public class ChatAddWebsocketResponse {
                 .memberId(chat.getMember().getId())
                 .chatId(chat.getId())
                 .content(chat.getContent())
-                .nickname(chat.getMember().getNickName())
+                .nickName(chat.getMember().getNickName())
                 .build();
     }
 }

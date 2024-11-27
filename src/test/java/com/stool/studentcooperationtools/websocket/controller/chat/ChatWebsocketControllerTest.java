@@ -45,7 +45,7 @@ class ChatWebsocketControllerTest extends WebsocketTestSupport {
                 .memberId(memberId)
                 .content(content)
                 .chatId(chatId)
-                .nickname(memberNickname)
+                .nickName(memberNickname)
                 .build();
 
         Mockito.when(chatService.addChat(
