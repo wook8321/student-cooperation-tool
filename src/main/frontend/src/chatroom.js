@@ -13,8 +13,9 @@ function ChatRoom({ roomId }) {
     const [userId, setUserId] = useState(null);
     const [newMessage, setNewMessage] = useState(null); // 새 메시지 정보
     const [scrollDown, setScrollDown] = useState(false);
+    const [isTop, setIsTop] = useState(false);
+    const [fetched, setFetched] = useState(false);
 
-    let prevScrollHeight = 0;
 
     const userFetch = async () => {
         try {
@@ -39,6 +40,7 @@ function ChatRoom({ roomId }) {
                 setLastMessageId(newData[0].id);
                 setChatList((prev) => [...newData, ...prev]);
                 setPage((prevPage) => prevPage + 1);
+                setFetched(true);
             }
             console.log(newData);
         } catch (error) {
@@ -49,17 +51,16 @@ function ChatRoom({ roomId }) {
     const scrollDownButton = () => {
         if (chatRef.current) {
             chatRef.current.scrollTop = chatRef.current.scrollHeight;
+            if(newMessage!=null) setNewMessage(null);
         }
     }
     const onScroll = () => {
         const messageRef = chatRef.current;
         const scrollTop = messageRef.scrollTop;
-
-        //스크롤 최상단일 때 추가로 chat 목록 가져옴
-        if (scrollTop === 0) {
-            chatFetch();
-            prevScrollHeight = messageRef.scrollHeight;
-        }
+        const scrollBottom = messageRef.scrollHeight - messageRef.scrollTop - messageRef.clientHeight
+        if (scrollTop === 0 && fetched) setIsTop(true);
+        if (scrollBottom <= 0 && newMessage !== null) setNewMessage(null);
+        console.log(messageRef.scrollHeight);
 
         //스크롤이 일정 길이만큼 올라갔을 때 내려가는 버튼 표시
         if (messageRef.scrollHeight - scrollTop <= messageRef.clientHeight + 50) {  // 50은 여유 공간
@@ -88,13 +89,16 @@ function ChatRoom({ roomId }) {
             if (messageRef && messageRef.scrollTop + messageRef.clientHeight < messageRef.scrollHeight) {
                 setNewMessage(newMessage); // 새 메시지 알림 표시
             }
+            else{
+                setScrollDown((prev) => !prev);
+            }
         }
 
     };
 
     const handleNewMessageClick = () => {
-        scrollDownButton(); // 알림 클릭 시 스크롤을 맨 아래로 이동
-        setNewMessage(null); // 알림 숨기기
+        setScrollDown((prev) => !prev) // 알림 클릭 시 스크롤을 맨 아래로 이동
+        setNewMessage(null);
     };
 
     const handleKeyPress = (e) => {
@@ -102,19 +106,36 @@ function ChatRoom({ roomId }) {
             handleSendMessage();
         }
     };
-
+    //초기화면 세팅(유저정보, 채팅 내역, 스크롤바 최하단으로)
     useEffect(() => {
         userFetch();
-        chatFetch();
-        setScrollDown((prev) => !prev);
-    }, [roomId]);
+        chatFetch().then(() => {
+            if(chatList) {
+                setScrollDown((prev) => !prev);
+            }
+        });
+    }, []);
 
+    //스크롤 최하단으로 내림 (랜더링)
     useEffect(() => {
         if (chatRef.current) {
             chatRef.current.scrollTop = chatRef.current.scrollHeight;
         }
     }, [scrollDown]);
 
+    // isTop이 바뀔때마다 작동하고 isTop이 ture일때만 스크롤 제 위치로 이동
+    useEffect(() => {
+        if (isTop) {
+            chatFetch().then(() => { // 해당 채팅리스트 가져오기
+                if (chatRef.current) {
+                    const {scrollHeight, clientHeight} = chatRef.current;
+                    chatRef.current.scrollTop = scrollHeight - clientHeight;
+                }
+                setFetched(false);
+            })
+        }
+        setIsTop(false);
+    }, [isTop]);
 
     return (
         <div className="chat-container">
@@ -136,23 +157,15 @@ function ChatRoom({ roomId }) {
                     <div style={{ textAlign: "center", color: "#999" }}>채팅이 없습니다.</div>
                 )}
 
-                {newMessage && !newMessage.userId === userId && (
+                {newMessage && newMessage.userId !== userId && (
                     <div
                         className="new-message-notification"
-                        style={{
-                            position: "absolute",
-                            top: "10px",
-                            left: "50%",
-                            transform: "translateX(-50%)",
-                            backgroundColor: "#ff9800",
-                            padding: "10px",
-                            borderRadius: "20px",
-                            color: "white",
-                            cursor: "pointer",
-                        }}
                         onClick={handleNewMessageClick}
                     >
-                        새로운 메시지: {newMessage.nickName} - {newMessage.content}
+                        <div className="new-message-head">
+                            {newMessage.nickName.charAt(0)} {/* 발신자의 첫 글자를 표시 */}
+                        </div>
+                        <span>{newMessage.nickName} {newMessage.content}</span>
                     </div>
                 )}
 
@@ -161,7 +174,7 @@ function ChatRoom({ roomId }) {
                         onClick={scrollDownButton}
                         className="scroll-down-button"
                     >
-                        ▼
+                        ˅
                     </button>
                 )}
             </div>
