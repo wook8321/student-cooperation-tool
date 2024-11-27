@@ -1,26 +1,18 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';// 방 id를 받아오기 위해 선언한 import
+import {useNavigate} from 'react-router-dom';// 방 id를 받아오기 위해 선언한 import
 import axios from "axios";
-import { Client } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
+import { useWebSocket } from './WebsocketContext'; // WebSocketProvider의 훅 사용
 import { Link } from 'react-router-dom';
 import './topic.css';
-import ChatPage from "./chat.tsx";
 import chatImage from './images/chat.svg';
-import likeImage from './images/like.svg';
 import {domain} from "./domain";
 
 const Topic = () => {
   const [topics, setTopics] = useState({num: 0, topics: []});
-  const [newTopic, setNewTopic] = useState("");
-  const [error, setError] = useState(null);
   const [addModal, setAddModal] = useState(false);
   const [chatModal, setChatModal] = useState(false);
-  const [isSubscribed, setIsSubscribed] = useState(true); // TopicList를 그렸는지 여부
-  const [isConnected, setIsConnected] = useState(false); // 웹소켓 연결 상태 관리
-  const location = useLocation(); // 방 id를 받아오기 위해 선언한 hook
-  const { roomId } = location.state || {}; //방 id를 받아온다.
-  const stompClient = useRef(null); //
+  const {stompClient, isConnected, roomId} = useWebSocket(); // WebSocket 연결 관리
+  const navigate = useNavigate();
 
   // 방의 주제를 가져오는 함수
   const TopicsList = () => {
@@ -32,7 +24,7 @@ const Topic = () => {
             alert('주제를 불러오는데 실패 했습니다.');
           });
   }
-
+  //=============================================웹소켓========================================================
   const receiveMessage = (message) => {
     //3-1 구독한 url에서 온 메세지를 받았을 때
     const frame = JSON.parse(message.body)
@@ -51,7 +43,6 @@ const Topic = () => {
   const receiveError = (error) => {
     //3-2 구독한 url에서 온 메세지를 못 받아 에러가 발생했을 때
     alert("방에 입장에 실패하였습니다.");
-    setIsSubscribed(false)
     console.error("STOMP Error", error);
     window.location.href = "/";
   }
@@ -59,38 +50,28 @@ const Topic = () => {
   const onConnect = () => {
     //2-1 연결 성공의 경우
     TopicsList()
-    setIsConnected(true)
     stompClient.current.subscribe(`/sub/rooms/${roomId}/topics`, receiveMessage, receiveError);
   }
 
-  const onStompError = (error) => {
-    //2-2 연결 실패의 경우
-    alert("방에 입장에 실패하였습니다.");
-    console.error("STOMP Error", error);
-    window.location.href = "/";
-  }
-
   useEffect(() => {
-    //1. WebSocket 클라이언트 초기화 및 broker endPoint에 연결, WebsocketConfig에 설정한 EndPoint를 말함
-    stompClient.current = new Client({
-      webSocketFactory: () => new SockJS(`${domain}/ws-stomp`),
-      connectHeaders: {
-        SubscribeUrl : `/sub/rooms/${roomId}/topics` // 어디에 구독할 지 헤더에 담아서 보냄
-      },
-      reconnectDelay: 5000,
-      onConnect,
-      onStompError,
-    });
+    //1. broker endPoint에 연결, WebsocketConfig에 설정한 EndPoint를 말함
+    alert(roomId)
+    if (stompClient.current) {
+      stompClient.current.activate(); // 웹소켓 활성화
+    }
 
-    stompClient.current.activate();
-
-    // 컴포넌트 언마운트 시 WebSocket 연결 해제
     return () => {
       if (stompClient.current) {
-        stompClient.current.deactivate();
+        stompClient.current.deactivate(); // 언마운트 시 웹소켓 비활성화
       }
     };
   }, [roomId]);
+
+  useEffect(() => {
+    if (isConnected) {
+      onConnect(); // 연결이 완료되면 onConnect 호출
+    }
+  }, [isConnected]); //isConnected 상태가 바뀌면 실행된다.
 
   // ================================================ 투표 업데이트 ======================================
 
@@ -163,6 +144,14 @@ const Topic = () => {
 
   // ===============================================================================================
 
+  const goSection = (path, subUrl) => {
+    alert(path + " " + subUrl)
+    navigate(path, {state: {
+        roomId,
+        subUrl: subUrl
+      }})
+  }
+
 
   if (!isConnected) {
     // 연결 중인 상태일 때는 로딩 상태로
@@ -230,7 +219,6 @@ const Topic = () => {
           {chatModal && (
               <div className="chat-overlay">
                 <div className="chat-content">
-                  <ChatPage/>
                   <button className="chat-close-button" onClick={() => setChatModal(false)}> X</button>
                 </div>
               </div>
@@ -238,7 +226,9 @@ const Topic = () => {
 
           <div className="process">
             <div>주제 선정</div>
-            <div>자료 조사</div>
+            <div onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>
+              자료 조사
+            </div>
             <div>발표 자료</div>
             <div>발표 준비</div>
           </div>
