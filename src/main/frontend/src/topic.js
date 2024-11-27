@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import './topic.css';
 import chatImage from './images/chat.svg';
 import {domain} from "./domain";
+import ChatPage from "./chatroom";
 
 const Topic = () => {
   const [topics, setTopics] = useState({num: 0, topics: []});
@@ -13,6 +14,7 @@ const Topic = () => {
   const [chatModal, setChatModal] = useState(false);
   const {stompClient, isConnected, roomId} = useWebSocket(); // WebSocket 연결 관리
   const navigate = useNavigate();
+
 
   // 방의 주제를 가져오는 함수
   const TopicsList = () => {
@@ -42,7 +44,7 @@ const Topic = () => {
 
   const receiveError = (error) => {
     //3-2 구독한 url에서 온 메세지를 못 받아 에러가 발생했을 때
-    alert("방에 입장에 실패하였습니다.");
+    alert("방 입장에 실패하였습니다.");
     console.error("STOMP Error", error);
     window.location.href = "/";
   }
@@ -141,7 +143,10 @@ const Topic = () => {
         body: JSON.stringify(data)
     })
   };
-
+  // ============================================채팅 관련===========================================
+  const toggleChatModal = () => {
+    setChatModal((prevState) => !prevState);
+  };
   // ===============================================================================================
 
   const goSection = (path, subUrl) => {
@@ -212,17 +217,14 @@ const Topic = () => {
               </div>
           )}
 
-          <button>
-            <img className="chat_image" onClick={() => setChatModal(true)} src={chatImage} alt="채팅창 이미지"/>
-          </button>
-
-          {chatModal && (
-              <div className="chat-overlay">
-                <div className="chat-content">
-                  <button className="chat-close-button" onClick={() => setChatModal(false)}> X</button>
-                </div>
-              </div>
-          )}
+          <div>
+            <button className="chat-button" onClick={toggleChatModal}>
+              <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
+            </button>
+            <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
+              {chatModal && <ChatPage roomId={roomId}/>}
+            </div>
+          </div>
 
           <div className="process">
             <div>주제 선정</div>
