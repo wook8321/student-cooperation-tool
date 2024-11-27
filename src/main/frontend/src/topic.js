@@ -122,7 +122,7 @@ const Topic = () => {
     setTopics((prevTopics) => ({
       ...prevTopics,
       num: prevTopics.num - 1, // 주제 개수 증가
-      topics: [...prevTopics.topics, topic], // 기존 토픽 배열에 새 토픽 추가
+      topics: prevTopics.topics.filter((t) => t.topicId !== topic.topicId),
     }));
   };
 
@@ -192,8 +192,10 @@ const Topic = () => {
                         <button className="card-button" onClick={() => deleteTopic(topic.topicId)}>
                           X
                         </button>
-                        <h3 className="card-title">{topic.title}</h3>
-                        <span className="card-text">좋아요 : {topic.voteNum === undefined ? 0 : topic.voteNum}</span>
+                        <div className="card-body">
+                          <h3 className="card-text">{topic.title}</h3>
+                          <span className="card-text">좋아요 : {topic.voteNum === undefined ? 0 : topic.voteNum}</span>
+                        </div>
                       </div>
                   ))
               ) : (
