@@ -87,13 +87,22 @@
 
 .chat-send-button {
     background-color: #007bff;
+    margin-top : 10px;
     color: white;
-    border: none;
-    border-radius: 20px;
+    text-align: center;
+    height: 35px;
+    border: 1px solid #d3d3d3;
+    border-radius: 30px;
     padding: 10px 15px;
+    font-weight: bold;
     cursor: pointer;
 }
 
+.arrow {
+    font-family: "Roboto", Arial, sans-serif;
+    display: inline-block;
+    margin-top: -2px; /* 화살표만 위로 올리기 */
+}
 .scroll-down-button {
     position: sticky;
     bottom: 10px;

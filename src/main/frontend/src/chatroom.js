@@ -239,7 +239,7 @@ function ChatRoom() {
                     placeholder="메시지를 입력하세요"
                 />
                 <button onClick={handleSendMessage} className="chat-send-button">
-                    ↑
+                    <span className="arrow">↑</span>
                 </button>
             </div>
         </div>
