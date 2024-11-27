@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { domain } from "./domain";
+import { useWebSocket } from './WebsocketContext'; // WebSocketProvider의 훅 사용
 import "./ChatRoom.css";
 
-function ChatRoom({ roomId }) {
+function ChatRoom() {
     const [chatList, setChatList] = useState([]);
     const [page, setPage] = useState(0);
     const [inputMessage, setInputMessage] = useState("");
@@ -15,8 +16,9 @@ function ChatRoom({ roomId }) {
     const [scrollDown, setScrollDown] = useState(false);
     const [isTop, setIsTop] = useState(false);
     const [fetched, setFetched] = useState(false);
+    const {stompClient, isConnected, roomId} = useWebSocket(); // WebSocket 연결 관리
 
-
+    //==================================채팅방 구현 내용========================================
     const userFetch = async () => {
         try {
             const res = await axios.get(`${domain}/api/user-info`);
@@ -136,6 +138,55 @@ function ChatRoom({ roomId }) {
         }
         setIsTop(false);
     }, [isTop]);
+    //===============================================================================
+
+    //===================================소켓 연결=====================================
+    useEffect(() => {
+        if (isConnected) {
+            onConnect(); // 연결이 완료되면 onConnect 호출
+        }
+    }, [isConnected]); //isConnected 상태가 바뀌면 실행된다.
+
+    const receiveError = (error) => {
+        //3-2 구독한 url에서 온 메세지를 못 받아 에러가 발생했을 때
+        alert("채팅방 입장에 실패하였습니다.");
+        console.error("STOMP Error", error);
+        window.location.href = "/";
+    }
+
+    const receiveMessage = (message) => {
+        //3-1 구독한 url에서 온 메세지를 받았을 때
+        const frame = JSON.parse(message.body)
+
+        if(frame.messageType === "CHAT_ADD"){
+            addChatInChatRoom(frame.data)
+        }
+        else if(frame.messageType === "CHAT_DELETE"){
+            deleteChatInChatRoom(frame.data)
+        }
+        else {
+            console.log("Not Supported Message Type")
+        }
+    }
+
+    const onConnect = () => {
+        //2-1 연결 성공의 경우
+        stompClient.current.subscribe(`/sub/rooms/${roomId}/chat`, receiveMessage, receiveError);
+        console.log('connected chat');
+    }
+    //================================================================================
+
+    //=================================소켓 기능 구현(추가, 삭제)=========================
+    // 채팅 등록
+    const addChatInChatRoom = (frame) => {
+
+    }
+
+    //채팅 삭제
+    const deleteChatInChatRoom = (frame) => {
+
+    }
+    //================================================================================
 
     return (
         <div className="chat-container">
@@ -188,13 +239,14 @@ function ChatRoom({ roomId }) {
                     placeholder="메시지를 입력하세요"
                 />
                 <button onClick={handleSendMessage} className="chat-send-button">
-                    전송
+                    ↑
                 </button>
             </div>
         </div>
     );
 }
 
+//================================채팅별 출력양식======================================
 function ChatMessage({ message, isMine }) {
     return (
         <div
