@@ -26,10 +26,14 @@ public class ChatService {
     private final MemberRepository memberRepository;
     private final ChatRepository chatRepository;
 
-    public ChatFindResponse findChats(final Long roomId,final int page) {
+    public ChatFindResponse findChats(final Long roomId,final int page, final Long lastMessageId) {
         PageRequest pageRequest = PageRequest.of(page, 10);
+        if (lastMessageId == null){
+            return ChatFindResponse.of(
+                    chatRepository.findChatsByIdAndSlicingDESC(roomId, pageRequest));
+        }
         return ChatFindResponse.of(
-                chatRepository.findChatsByIdAndSlicingASC(roomId,pageRequest)
+                chatRepository.findPrevChatsByIdAndSlicingDESC(roomId,pageRequest, lastMessageId)
         );
     }
 
