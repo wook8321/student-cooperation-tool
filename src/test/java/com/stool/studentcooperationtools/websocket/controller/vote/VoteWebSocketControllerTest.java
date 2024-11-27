@@ -4,9 +4,9 @@ import com.stool.studentcooperationtools.domain.vote.service.VoteService;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.WebsocketTestSupport;
 import com.stool.studentcooperationtools.websocket.controller.request.WebsocketResponse;
-import com.stool.studentcooperationtools.websocket.controller.vote.request.VoteAddWebSocketRequest;
+import com.stool.studentcooperationtools.websocket.controller.vote.request.VoteUpdateWebSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.vote.request.VoteDeleteSocketRequest;
-import com.stool.studentcooperationtools.websocket.controller.vote.response.VoteAddWebSocketResponse;
+import com.stool.studentcooperationtools.websocket.controller.vote.response.VoteUpdateWebSocketResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -15,8 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import static com.stool.studentcooperationtools.websocket.WebsocketMessageType.VOTE_ADD;
-import static com.stool.studentcooperationtools.websocket.WebsocketMessageType.VOTE_DELETE;
+import static com.stool.studentcooperationtools.websocket.WebsocketMessageType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -32,17 +31,17 @@ class VoteWebSocketControllerTest extends WebsocketTestSupport {
         Long roomId = 1L;
         String TopicDecisionSubUrl = "/sub/rooms/%d/topics".formatted(roomId);
 
-        VoteAddWebSocketRequest request =VoteAddWebSocketRequest.builder()
+        VoteUpdateWebSocketRequest request = VoteUpdateWebSocketRequest.builder()
                 .topicId(1L)
                 .roomId(roomId)
                 .build();
 
-        VoteAddWebSocketResponse response = VoteAddWebSocketResponse.builder()
-                .voteId(1L)
-                .memberId(1L)
+        VoteUpdateWebSocketResponse response = VoteUpdateWebSocketResponse.builder()
+                .voteNum(1)
+                .topicId(1L)
                 .build();
 
-        Mockito.when(voteService.addVote(Mockito.any(VoteAddWebSocketRequest.class),Mockito.any(SessionMember.class)))
+        Mockito.when(voteService.updateVote(Mockito.any(VoteUpdateWebSocketRequest.class),Mockito.any(SessionMember.class)))
                 .thenReturn(response);
 
         stompSession.subscribe(TopicDecisionSubUrl,resultHandler);
@@ -51,7 +50,7 @@ class VoteWebSocketControllerTest extends WebsocketTestSupport {
         WebsocketResponse result = resultHandler.get(3);
         //then
         assertThat(stompSession.isConnected()).isTrue();
-        assertThat(result.getMessageType()).isEqualTo(VOTE_ADD);
+        assertThat(result.getMessageType()).isEqualTo(VOTE_UPDATE);
         assertThat(result.getData()).isNotNull()
                 .extracting("voteId","memberId")
                 .containsExactly(1,1);
@@ -78,7 +77,7 @@ class VoteWebSocketControllerTest extends WebsocketTestSupport {
         WebsocketResponse<Boolean> result = resultHandler.get(3);
         //then
         assertThat(stompSession.isConnected()).isTrue();
-        assertThat(result.getMessageType()).isEqualTo(VOTE_DELETE);
+        assertThat(result.getMessageType()).isEqualTo(VOTE_UPDATE);
         assertThat(result.getData()).isTrue();
     }
 }
