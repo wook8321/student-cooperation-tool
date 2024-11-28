@@ -18,7 +18,19 @@ import emptyBox from "./images/emptyBox.svg"
 const RoomList = ({setCreateModal}) => {
     const [rooms, setRooms] = useState({num: 0, roomList: []});
     const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태 추가
+    const [userId, setUserId] = useState(null);
     const navigate = useNavigate();
+
+    const userFetch = async () => {
+        try {
+            const res = await axios.get(`${domain}/api/user-info`);
+            setUserId(res.data);
+            console.log(res.data);
+        } catch (error) {
+            console.error("유저 정보를 가져오는 데 실패했습니다.", error);
+        }
+    };
+
     // 방 목록 가져오기 (페이지에 따라 호출)
     const fetchRooms = (page) => {
         axios
@@ -36,6 +48,7 @@ const RoomList = ({setCreateModal}) => {
     // 초기 로드 시 첫 페이지 데이터 가져오기
     useEffect(() => {
         fetchRooms(0); // 첫 페이지로 초기화
+        userFetch();
     }, []);
 
     const deleteRoom = (roomId) => {
@@ -70,7 +83,8 @@ const RoomList = ({setCreateModal}) => {
                     navigate('/topic', {
                         state: {
                             roomId,
-                            subUrl: `/sub/rooms/${roomId}/topics`
+                            subUrl: `/sub/rooms/${roomId}/topics`,
+                            userId
                         }
                     });
                     closeEnterModal()
@@ -110,14 +124,17 @@ const RoomList = ({setCreateModal}) => {
         <div className="room_list">
             <div id="newRoomDiv" className="newRoom-container"></div>
             <div id="barDiv"></div>
-            <h2 id="roomsListH">프로젝트 목록( 참여한 프로젝트 : {rooms.num} )</h2>
-            <form className="create_box" onSubmit={(e) => e.preventDefault()}>
+            <div className="header-container">
+                <h2 id="roomsListH">프로젝트 목록( 참여한 프로젝트 : {rooms.num} )
+                <form className="create_box" onSubmit={(e) => e.preventDefault()}>
                 <div className="button-container">
                     <button className="create_button" type="submit" onClick={() => setCreateModal(true)}>
-                        프로젝트 생성
+                        +
                     </button>
                 </div>
             </form>
+            </h2>
+            </div>
             <div>
                 {rooms.num > 0 ? (
                     <>
@@ -202,6 +219,7 @@ const Project = () => {
   const [term, setTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState(term);
   const navigate = useNavigate();
+  const [enterRoomTitle, setEnterRoomTitle] = useState("");
   useEffect(() => {
       const roomCardToDelete = document.querySelector(`li[key="${deleteRoomId}"]`);
       if (roomCardToDelete) {
@@ -270,9 +288,10 @@ const Project = () => {
             });
     };
 
-    const enterRoom = (roomId) =>{
+    const enterRoom = (roomId, roomTitle) =>{
         closeSearchModal()
         setEnterRoomId(roomId)
+        setEnterRoomTitle(roomTitle)
         setEnterModal(true)
     }
     const verifyPasswordAndEnterRoom = (roomId) =>{
@@ -369,7 +388,7 @@ const Project = () => {
         const newRoomDiv = document.getElementById('newRoomDiv')
         console.log(`newRoomDiv: ${newRoomDiv}`);
         if(newRoomDiv.querySelector('h2') === null){
-            newRoomDiv.innerHTML += `<h2>새로운 프로젝트</h2>`
+            newRoomDiv.innerHTML += `<div class="newRoom-header"><h2>새로운 프로젝트</h2>`
         }
         const barDiv = document.querySelector('#barDiv');
         const notExistH = document.querySelector('#notExistH');
@@ -378,12 +397,15 @@ const Project = () => {
             let roomsListH = document.querySelector('#roomsListH')
             roomsListH.parentNode.removeChild(roomsListH)
             notExistH.parentNode.removeChild(notExistH)
+            newRoomDiv.innerHTML += `<button class="create_button" type="submit" id="createRoomButton-${updatedRoom.roomId}">+</button></div>`
         } else{
             barDiv.setAttribute("class","divider-bar")
         }
         const capColors = ["pink-cap", "green-cap", "orange-cap"];
         const randomCapClass = capColors[Math.round(Math.random() * capColors.length)];
-        newRoomDiv.innerHTML += `<li key="${updatedRoom.roomId}">
+        newRoomDiv.innerHTML += `</div>
+            <div class="newCard-container">
+            <li key="${updatedRoom.roomId}">
             <div class="card">
                 <div class="image-cap ${randomCapClass}">${updatedRoom.title}</div>
                 <div class="card-body">
@@ -399,9 +421,10 @@ const Project = () => {
                 </div>
             </div>
         </li>
+        </div>
     `;
-
-        document.getElementById(`enterRoomButton-${updatedRoom.roomId}`).addEventListener('click', () => enterRoom(updatedRoom.roomId));
+        document.getElementById(`createRoomButton-${updatedRoom.roomId}`).addEventListener('click',  () => setCreateModal(true));
+        document.getElementById(`enterRoomButton-${updatedRoom.roomId}`).addEventListener('click', () => enterRoom(updatedRoom.roomId, updatedRoom.title));
         document.getElementById(`deleteRoomButton-${updatedRoom.roomId}`).addEventListener('click', () => handleDeleteRoom(updatedRoom.roomId));
 
     }
@@ -426,8 +449,9 @@ const Project = () => {
   }
 
   const closeEnterModal = () => {
-      setEnterRoomId(0)
-      setEnterModal(false)
+      setEnterRoomId(0);
+      setEnterRoomTitle("");
+      setEnterModal(false);
   }
 
   const handleFriendList = () => {
@@ -525,7 +549,7 @@ const Project = () => {
                                                                     <div className="card-body">
                                                                         <h3 className="card-title">{room.topic}</h3>
                                                                         <button className="card-button"
-                                                                                onClick={() => enterRoom(room.roomId)}>
+                                                                                onClick={() => enterRoom(room.roomId, room.title)}>
                                                                             참여하기
                                                                         </button>
                                                                     </div>
@@ -597,15 +621,15 @@ const Project = () => {
                 </main>
 
                 {enterModal && (
-                    <div className="modal_overlay" onClick={closeEnterModal}>
-                        <div className="modal_content" style={{textAlign: "center"}} onClick={(e)=> e.stopPropagation()}>
+                    <div className="enter_modal_overlay" onClick={closeEnterModal}>
+                        <div className="enter_modal_content" style={{textAlign: "center"}} onClick={(e)=> e.stopPropagation()}>
                             <button className="close_button" onClick={() => closeEnterModal()}>
                       X
                   </button>
                   <div id="passwordInvalidDiv"></div>
-                  <label className="modal_label">비밀번호</label>
-                  <input className="modal_input" id="roomPasswordInput" type="password"/>
-                  <button onClick={() => verifyPasswordAndEnterRoom(enterRoomId)}> 입장 </button>
+                  <label className="enter_modal_label">{enterRoomTitle}</label>
+                  <input className="enter_modal_input" id="roomPasswordInput" type="password"/>
+                  <button className="enter_button" onClick={() => verifyPasswordAndEnterRoom(enterRoomId)}> 입장 </button>
               </div>
           </div>
         )}
