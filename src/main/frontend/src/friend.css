@@ -38,6 +38,10 @@ footer > a > img:hover {
     transform: scale(1.1);
 }
 
+.exit-link {
+    margin-top: auto; /* 남는 공간을 위로 밀기 */
+}
+
 /* 메인 컨텐츠 스타일 */
 main {
     flex: 1;
