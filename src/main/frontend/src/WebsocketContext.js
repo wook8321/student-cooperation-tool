@@ -14,16 +14,16 @@ export const WebSocketProvider = ({ children }) => {
     const [isConnected, setIsConnected] = useState(false);
     const stompClient = useRef(null);
     const location = useLocation();
-    const { roomId, subUrl } = location.state || {};
+    const { roomId, subUrl, userId } = location.state || {};
     const onStompError = (error) => {
         //2-2 연결 실패의 경우
-        alert("방에 입장에 실패하였습니다.");
+        alert("방 입장에 실패하였습니다.");
         console.error("STOMP Error", error);
         window.location.href = "/";
     }
 
     useEffect(() => {
-        alert("소켓 연결중, roomId = " + roomId + " subUrl = " + subUrl)
+        alert("소켓 연결중, roomId = " + roomId + " subUrl = " + subUrl + "user = " + userId);
         stompClient.current = new Client({
             webSocketFactory: () => new SockJS(`${domain}/ws-stomp`),
             connectHeaders: {
@@ -44,7 +44,7 @@ export const WebSocketProvider = ({ children }) => {
     }, []);
 
     return (
-        <WebSocketContext.Provider value={{ stompClient, isConnected, roomId}}>
+        <WebSocketContext.Provider value={{ stompClient, isConnected, roomId, userId}}>
             {children}
         </WebSocketContext.Provider>
     );
