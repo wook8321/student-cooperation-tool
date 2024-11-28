@@ -216,7 +216,7 @@ function ChatRoom() {
                         <div className="new-message-head">
                             {newMessage.nickName.charAt(0)} {/* 발신자의 첫 글자를 표시 */}
                         </div>
-                        <span>{newMessage.nickName} {newMessage.content}</span>
+                        <span className="new-message-content">{newMessage.nickName} {newMessage.content}</span>
                     </div>
                 )}
 
