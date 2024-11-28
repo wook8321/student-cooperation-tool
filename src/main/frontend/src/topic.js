@@ -13,6 +13,7 @@ const Topic = () => {
   const [chatModal, setChatModal] = useState(false);
   const {stompClient, isConnected, roomId} = useWebSocket(); // WebSocket 연결 관리
   const navigate = useNavigate();
+  const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
 
   // 방의 주제를 가져오는 함수
   const TopicsList = () => {
@@ -50,7 +51,11 @@ const Topic = () => {
   const onConnect = () => {
     //2-1 연결 성공의 경우
     TopicsList()
-    stompClient.current.subscribe(`/sub/rooms/${roomId}/topics`, receiveMessage, receiveError);
+    subscriptions.current = stompClient.current.subscribe(
+        `/sub/rooms/${roomId}/topics`,
+        receiveMessage,
+        receiveError
+    );
   }
 
   useEffect(() => {
@@ -62,7 +67,8 @@ const Topic = () => {
 
     return () => {
       if (stompClient.current) {
-        stompClient.current.deactivate(); // 언마운트 시 웹소켓 비활성화
+        alert(`/sub/rooms${roomId}/topics, 구독을 취소합니다.`)
+        subscriptions.current.unsubscribe();
       }
     };
   }, [roomId]);
