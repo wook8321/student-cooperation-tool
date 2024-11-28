@@ -11,24 +11,14 @@ function ChatRoom() {
     const chatRef = useRef(null);
     const [isShowDownBtn, setIsShowDownBtn] = useState(false);
     const [lastMessageId, setLastMessageId] = useState(null);
-    const [userId, setUserId] = useState(null);
     const [newMessage, setNewMessage] = useState(null); // 새 메시지 정보
     const [scrollDown, setScrollDown] = useState(false);
     const [isTop, setIsTop] = useState(false);
     const [fetched, setFetched] = useState(false);
-    const {stompClient, isConnected, roomId} = useWebSocket(); // WebSocket 연결 관리
+    const {stompClient, isConnected, roomId, userId} = useWebSocket(); // WebSocket 연결 관리
+    const newDataLen = useRef(0);
 
     //==================================채팅방 구현 내용========================================
-    const userFetch = async () => {
-        try {
-            const res = await axios.get(`${domain}/api/user-info`);
-            setUserId(res.data);
-            console.log(res.data);
-        } catch (error) {
-            console.error("유저 정보를 가져오는 데 실패했습니다.", error);
-        }
-    };
-
     const chatFetch = async () => {
         try {
             const res = await axios.get(`${domain}/api/v1/rooms/${roomId}/chats`, {
@@ -39,12 +29,23 @@ function ChatRoom() {
             });
             const newData = res.data.data.chats.reverse();
             if (newData.length > 0) {
-                setLastMessageId(newData[0].id);
+                if(newData.length < 10){
+                    setFetched(false);
+                }
+                else{
+                    setPage((prevPage) => prevPage + 1);
+                    setFetched(true);
+                    setLastMessageId(newData[0].id);
+                }
                 setChatList((prev) => [...newData, ...prev]);
-                setPage((prevPage) => prevPage + 1);
-                setFetched(true);
+               newDataLen.current = newData.length;
+                console.log('newData : ', newData);
             }
-            console.log(newData);
+            else{
+                newDataLen.current = newData.length;
+                setFetched(false);
+            }
+            console.log(newDataLen);
         } catch (error) {
             console.error("채팅 내역을 불러오는데 실패했습니다.", error);
         }
@@ -62,7 +63,6 @@ function ChatRoom() {
         const scrollBottom = messageRef.scrollHeight - messageRef.scrollTop - messageRef.clientHeight
         if (scrollTop === 0 && fetched) setIsTop(true);
         if (scrollBottom <= 0 && newMessage !== null) setNewMessage(null);
-        console.log(messageRef.scrollHeight);
 
         //스크롤이 일정 길이만큼 올라갔을 때 내려가는 버튼 표시
         if (messageRef.scrollHeight - scrollTop <= messageRef.clientHeight + 50) {  // 50은 여유 공간
@@ -72,45 +72,13 @@ function ChatRoom() {
         }
     };
 
-    const handleSendMessage = () => {
-        if (inputMessage.trim() === "") return;
-        const newMessage = {
-            id: chatList.length + 1,
-            nickName: "horit",
-            content: inputMessage,
-            userId: 123,
-        };
-        setChatList((prev) => [...prev, newMessage]);
-        setInputMessage("");
-
-        if (newMessage.userId === userId) {
-           setScrollDown((prev) => !prev);
-        } else {
-            // 본인이 아니면, 스크롤이 맨 아래에 있지 않으면 알림을 보여줌
-            const messageRef = chatRef.current;
-            if (messageRef && messageRef.scrollTop + messageRef.clientHeight < messageRef.scrollHeight) {
-                setNewMessage(newMessage); // 새 메시지 알림 표시
-            }
-            else{
-                setScrollDown((prev) => !prev);
-            }
-        }
-
-    };
-
     const handleNewMessageClick = () => {
         setScrollDown((prev) => !prev) // 알림 클릭 시 스크롤을 맨 아래로 이동
         setNewMessage(null);
     };
 
-    const handleKeyPress = (e) => {
-        if (e.key === "Enter") {
-            handleSendMessage();
-        }
-    };
     //초기화면 세팅(유저정보, 채팅 내역, 스크롤바 최하단으로)
     useEffect(() => {
-        userFetch();
         chatFetch().then(() => {
             if(chatList) {
                 setScrollDown((prev) => !prev);
@@ -129,11 +97,12 @@ function ChatRoom() {
     useEffect(() => {
         if (isTop) {
             chatFetch().then(() => { // 해당 채팅리스트 가져오기
-                if (chatRef.current) {
+                console.log('len: ' + newDataLen.current);
+                if (chatRef.current && newDataLen > 0) {
                     const {scrollHeight, clientHeight} = chatRef.current;
-                    chatRef.current.scrollTop = scrollHeight - clientHeight;
+                    console.log(scrollHeight,clientHeight);
+                    chatRef.current.scrollTop = scrollHeight - (page-2) * clientHeight - 46.8*newDataLen;
                 }
-                setFetched(false);
             })
         }
         setIsTop(false);
@@ -179,8 +148,44 @@ function ChatRoom() {
     //=================================소켓 기능 구현(추가, 삭제)=========================
     // 채팅 등록
     const addChatInChatRoom = (frame) => {
-
+        const newMessage = {
+            id: frame.chatId,
+            nickName: frame.nickName,
+            content: frame.content,
+            userId: frame.memberId,
+        };
+        setChatList((prev) => [...prev, newMessage]);
+        setInputMessage("");
+        if (newMessage.userId === userId) {
+            setScrollDown((prev) => !prev);
+        } else {
+            // 본인이 아니면, 스크롤이 맨 아래에 있지 않으면 알림을 보여줌
+            const messageRef = chatRef.current;
+            if (messageRef && messageRef.scrollTop + messageRef.clientHeight < messageRef.scrollHeight) {
+                setNewMessage(newMessage); // 새 메시지 알림 표시
+            }
+            else{
+                setScrollDown((prev) => !prev);
+            }
+        }
     }
+
+    const handleSendMessage = () => {
+        const data = {
+            roomId : roomId,
+            content : inputMessage
+        }
+        stompClient.current.publish({
+            destination: '/pub/chats/add',
+            body: JSON.stringify(data)
+        })
+    }
+
+    const handleKeyPress = (e) => {
+        if (e.key === "Enter") {
+            handleSendMessage();
+        }
+    };
 
     //채팅 삭제
     const deleteChatInChatRoom = (frame) => {
