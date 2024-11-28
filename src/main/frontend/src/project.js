@@ -15,11 +15,21 @@ import "./juaFont.css"
 import searchIcon from "./images/search.svg";
 import emptyBox from "./images/emptyBox.svg"
 
-const RoomList = ({setCreateModal}, {userId}) => {
+const RoomList = ({setCreateModal}) => {
     const [rooms, setRooms] = useState({num: 0, roomList: []});
     const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태 추가
     const navigate = useNavigate();
-
+    const [userId, setUserId] = useState(null);
+    //유저 id 들고오기(소켓에서 활용)
+    const userFetch = async () => {
+        try {
+            const res = await axios.get(`${domain}/api/user-info`);
+            setUserId(res.data);
+            console.log('userFetch method called : ',res.data);
+        } catch (error) {
+            console.error("유저 정보를 가져오는 데 실패했습니다.", error);
+        }
+    };
 
     // 방 목록 가져오기 (페이지에 따라 호출)
     const fetchRooms = (page) => {
@@ -39,6 +49,7 @@ const RoomList = ({setCreateModal}, {userId}) => {
     useEffect(() => {
         fetchRooms(0);
         // 첫 페이지로 초기화
+        userFetch();
 
     }, []);
 
@@ -489,7 +500,7 @@ const Project = () => {
                             <img src={searchIcon}/>
                         </button>
                     </form>
-                        <RoomList setCreateModal={setCreateModal} userId={userId}/>
+                        <RoomList setCreateModal={setCreateModal}/>
                         {searchModal && (
                             <div className="add_project_container">
                                 <div className="modal_overlay" onClick={closeSearchModal}>
