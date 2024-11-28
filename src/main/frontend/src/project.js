@@ -313,7 +313,8 @@ const Project = () => {
                     navigate('/topic', {
                         state: {
                             roomId,
-                            subUrl: `/sub/rooms/${roomId}/topics`
+                            subUrl: `/sub/rooms/${roomId}/topics`,
+                            userId
                         }
                     });
                     closeEnterModal()
