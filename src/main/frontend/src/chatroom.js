@@ -9,14 +9,14 @@ function ChatRoom() {
     const [page, setPage] = useState(0);
     const [inputMessage, setInputMessage] = useState("");
     const chatRef = useRef(null);
+    const fetchedRef = useRef(false);
     const [isShowDownBtn, setIsShowDownBtn] = useState(false);
     const [lastMessageId, setLastMessageId] = useState(null);
     const [newMessage, setNewMessage] = useState(null); // 새 메시지 정보
     const [scrollDown, setScrollDown] = useState(false);
     const [isTop, setIsTop] = useState(false);
-    const [fetched, setFetched] = useState(false);
     const {stompClient, isConnected, roomId, userId} = useWebSocket(); // WebSocket 연결 관리
-    const newDataLen = useRef(0);
+    const prevScrollHeight = useRef(null);
 
     //==================================채팅방 구현 내용========================================
     const chatFetch = async () => {
@@ -29,23 +29,15 @@ function ChatRoom() {
             });
             const newData = res.data.data.chats.reverse();
             if (newData.length > 0) {
-                if(newData.length < 10){
-                    setFetched(false);
-                }
-                else{
-                    setPage((prevPage) => prevPage + 1);
-                    setFetched(true);
-                    setLastMessageId(newData[0].id);
-                }
+                setPage((prevPage) => prevPage + 1);
+                fetchedRef.current = true;
+                setLastMessageId(newData[0].id);
                 setChatList((prev) => [...newData, ...prev]);
-               newDataLen.current = newData.length;
-                console.log('newData : ', newData);
+                prevScrollHeight.current=chatRef.current.scrollHeight;
             }
             else{
-                newDataLen.current = newData.length;
-                setFetched(false);
+                fetchedRef.current = false;
             }
-            console.log(newDataLen);
         } catch (error) {
             console.error("채팅 내역을 불러오는데 실패했습니다.", error);
         }
@@ -61,7 +53,8 @@ function ChatRoom() {
         const messageRef = chatRef.current;
         const scrollTop = messageRef.scrollTop;
         const scrollBottom = messageRef.scrollHeight - messageRef.scrollTop - messageRef.clientHeight
-        if (scrollTop === 0 && fetched) setIsTop(true);
+        if (scrollTop === 0) {
+            setIsTop(true);}
         if (scrollBottom <= 0 && newMessage !== null) setNewMessage(null);
 
         //스크롤이 일정 길이만큼 올라갔을 때 내려가는 버튼 표시
@@ -96,17 +89,19 @@ function ChatRoom() {
     // isTop이 바뀔때마다 작동하고 isTop이 ture일때만 스크롤 제 위치로 이동
     useEffect(() => {
         if (isTop) {
-            chatFetch().then(() => { // 해당 채팅리스트 가져오기
-                console.log('len: ' + newDataLen.current);
-                if (chatRef.current && newDataLen > 0) {
-                    const {scrollHeight, clientHeight} = chatRef.current;
-                    console.log(scrollHeight,clientHeight);
-                    chatRef.current.scrollTop = scrollHeight - (page-2) * clientHeight - 46.8*newDataLen;
-                }
-            })
-        }
+            chatFetch()
+            }
         setIsTop(false);
     }, [isTop]);
+
+    // fetch를 통해 채팅이 추가됐을 때 스크롤 원위치로
+    useEffect(() => {
+            if(fetchedRef.current && prevScrollHeight.current) {
+                chatRef.current.scrollTop = chatRef.current.scrollHeight - prevScrollHeight.current;
+                fetchedRef.current = false;
+            }
+    }, [chatList]);
+
     //===============================================================================
 
     //===================================소켓 연결=====================================
