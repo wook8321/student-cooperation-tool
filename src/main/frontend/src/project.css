@@ -197,47 +197,6 @@ footer > a > img:hover {
     margin-top: 10px;
 }
 
-#notExistH {
-    position: absolute;
-    top: 50%; /* 화면 높이의 50% */
-    left: 50%; /* 화면 너비의 50% */
-    transform: translate(-50%, -50%); /* 요소 중심으로 이동 */
-}
-
-#notExistH img {
-    width: 150px;  /* 이미지 크기 조절 */
-    height: 150px;
-    margin-bottom: 15px;
-}
-
-#newRoomDiv {
-    list-style-type: none; /* 목록 표시자 제거 */
-    padding: 0; /* 기본 여백 제거 */
-    margin: 0; /* 기본 여백 제거 */
-
-}
-
-.newRoom-header{
-    display: flex; /* 가로 배치 */
-    align-items: center; /* 세로 중앙 정렬 */
-    justify-content: space-between; /* 좌우로 배치 (필요 시) */
-    gap: 10px; /* h2와 버튼 간격 */
-    margin-bottom: 20px; /* 아래 리스트와 간격 */
-}
-
-.newRoom-container{
-    display: flex; /* 부모가 flex layout 사용 */
-    flex-direction: column; /* 기본 세로 배치 */
-
-}
-
-.newRoom-container.create_button{
-    display: flex;
-    gap: 10px; /* h2와 버튼 간격 */
-    margin-bottom: 20px; /* 아래 리스트와 간격 */
-    width: 50px;
-}
-
 .create_box {
     margin-left: 10px; /* 버튼과 텍스트 사이 간격 */
 }
@@ -421,7 +380,7 @@ footer > a > img:hover {
     z-index: 300; /* friendModal 오버레이 z-index */
 }
 
-.friend_search_txt {
+.participant_search_txt {
     margin-top: 20px;
     width: 100%;
     padding: 12px 16px;
@@ -435,7 +394,7 @@ footer > a > img:hover {
     box-sizing: border-box;
 }
 
-.friend_search_txt:focus {
+.participant_search_txt:focus {
     border-color: #d08a7e;  /* 포커스시 색상 */
     background-color: #fff;
 }
