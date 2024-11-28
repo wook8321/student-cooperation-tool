@@ -1,6 +1,5 @@
 /* 전체 레이아웃 */
 .container {
-    height: 100vh;
     display: flex;
     background-color: #f9f9f9;
 }
@@ -32,6 +31,7 @@ footer > a > img:hover {
 
 /* 메인 컨텐츠 스타일 */
 main {
+    min-height: 100vh;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -40,6 +40,7 @@ main {
 }
 
 .main-page {
+    min-height: 100vh;
     flex: 1;
     display: flex;
     flex-direction: column;
