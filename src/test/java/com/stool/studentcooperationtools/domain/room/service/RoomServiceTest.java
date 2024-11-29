@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -123,7 +124,7 @@ class RoomServiceTest extends IntegrationTest {
                 .build();
         //when
         //then
-        assertThrows(IllegalArgumentException.class, () -> roomService.addRoom(member, request));
+        assertThrows(DataIntegrityViolationException.class, () -> roomService.addRoom(member, request));
     }
 
     @Test
@@ -344,7 +345,7 @@ class RoomServiceTest extends IntegrationTest {
                 .build();
         //when
         //then
-        assertThat(roomService.enterRoom(member, request)).isTrue();
+        assertThat(roomService.enterRoom(member, request).getLeaderId()).isEqualTo(user.getId());
     }
 
     @Test
@@ -504,10 +505,18 @@ class RoomServiceTest extends IntegrationTest {
     @DisplayName("동시에 방 입장 동시성 제어")
     void enterRoomConcurrencyControl() throws InterruptedException {
         //given
+        Member leader = Member.builder()
+                .role(Role.USER)
+                .email("email")
+                .profile("profile")
+                .nickName("nickName")
+                .build();
+        memberRepository.save(leader);
         Room room = Room.builder()
                 .title("room")
                 .participationNum(0)
                 .password("password")
+                .leader(leader)
                 .build();
         roomRepository.save(room);
         ExecutorService executorService = Executors.newFixedThreadPool(32);
