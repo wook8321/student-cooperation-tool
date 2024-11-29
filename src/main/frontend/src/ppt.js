@@ -3,12 +3,12 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Client } from "@stomp/stompjs";
 import { useNavigate } from "react-router-dom";
+import { useWebSocket } from './WebsocketContext'; // WebSocketProvider의 훅 사용
 import './ppt.css';
 import ChatPage from "./chatroom";
 import chatImage from './images/chat.svg';
 import EditImage from './images/edit.svg';
-
-const domain = "http://localhost:8080"
+import {domain} from "./domain";
 
 const PPT = ({ roomId }) => {
   const [pptModal, setPPTModal] = useState(false); // ppt 생성 클릭 시 나오는 모달
@@ -80,82 +80,86 @@ const PPT = ({ roomId }) => {
     navigate("/project"); // "/project" 경로로 이동
   };
 
+  const toggleChatModal = () => {
+        setChatModal((prevState) => !prevState);
+  };
+
   return (
-    <>
-      <button onClick={goBack} className="back_link">
-        뒤로 가기
-      </button>
-      <div className="PPT">
-        
-        {!pptData.presentationPath ? (
-          // PPT 경로가 없으면 생성 버튼
-          <button className="create-ppt-btn" onClick={() =>createPPT()}>
-            PPT 생성
-          </button>
-        ) : (
-          <div className="ppt-thumbnail-container">
-            <img
-              src={`https://drive.google.com/thumbnail?authuser=0&sz=w320&id=${pptData.presentationId}`}
-              alt="PPT 썸네일"
-              className="ppt-thumbnail"
-              onClick={() => navigate("/slide")}
-            />
-            
-          <button className="edit-ppt-btn">
-              <img className="edit_image" onClick={() => editPPT()} src={EditImage} alt="수정버튼 이미지"/>
-          </button>
-          </div>
-        )}
-
-        {pptModal && (
-          <div className="ppt-modal">
-            <h2>{editMode ? 'PPT 수정' : 'PPT 등록'}</h2>
-            <p>생성할 ppt URL을 아래에 작성해주세요.</p>
-            <input
-              type="text"
-              placeholder="ppt URL을 작성해주세요."
-              value={pptData.presentationPath}
-              onChange={(e) => setPPTData({ ...pptData, presentationPath: e.target.value })}
-            />
-            <div className="modal-buttons">
-              <button className="close-modal-btn" onClick={closePPT}>
-                닫기
+      <>
+          <div className="background">
+              <button onClick={goBack} className="back_link">
+                  뒤로 가기
               </button>
-              <button className="register-btn" onClick={registerPPT}>
-                등록
-              </button>
-            </div>
-          </div>
-        )}
+              <div className="PPT">
 
-          <div className="process-container">
-            <div className="process-step">
-              <div className="process-text">주제 선정</div>
-            </div>
-            <div className="process-step">
-              <div className="process-text">자료 조사</div>
-            </div>
-            <div className="process-step">
-              <div className="process-text">발표 자료</div>
-            </div>
-            <div className="process-step">
-              <div className="process-text">발표 준비</div>
-            </div>
-          </div>
+                  {!pptData.presentationPath ? (
+                      // PPT 경로가 없으면 생성 버튼
+                      <button className="create-ppt-btn" onClick={() => createPPT()}>
+                          PPT 생성
+                      </button>
+                  ) : (
+                      <div className="ppt-thumbnail-container">
+                          <img
+                              src={`https://drive.google.com/thumbnail?authuser=0&sz=w320&id=${pptData.presentationId}`}
+                              alt="PPT 썸네일"
+                              className="ppt-thumbnail"
+                              onClick={() => navigate("/slide")}
+                          />
 
-          <img className="chat_image" onClick={() => setChatModal(true)} src={chatImage} alt="채팅창 이미지"/>
+                          <button className="edit-ppt-btn">
+                              <img className="edit_image" onClick={() => editPPT()} src={EditImage} alt="수정버튼 이미지"/>
+                          </button>
+                      </div>
+                  )}
 
-          {chatModal && (
-              <div className="chat-overlay">
-                  <div className="chat-content">
-                      <ChatPage />
-                      <button className="chat-close-button" onClick={() => setChatModal(false)}> X</button>
+                  {pptModal && (
+                      <div className="ppt-modal">
+                          <h2>{editMode ? 'PPT 수정' : 'PPT 등록'}</h2>
+                          <p>생성할 ppt URL을 아래에 작성해주세요.</p>
+                          <input
+                              type="text"
+                              placeholder="ppt URL을 작성해주세요."
+                              value={pptData.presentationPath}
+                              onChange={(e) => setPPTData({...pptData, presentationPath: e.target.value})}
+                          />
+                          <div className="modal-buttons">
+                              <button className="close-modal-btn" onClick={closePPT}>
+                                  닫기
+                              </button>
+                              <button className="register-btn" onClick={registerPPT}>
+                                  등록
+                              </button>
+                          </div>
+                      </div>
+                  )}
+
+                  <div className="process-container">
+                      <div className="process-step">
+                          <div className="process-text">주제 선정</div>
+                      </div>
+                      <div className="process-step">
+                          <div className="process-text">자료 조사</div>
+                      </div>
+                      <div className="process-step">
+                          <div className="process-text">발표 자료</div>
+                      </div>
+                      <div className="process-step">
+                          <div className="process-text">발표 준비</div>
+                      </div>
+                  </div>
+
+                  <div>
+                      <button className="chat-button" onClick={toggleChatModal}>
+                          <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
+                      </button>
+                      <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
+                          {chatModal && <ChatPage/>}
+                      </div>
                   </div>
               </div>
-          )}
-      </div>
-    </>
-  );
-};
+          </div>
+          </>
+          );
+          };
 
-export default PPT;
+          export default PPT;
