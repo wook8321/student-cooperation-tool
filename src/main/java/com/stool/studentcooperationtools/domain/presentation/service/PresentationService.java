@@ -67,6 +67,11 @@ public class PresentationService {
     public PresentationUpdateSocketResponse createPresentation(PresentationCreateSocketRequest request,
                                                                HttpCredentialsAdapter credentialsAdapter,
                                                                SessionMember member) {
+        Room room = roomRepository.findById(request.getRoomId())
+                .orElseThrow(()->new IllegalArgumentException("해당 방은 존재하지 않습니다"));
+        if(!room.getLeader().getId().equals(member.getMemberSeq())){
+            throw new IllegalArgumentException("발표자료 변경 권한이 없습니다");
+        }
         String fileId;
         Drive dservice = slidesFactory.createDriveService(credentialsAdapter);
         File fileMetadata = new File();
@@ -95,11 +100,6 @@ public class PresentationService {
         }
         catch (IOException e) {
             throw new VerifyException(e.getMessage(),e.getCause());
-        }
-        Room room = roomRepository.findById(request.getRoomId())
-                .orElseThrow(()->new IllegalArgumentException("해당 방은 존재하지 않습니다"));
-        if(!room.getLeader().getId().equals(member.getMemberSeq())){
-            throw new IllegalArgumentException("발표자료 변경 권한이 없습니다");
         }
         Presentation presentation = Presentation.builder()
                 .room(room)

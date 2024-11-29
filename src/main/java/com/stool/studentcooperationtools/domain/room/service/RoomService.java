@@ -90,6 +90,7 @@ public class RoomService {
         Room room = roomRepository.findRoomByRoomId(member.getMemberSeq(), request.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("소속되지 않은 방 정보입니다"));
         if(Objects.equals(member.getMemberSeq(), room.getLeader().getId())){
+            presentationService.deletePresentation(request.getRoomId());
             chatRepository.deleteByRoomId(room.getId());
             partRepository.deleteByRoomId(room.getId());
             topicRepository.deleteByRoomId(room.getId());
@@ -102,7 +103,6 @@ public class RoomService {
                     .orElseThrow(() -> new IllegalArgumentException("유저 정보가 올바르지 않습니다"));
             participationRepository.deleteByMemberIdAndRoomId(teammate.getId(), room.getId());
         }
-        presentationService.deletePresentation(request.getRoomId());
         return true;
     }
 
