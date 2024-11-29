@@ -26,7 +26,6 @@ const RoomList = ({setCreateModal}) => {
         try {
             const res = await axios.get(`${domain}/api/user-info`);
             setUserId(res.data);
-            console.log('userFetch method called : ',res.data);
         } catch (error) {
             console.error("유저 정보를 가져오는 데 실패했습니다.", error);
         }
@@ -111,16 +110,16 @@ const RoomList = ({setCreateModal}) => {
         passwordModalDiv.remove()
     }
 
-    function openRoomModal(roomId){
+    function openRoomModal(roomId, roomTitle){
         const enterRoomModalDiv = document.getElementById("enterRoomModalDiv")
         enterRoomModalDiv.innerHTML += `
-                <div class="modal_overlay" id="passwordModalDiv">
-                    <div class="modal_content" style="text-align: center;">
+                <div class="enter_modal_overlay" id="passwordModalDiv">
+                    <div class="enter_modal_content" style="text-align: center;">
                         <button class="close_button" id="closeModalButton">X</button>
                         <div id="passwordInvalidDiv"></div>
-                        <label class="modal_label">비밀번호</label>
-                        <input class="modal_input" id="roomPasswordInput" type="password"/>
-                        <button id="verifyRoomButton">입장</button>
+                        <label class="enter_modal_label">${roomTitle}</label>
+                        <input class="enter_modal_input" id="roomPasswordInput" type="password"/>
+                        <button class="enter_button" id="verifyRoomButton">입장</button>
                     </div>
                 </div>
             `
@@ -168,7 +167,7 @@ const RoomList = ({setCreateModal}) => {
                                             <h3 className="card-title">주제 : {room.topic}</h3>
                                             <div className="button-group">
                                                 <button className="card-button"
-                                                        onClick={() => openRoomModal(room.roomId)}>
+                                                        onClick={() => openRoomModal(room.roomId, room.title)}>
                                                     입장하기
                                                 </button>
                                                 <button className="card-red-button"
@@ -283,7 +282,6 @@ const Project = () => {
         try {
             const res = await axios.get(`${domain}/api/user-info`);
             setUserId(res.data);
-            console.log('userFetch method called : ',res.data);
         } catch (error) {
             console.error("유저 정보를 가져오는 데 실패했습니다.", error);
         }
