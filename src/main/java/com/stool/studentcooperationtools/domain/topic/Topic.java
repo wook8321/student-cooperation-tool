@@ -1,17 +1,13 @@
 package com.stool.studentcooperationtools.domain.topic;
 
 import com.stool.studentcooperationtools.domain.BaseTimeEntity;
+import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.room.Room;
-import com.stool.studentcooperationtools.domain.vote.Vote;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.BatchSize;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -25,24 +21,32 @@ public class Topic extends BaseTimeEntity {
     @Column(nullable = false)
     private String topic;
 
-    @BatchSize(size = 10)
-    @OneToMany(mappedBy = "topic")
-    private List<Vote> votes = new ArrayList<>();
-
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Room room;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Member member;
+
+    @Column(nullable = false)
+    private int voteNum;
+
     @Builder
-    private Topic(final String topic, final Room room) {
+    private Topic(final String topic, final Room room,final Member member,final int voteNum) {
         this.topic = topic;
         this.room = room;
+        this.member = member;
+        this.voteNum = voteNum;
     }
 
-    public static Topic of(final String topic, final Room room){
-        return new Topic(topic,room);
+    public static Topic of(final String topic, final Room room,final Member member){
+        return new Topic(topic,room,member,0);
     }
 
-    public void addVote(Vote vote){
-        votes.add(vote);
+    public void addVoteNum(){
+        voteNum += 1;
+    }
+
+    public void minusVoteNum(){
+        voteNum -= 1;
     }
 }

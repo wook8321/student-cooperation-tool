@@ -3,11 +3,12 @@ package com.stool.studentcooperationtools.docs.room;
 import com.stool.studentcooperationtools.docs.RestDocsSupport;
 import com.stool.studentcooperationtools.domain.room.controller.RoomApiController;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
-import com.stool.studentcooperationtools.domain.room.controller.request.RoomPasswordValidRequest;
+import com.stool.studentcooperationtools.domain.room.controller.request.RoomEnterRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomRemoveRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomTopicUpdateRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.*;
 import com.stool.studentcooperationtools.domain.room.service.RoomService;
+import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
@@ -50,41 +51,47 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
                 .num(findDtoList.size())
                 .rooms(findDtoList)
                 .build();
-        Mockito.when(roomService.findRooms(anyInt()))
+        Mockito.when(roomService.findRooms(any(SessionMember.class), anyInt()))
                 .thenReturn(roomsFindResponse);
         //when
         //then
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/rooms")
-                .param("page","1")
-        )
+                        .param("page","1")
+                )
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andDo(document("room-find",
-                        preprocessRequest(prettyPrint()),
-                        preprocessResponse(prettyPrint()),
-                        queryParameters(
-                                parameterWithName("page").description("조회할 방들의 페이지")
-                        ),
-                        responseFields(
-                                fieldWithPath("code").type(NUMBER)
-                                        .description("상태 코드"),
-                                fieldWithPath("status").type(STRING)
-                                        .description("응답 상태"),
-                                fieldWithPath("data").type(OBJECT)
-                                        .description("응답 데이터"),
-                                fieldWithPath("data.num").type(NUMBER)
-                                        .description("조회된 방 개수"),
-                                fieldWithPath("data.rooms[]").type(ARRAY)
-                                        .description("방 정보 리스트"),
-                                fieldWithPath("data.rooms[].roomId").type(NUMBER)
-                                        .description("방 식별키"),
-                                fieldWithPath("data.rooms[].title").type(STRING)
-                                        .description("방 제목"),
-                                fieldWithPath("data.rooms[].topic").type(STRING)
-                                        .description("방 주제"),
-                                fieldWithPath("data.rooms[].participationNum").type(NUMBER)
-                                        .description("방 참가자")
-                        )
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
+                                queryParameters(
+                                        parameterWithName("page").description("조회할 방들의 페이지")
+                                ),
+                                responseFields(
+                                        fieldWithPath("code").type(NUMBER)
+                                                .description("상태 코드"),
+                                        fieldWithPath("status").type(STRING)
+                                                .description("응답 상태"),
+                                        fieldWithPath("data").type(OBJECT)
+                                                .description("응답 데이터"),
+                                        fieldWithPath("data.totalPage").type(NUMBER)
+                                                .description("전체 페이지"),
+                                        fieldWithPath("data.firstPage").type(NUMBER)
+                                                .description("화면에 첫번째 페이지"),
+                                        fieldWithPath("data.lastPage").type(NUMBER)
+                                                .description("화면에 마지막 페이지"),
+                                        fieldWithPath("data.num").type(NUMBER)
+                                                .description("조회된 방 개수"),
+                                        fieldWithPath("data.rooms[]").type(ARRAY)
+                                                .description("방 정보 리스트"),
+                                        fieldWithPath("data.rooms[].roomId").type(NUMBER)
+                                                .description("방 식별키"),
+                                        fieldWithPath("data.rooms[].title").type(STRING)
+                                                .description("방 제목"),
+                                        fieldWithPath("data.rooms[].topic").type(STRING)
+                                                .description("방 주제"),
+                                        fieldWithPath("data.rooms[].participationNum").type(NUMBER)
+                                                .description("방 참가자")
+                                )
                         )
                 );
 
@@ -97,7 +104,7 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
                 .title("방 제목")
                 .password("password")
                 .participation(
-                       List.of(1L,2L)
+                        List.of(1L,2L)
                 )
                 .build();
 
@@ -108,44 +115,44 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
                 .title("방 제목")
                 .build();
 
-        Mockito.when(roomService.addRoom(any(RoomAddRequest.class)))
-                        .thenReturn(response);
+        Mockito.when(roomService.addRoom(any(SessionMember.class), any(RoomAddRequest.class)))
+                .thenReturn(response);
 
         //when
         //then
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/rooms")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content)
-            )
+                )
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andDo(document("room-add",
-                        preprocessRequest(prettyPrint()),
-                        preprocessResponse(prettyPrint()),
-                        requestFields(
-                                fieldWithPath("title").type(STRING)
-                                        .description("생성할 방 제목"),
-                                fieldWithPath("password").type(STRING)
-                                        .description("생성할 방 비밀번호"),
-                                fieldWithPath("participation").type(ARRAY)
-                                        .description("생성할 방에 참가자들")
-                        ),
-                        responseFields(
-                                fieldWithPath("code").type(NUMBER)
-                                        .description("상태 코드"),
-                                fieldWithPath("status").type(STRING)
-                                        .description("응답 상태"),
-                                fieldWithPath("data").type(OBJECT)
-                                        .description("응답 데이터"),
-                                fieldWithPath("data.roomId").type(NUMBER)
-                                        .description("생성한 방 식별키"),
-                                fieldWithPath("data.title").type(STRING)
-                                        .description("생성한 방 제목")
-                        )
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
+                                requestFields(
+                                        fieldWithPath("title").type(STRING)
+                                                .description("생성할 방 제목"),
+                                        fieldWithPath("password").type(STRING)
+                                                .description("생성할 방 비밀번호"),
+                                        fieldWithPath("participation").type(ARRAY)
+                                                .description("생성할 방에 참가자들")
+                                ),
+                                responseFields(
+                                        fieldWithPath("code").type(NUMBER)
+                                                .description("상태 코드"),
+                                        fieldWithPath("status").type(STRING)
+                                                .description("응답 상태"),
+                                        fieldWithPath("data").type(OBJECT)
+                                                .description("응답 데이터"),
+                                        fieldWithPath("data.roomId").type(NUMBER)
+                                                .description("생성한 방 식별키"),
+                                        fieldWithPath("data.title").type(STRING)
+                                                .description("생성한 방 제목")
+                                )
                         )
                 );
 
-        }
+    }
     @Test
     void searchRooms() throws Exception {
         //given
@@ -187,6 +194,8 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
                                                 .description("응답 데이터"),
                                         fieldWithPath("data.num").type(NUMBER)
                                                 .description("검색된 방 개수"),
+                                        fieldWithPath("data.last").type(BOOLEAN)
+                                                .description("마지막 페이지를 나타내는 값"),
                                         fieldWithPath("data.rooms[]").type(ARRAY)
                                                 .description("방 정보 리스트"),
                                         fieldWithPath("data.rooms[].roomId").type(NUMBER)
@@ -212,8 +221,8 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
 
         String content = objectMapper.writeValueAsString(request);
 
-        Mockito.when(roomService.removeRoom(any(RoomRemoveRequest.class)))
-                        .thenReturn(true);
+        Mockito.when(roomService.removeRoom(any(SessionMember.class), any(RoomRemoveRequest.class)))
+                .thenReturn(true);
 
         //when
         //then
@@ -244,29 +253,32 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
     }
 
     @Test
-    void validRoomPassword() throws Exception {
+    void enterRoom() throws Exception {
         //given
-        RoomPasswordValidRequest request = RoomPasswordValidRequest.builder()
+        RoomEnterRequest request = RoomEnterRequest.builder()
+                .roomId(1L)
                 .password("password")
                 .build();
 
         String content = objectMapper.writeValueAsString(request);
 
-        Mockito.when(roomService.validRoomPassword(any(RoomPasswordValidRequest.class)))
+        Mockito.when(roomService.enterRoom(any(SessionMember.class), any(RoomEnterRequest.class)))
                 .thenReturn(true);
 
         //when
         //then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/rooms/valid-password")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/rooms/enter-room")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content)
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andDo(document("room-password-valid",
+                .andDo(document("room-enter",
                                 preprocessRequest(prettyPrint()),
                                 preprocessResponse(prettyPrint()),
                                 requestFields(
+                                        fieldWithPath("roomId").type(NUMBER)
+                                                        .description("들어갈 방 식별키"),
                                         fieldWithPath("password").type(STRING)
                                                 .description("들어갈 방의 비밀번호")
                                 ),
@@ -293,7 +305,7 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
 
         String content = objectMapper.writeValueAsString(request);
 
-        Mockito.when(roomService.updateRoomTopic(any(RoomTopicUpdateRequest.class)))
+        Mockito.when(roomService.updateRoomTopic(any(SessionMember.class), any(RoomTopicUpdateRequest.class)))
                 .thenReturn(true);
 
         //when

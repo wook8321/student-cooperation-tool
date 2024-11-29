@@ -8,13 +8,12 @@ import com.stool.studentcooperationtools.domain.member.controller.response.Membe
 import com.stool.studentcooperationtools.domain.member.controller.response.MemberFindResponse;
 import com.stool.studentcooperationtools.domain.member.controller.response.MemberSearchResponse;
 import com.stool.studentcooperationtools.domain.member.service.MemberService;
+import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
 import java.util.List;
-
 import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
@@ -25,6 +24,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.queryPar
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 public class MemberApiControllerDocsTest extends RestDocsSupport {
 
         private final MemberService memberService = mock(MemberService.class);
@@ -34,11 +34,13 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
             return new MemberApiController(memberService);
         }
 
+
         @Test
         void findFriend() throws Exception {
         //given
         List<MemberFindMemberDto> memberDtoList = List.of(
                 MemberFindMemberDto.builder()
+                        .id(1L)
                         .profile("profilePath")
                         .email("email")
                         .nickname("nickname")
@@ -48,8 +50,7 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                 .members(memberDtoList)
                 .num(memberDtoList.size())
                 .build();
-
-        Mockito.when(memberService.findFriends())
+        Mockito.when(memberService.findFriends(Mockito.any(SessionMember.class)))
                 .thenReturn(response);
 
         //when
@@ -76,6 +77,8 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                                         .description("유저 정보 리스트"),
                                 fieldWithPath("data.members[].email").type(STRING)
                                         .description("유저 이메일"),
+                                fieldWithPath("data.members[].id").type(NUMBER)
+                                        .description("유저 정보 리스트"),
                                 fieldWithPath("data.members[].nickname").type(STRING)
                                         .description("유저 닉네임"),
                                 fieldWithPath("data.members[].profile").type(STRING)
@@ -90,6 +93,7 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                 //given
                 List<MemberSearchMemberDto> memberDtoList = List.of(
                         MemberSearchMemberDto.builder()
+                                .id(1L)
                                 .profile("profilePath")
                                 .email("email")
                                 .nickname("nickname")
@@ -100,7 +104,7 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                         .num(memberDtoList.size())
                         .build();
 
-                Mockito.when(memberService.searchFriend(Mockito.anyBoolean(),Mockito.anyString()))
+                Mockito.when(memberService.searchFriend(Mockito.any(SessionMember.class),Mockito.anyBoolean(),Mockito.anyString()))
                         .thenReturn(response);
 
                 //when
@@ -131,6 +135,8 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                                                 .description("데이터 개수"),
                                         fieldWithPath("data.members[]").type(ARRAY)
                                                 .description("유저 정보 리스트"),
+                                        fieldWithPath("data.members[].id").type(NUMBER)
+                                                .description("유저 id"),
                                         fieldWithPath("data.members[].email").type(STRING)
                                                 .description("유저 이메일"),
                                         fieldWithPath("data.members[].nickname").type(STRING)
@@ -148,6 +154,7 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                 //given
                 List<MemberSearchMemberDto> memberDtoList = List.of(
                         MemberSearchMemberDto.builder()
+                                .id(1L)
                                 .profile("profilePath")
                                 .email("email")
                                 .nickname("nickname")
@@ -158,7 +165,7 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                         .num(memberDtoList.size())
                         .build();
 
-                Mockito.when(memberService.searchFriend(Mockito.anyBoolean(),Mockito.anyString()))
+                Mockito.when(memberService.searchFriend(Mockito.any(SessionMember.class), Mockito.anyBoolean(),Mockito.anyString()))
                         .thenReturn(response);
 
                 //when
@@ -191,6 +198,8 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                                                 .description("유저 정보 리스트"),
                                         fieldWithPath("data.members[].email").type(STRING)
                                                 .description("유저 이메일"),
+                                        fieldWithPath("data.members[].id").type(NUMBER)
+                                                .description("유저 이메일"),
                                         fieldWithPath("data.members[].nickname").type(STRING)
                                                 .description("유저 닉네임"),
                                         fieldWithPath("data.members[].profile").type(STRING)
@@ -208,7 +217,7 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
 
             String content = objectMapper.writeValueAsString(request);
 
-            Mockito.when(memberService.addFriend(Mockito.any(MemberAddRequest.class)))
+            Mockito.when(memberService.addFriend(Mockito.any(SessionMember.class), Mockito.any(MemberAddRequest.class)))
                             .thenReturn(true);
 
             //when

@@ -30,7 +30,7 @@ public class Participation extends BaseTimeEntity {
         this.room = room;
     }
 
-    public Participation of(Member member, Room room){
+    public static Participation of(Member member, Room room){
         Participation participation = Participation.builder()
                 .room(room)
                 .member(member)

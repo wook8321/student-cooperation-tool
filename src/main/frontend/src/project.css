@@ -336,21 +336,6 @@ footer > a > img:hover {
     font-weight: 500;
 }
 
-.room_card button {
-    background-color: #ff6b6b; /* 버튼 색상 */
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-  }
-  
-  .room_card button:hover {
-    background-color: #ff4c4c; /* 버튼 호버 효과 */
-  }
-
 .close_button {
     position: absolute;
     top: 10px;

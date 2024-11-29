@@ -1,0 +1,28 @@
+/* 스크롤 컨테이너 스타일 */
+.scrollbar {
+    width: 100%;
+    max-height: 700px; /* 콘텐츠 영역의 최대 높이 */
+    overflow-y: auto; /* 세로 스크롤 활성화 */
+    padding-right: 15px; /* 스크롤바와 콘텐츠 사이 여백 */
+    box-sizing: content-box;
+}
+
+/* 스크롤바 트랙 */
+.scrollbar::-webkit-scrollbar {
+    width: 20px; /* 스크롤바의 너비 */
+}
+
+/* 스크롤바 핸들 (thumb) */
+.scrollbar::-webkit-scrollbar-thumb {
+    background: rgb(20, 220, 83); /* 핸들의 색상 */
+    border-radius: 10px; /* 핸들의 모서리 둥글게 */
+    border: 2px solid transparent;
+    background-clip: content-box;
+    min-height: 40px; /* 핸들의 최소 높이 */
+}
+
+/* 스크롤바 트랙 배경 */
+.scrollbar::-webkit-scrollbar-track {
+    background: rgba(220, 20, 60, 0.1); /* 트랙 배경 색상 */
+    border-radius: 10px; /* 트랙의 모서리 둥글게 */
+}

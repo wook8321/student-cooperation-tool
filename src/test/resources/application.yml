@@ -1,0 +1,41 @@
+spring:
+  profiles:
+    active: test
+  sql:
+    init:
+      mode: always
+  session:
+    jdbc:
+      initialize-schema: always
+
+  datasource :
+    driverClassName: org.h2.Driver
+    username: sa
+    password: 1234
+    url: jdbc:h2:./stool
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    database-platform: org.hibernate.dialect.H2Dialect
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test
+            client-secret: test
+            scope: email, profile
+
+google:
+  slides:
+    credentials-file-path: test
+    tokens-directory-path: test
+    credentials-forupdate-file-path: test
+    folder-path: test
+aws:
+  s3:
+    accessKey: test
+    secretKey: test
+    bucketName: stool-s3
