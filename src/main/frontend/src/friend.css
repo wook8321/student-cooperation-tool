@@ -344,6 +344,7 @@ ul {
     .newFriend-container {
         grid-template-columns: 1fr; /* 작은 화면에서는 한 열 */
     }
+}
 
 @media (max-width: 768px) {
     .create_modal_content {
