@@ -1,6 +1,7 @@
 package com.stool.studentcooperationtools.domain.room;
 
 import com.stool.studentcooperationtools.domain.BaseTimeEntity;
+import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.participation.Participation;
 import com.stool.studentcooperationtools.domain.topic.Topic;
 import jakarta.persistence.*;
@@ -33,21 +34,41 @@ public class Room extends BaseTimeEntity {
     @Column
     private int participationNum;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Member leader;
+
     @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Topic mainTopic;
 
     @Builder
-    private Room(final String title, final String password, final int participationNum) {
+    private Room(final String title, final String password, final int participationNum, final Member leader) {
         this.title = title;
         this.password = password;
         this.participationNum = participationNum;
+        this.leader = leader;
     }
-    
+
     public String getTopic(){
+        if(mainTopic == null){
+            return "미정";
+        }
         return this.mainTopic.getTopic();
     }
 
     public void addParticipation(Participation participation){
         participationList.add(participation);
+        addParticipantNum();
+    }
+
+    public Boolean verifyPassword(String password){
+        return this.password.equals(password);
+    }
+
+    public void updateTopic(Topic topic){
+        this.mainTopic = topic;
+    }
+
+    public void addParticipantNum(){
+        this.participationNum++;
     }
 }

@@ -15,7 +15,7 @@ import "./juaFont.css"
 import searchIcon from "./images/search.svg";
 import emptyBox from "./images/emptyBox.svg"
 
-const RoomList = ({setCreateModal}, {userId}) => {
+const RoomList = ({setCreateModal}) => {
     const [rooms, setRooms] = useState({num: 0, roomList: []});
     const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태 추가
     const navigate = useNavigate();
@@ -49,7 +49,7 @@ const RoomList = ({setCreateModal}, {userId}) => {
     useEffect(() => {
         fetchRooms(0);
         // 첫 페이지로 초기화
-
+        userFetch();
     }, []);
 
 
@@ -499,7 +499,8 @@ const Project = () => {
                             <img src={searchIcon}/>
                         </button>
                     </form>
-                        <RoomList setCreateModal={setCreateModal} userId={userId}/>
+                        <RoomList setCreateModal={setCreateModal}/>
+
                         {searchModal && (
                             <div className="add_project_container">
                                 <div className="modal_overlay" onClick={closeSearchModal}>
@@ -641,6 +642,5 @@ const Project = () => {
     </div>
   );
 };
-
 
 export default Project;

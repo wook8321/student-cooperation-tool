@@ -79,6 +79,7 @@ const Friend = () => {
         .then((res) => {
           console.log("Friend added:", res.data);
           createFriendDiv(email,profile, nickname);
+
           setFriendData((prevData) => ({
             ...prevData,
             members: prevData.members.filter(friend => friend.email !== email),
@@ -117,7 +118,6 @@ const Friend = () => {
             </li>
           `
   }
-
 
   const handleCloseModal = () => {
     setModalOpen(false);
