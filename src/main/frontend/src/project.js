@@ -331,14 +331,15 @@ const Project = () => {
         axios
             .post(`${domain}/api/v1/rooms/enter-room`,data,{ "Content-Type": "application/json"})
             .then((res) =>{
-                const isCorrect = res.data.data
-                if(isCorrect){
+                const leaderId = res.data.data
+                if(leaderId){
                     //비밀 번호가 맞다면, 방을 입장
                     navigate('/topic', {
                         state: {
                             roomId,
                             subUrl: `/sub/rooms/${roomId}/topics`,
-                            userId
+                            userId,
+                            leaderId
                         }
                     });
                     closeEnterModal()
@@ -385,14 +386,14 @@ const Project = () => {
                 participation: participant.members.map((member) => member.id)
             })
             .then((res) => {
-                console.log("Succeeded to create project.");
                 const roomId = res.data.data.roomId;
                 closeCreateModal();
                 navigate('/topic', {
                     state: {
                         roomId,
                         subUrl: `/sub/rooms/${roomId}/topics`,
-                        userId
+                        userId,
+                        leaderId: userId
                     }
                 });
             })

@@ -14,14 +14,14 @@ const PPT = () => {
   const [pptData, setPPTData] = useState(null); // get한 ppt 데이터 저장 공간
   const [editMode, setEditMode] = useState(false); // 처음 생성인 지, 이후 수정인 지 구별
   const [chatModal, setChatModal] = useState(false);
-  const {stompClient, isConnected, roomId} = useWebSocket();
+  const {stompClient, isConnected, roomId, userId, leaderId} = useWebSocket();
   const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
   const navigate = useNavigate();
   const pptThumbURL = 'https://drive.google.com/thumbnail?authuser=0&sz=w320&id='
   const [newPPTName, setNewPPTName] = useState(' ');
   const [isLoading, setIsLoading] = useState(false);
 
-  // 방의 주제를 가져오는 함수
+  // 방의 PPT를 가져오는 함수
   const fetchPPT = () => {
       console.log(domain, roomId);
       axios.get(`${domain}/api/v1/rooms/${roomId}/presentation`)
