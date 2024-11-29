@@ -6,7 +6,6 @@ import "./ChatRoom.css";
 
 function ChatRoom() {
     const [chatList, setChatList] = useState([]);
-    const [page, setPage] = useState(0);
     const [inputMessage, setInputMessage] = useState("");
     const chatRef = useRef(null);
     const fetchedRef = useRef(false);
@@ -23,15 +22,14 @@ function ChatRoom() {
         try {
             const res = await axios.get(`${domain}/api/v1/rooms/${roomId}/chats`, {
                 params: {
-                    page,
+                    page: 0,
                     lastMessageId,
                 },
             });
             const newData = res.data.data.chats.reverse();
             if (newData.length > 0) {
-                setPage((prevPage) => prevPage + 1);
                 fetchedRef.current = true;
-                setLastMessageId(newData[0].id);
+                setLastMessageId(newData[0].chatId);
                 setChatList((prev) => [...newData, ...prev]);
                 prevScrollHeight.current=chatRef.current.scrollHeight;
             }
@@ -185,13 +183,11 @@ function ChatRoom() {
     //채팅 삭제
     const deleteChatInChatRoom = (frame) => {
         const chatId = frame.chatId;
-        console.log('delete chat: ',chatId);
         setChatList((prev) =>
             prev.filter((t) => t.chatId !== chatId));
     }
 
     const handleDeleteMessage = (chatId) => {
-        console.log('delete called chat : ',chatId);
         const data = {
             roomId : roomId,
             chatId : chatId
