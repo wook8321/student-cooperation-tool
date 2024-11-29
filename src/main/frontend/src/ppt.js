@@ -1,7 +1,6 @@
 
-import React, { useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import axios from 'axios';
-import { Client } from "@stomp/stompjs";
 import { useNavigate } from "react-router-dom";
 import { useWebSocket } from './WebsocketContext'; // WebSocketProvider의 훅 사용
 import './ppt.css';
@@ -10,54 +9,104 @@ import chatImage from './images/chat.svg';
 import EditImage from './images/edit.svg';
 import {domain} from "./domain";
 
-const PPT = ({ roomId }) => {
+const PPT = () => {
   const [pptModal, setPPTModal] = useState(false); // ppt 생성 클릭 시 나오는 모달
-  const [pptData, setPPTData] = useState({presentationId: null, presentationPath: '', updatedTime: null, }); // get한 ppt 데이터 저장 공간
+  const [pptData, setPPTData] = useState(null); // get한 ppt 데이터 저장 공간
   const [editMode, setEditMode] = useState(false); // 처음 생성인 지, 이후 수정인 지 구별
-  const [chatModal, setChatModal] = useState(false); 
-
+  const [chatModal, setChatModal] = useState(false);
+  const {stompClient, isConnected, roomId} = useWebSocket();
+  const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
   const navigate = useNavigate();
+  const pptThumbURL = 'https://drive.google.com/thumbnail?authuser=0&sz=w320&id='
+  const [newPPTName, setNewPPTName] = useState(' ');
+  const [isLoading, setIsLoading] = useState(false);
 
-  // PPT 생성 클릭
-  const createPPT = () => {
-    // Google Slides 새 창 열기
-    window.open('https://docs.google.com/presentation', '_blank');
-    setPPTModal(true);
-  };
-
-  const closePPT = () => {
-    setPPTModal(false);
-  };
-
-  const stompClient = new Client({
-    brokerURL: `ws://sub/rooms/${roomId}/presentations`, // 역할 추가 단계 WebSocket
-    reconnectDelay: 5000,
-    onConnect: () => {
-        stompClient.subscribe(`${domain}/sub/rooms/${roomId}/presentations`);
-    },
-    onStompError: (frame) => {
-        console.error("STOMP error: ", frame.headers["message"]);
-    },
-  });
-
-  stompClient.activate();
-
-  /* 등록 버튼 클릭 */
-  const registerPPT = () => {
-      axios.get(`${domain}/api/rooms/${roomId}/presentation`)
-        .then((res) => {
-            const { presentationId, presentationPath, updatedTime } = res.data.data;
-              setPPTData({
-                  presentationId,
-                  presentationPath,
-                  updatedTime,
-              });
-            setPPTModal(false);
-        })
-        .catch((error) => {
-            console.error('PPT 등록 실패:', error);
+  // 방의 주제를 가져오는 함수
+  const fetchPPT = () => {
+      console.log(domain, roomId);
+      axios.get(`${domain}/api/v1/rooms/${roomId}/presentation`)
+          .then((res) => {
+            setPPTData(res.data.data);
+            })
+          .catch((error) => {
+                if(error.response){
+                    if(error.response.status === 400){
+                        setPPTData(null);
+                    }
+                }
             });
+  }
+  //=============================================웹소켓========================================================
+  const receiveMessage = (message) => {
+      //3-1 구독한 url에서 온 메세지를 받았을 때
+      const frame = JSON.parse(message.body)
+      if (frame.messageType === "PRESENTATION_UPDATE") {
+          //updatePPTInScreen(frame.data)
+      } else if (frame.messageType === "PRESENTATION_CREATE") {
+          setIsLoading(false);
+          setPPTModal(false);
+          createPPTInScreen(frame.data)
+      } else {
+          console.log("Not Supported Message Type")
+      }
+  }
+
+    const receiveError = (error) => {
+        //3-2 구독한 url에서 온 메세지를 못 받아 에러가 발생했을 때
+        console.error("STOMP Error", error);
+        window.location.href = "/";
+    }
+
+    const onConnect = () => {
+        //2-1 연결 성공의 경우
+        fetchPPT();
+        subscriptions.current = stompClient.current.subscribe(
+            `/sub/rooms/${roomId}/presentation`,
+            receiveMessage,
+            receiveError
+        );
+    }
+
+    useEffect(() => {
+        //1. broker endPoint에 연결, WebsocketConfig에 설정한 EndPoint를 말함
+        if (stompClient.current) {
+            stompClient.current.activate(); // 웹소켓 활성화
+        }
+
+        return () => {
+            if (stompClient.current) {
+                subscriptions.current.unsubscribe();
+            }
         };
+    }, [roomId]);
+
+    useEffect(() => {
+        if (isConnected) {
+            onConnect(); // 연결이 완료되면 onConnect 호출
+        }
+    }, [isConnected]); //isConnected 상태가 바뀌면 실행된다.
+    //===============================================================================
+    //======================================PPT 생성 ====================================
+    // PPT 생성 클릭
+  const createPPT =  () => {
+    setIsLoading(true);
+    const data = {
+        roomId,
+        presentationName: newPPTName
+    }
+        stompClient.current.publish({
+            destination: '/pub/presentation/create',
+            body: JSON.stringify(data)
+        });
+    };
+
+  // 생성된 PPT 반영
+  const createPPTInScreen = (frame) => {
+      console.log('new PPT : ', frame);
+      setPPTData(frame);
+  }
+  //============================================================================
+
 
   // 수정 버튼 클릭 시
   const editPPT = () => {
@@ -84,6 +133,19 @@ const PPT = ({ roomId }) => {
         setChatModal((prevState) => !prevState);
   };
 
+  useEffect(() => {
+      fetchPPT();
+  }, []);
+
+    useEffect(() => {
+        if(pptData){
+           setEditMode(true);
+        }
+        else{
+            setEditMode(false);
+        }
+    }, [pptData]);
+
   return (
       <>
           <div className="background">
@@ -91,16 +153,15 @@ const PPT = ({ roomId }) => {
                   뒤로 가기
               </button>
               <div className="PPT">
-
-                  {!pptData.presentationPath ? (
+                  {!pptData ? (
                       // PPT 경로가 없으면 생성 버튼
-                      <button className="create-ppt-btn" onClick={() => createPPT()}>
+                      <button className="create-ppt-btn" onClick={() => setPPTModal(true)}>
                           PPT 생성
                       </button>
                   ) : (
                       <div className="ppt-thumbnail-container">
                           <img
-                              src={`https://drive.google.com/thumbnail?authuser=0&sz=w320&id=${pptData.presentationId}`}
+                              src={`${pptThumbURL}${pptData.presentationId}`}
                               alt="PPT 썸네일"
                               className="ppt-thumbnail"
                               onClick={() => navigate("/slide")}
@@ -115,23 +176,31 @@ const PPT = ({ roomId }) => {
                   {pptModal && (
                       <div className="ppt-modal">
                           <h2>{editMode ? 'PPT 수정' : 'PPT 등록'}</h2>
-                          <p>생성할 ppt URL을 아래에 작성해주세요.</p>
+                          <p>생성할 ppt 제목을 아래에 작성해주세요.</p>
                           <input
                               type="text"
-                              placeholder="ppt URL을 작성해주세요."
-                              value={pptData.presentationPath}
-                              onChange={(e) => setPPTData({...pptData, presentationPath: e.target.value})}
+                              value={newPPTName}
+                              onChange={(e) => setNewPPTName(e.target.value)}
                           />
                           <div className="modal-buttons">
-                              <button className="close-modal-btn" onClick={closePPT}>
+                              <button className="close-modal-btn" onClick={()=>setPPTModal(false)}>
                                   닫기
                               </button>
-                              <button className="register-btn" onClick={registerPPT}>
-                                  등록
+                              <div>
+                              {isLoading && (
+                                  <div className="loading-overlay">
+                                      <div className="spinner"></div>
+                                      <p>Loading...</p>
+                                  </div>
+                              )}
+                              </div>
+                              <button className="register-btn" onClick={createPPT} disabled={isLoading}>
+                                  {isLoading ? '생성 중...' : '생성'}
                               </button>
-                          </div>
+                              </div>
                       </div>
                   )}
+
 
                   <div className="process-container">
                       <div className="process-step">
@@ -158,8 +227,8 @@ const PPT = ({ roomId }) => {
                   </div>
               </div>
           </div>
-          </>
-          );
-          };
+      </>
+  );
+};
 
-          export default PPT;
+export default PPT;
