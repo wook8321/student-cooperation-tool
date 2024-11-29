@@ -4,7 +4,7 @@ import axios from "axios";
 import "./slide.css";
 import { Client } from "@stomp/stompjs";
 import { Link } from "react-router-dom";
-import ChatPage from "./chat.tsx";
+import ChatPage from "./chatroom";
 import chatImage from './images/chat.svg';
 
 // 역할 추가 버튼을 누르면 나오는 모달에서 담당자 이름을 입력받고 따로 저장해서 사용하게 만들었어요

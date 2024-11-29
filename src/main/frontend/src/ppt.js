@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Client } from "@stomp/stompjs";
 import { useNavigate } from "react-router-dom";
 import './ppt.css';
-import ChatPage from "./chat.tsx";
+import ChatPage from "./chatroom";
 import chatImage from './images/chat.svg';
 import EditImage from './images/edit.svg';
 
