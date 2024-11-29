@@ -26,7 +26,7 @@ public class File extends BaseTimeEntity {
     @Column(nullable = false)
     private String originalName;
 
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Part part;
 
     @Builder
