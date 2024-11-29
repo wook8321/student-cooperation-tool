@@ -144,7 +144,7 @@ function ChatRoom() {
     // 채팅 등록
     const addChatInChatRoom = (frame) => {
         const newMessage = {
-            id: frame.chatId,
+            chatId: frame.chatId,
             nickName: frame.nickName,
             content: frame.content,
             userId: frame.memberId,
@@ -184,7 +184,22 @@ function ChatRoom() {
 
     //채팅 삭제
     const deleteChatInChatRoom = (frame) => {
+        const chatId = frame.chatId;
+        console.log('delete chat: ',chatId);
+        setChatList((prev) =>
+            prev.filter((t) => t.chatId !== chatId));
+    }
 
+    const handleDeleteMessage = (chatId) => {
+        console.log('delete called chat : ',chatId);
+        const data = {
+            roomId : roomId,
+            chatId : chatId
+        }
+        stompClient.current.publish({
+            destination: '/pub/chats/delete',
+            body: JSON.stringify(data)
+        })
     }
     //================================================================================
 
@@ -199,9 +214,10 @@ function ChatRoom() {
                 {chatList.length > 0 ? (
                     chatList.map((chat) => (
                         <ChatMessage
-                            key={chat.id}
+                            key={chat.chatId}
                             message={chat}
                             isMine={userId === chat.userId}
+                            handleDeleteMessage={handleDeleteMessage}
                         />
                     ))
                 ) : (
@@ -247,13 +263,18 @@ function ChatRoom() {
 }
 
 //================================채팅별 출력양식======================================
-function ChatMessage({ message, isMine }) {
+function ChatMessage({ message, isMine, handleDeleteMessage }) {
     return (
         <div
             className={`chat-message-container ${isMine ? "chat-message-mine" : "chat-message-other"}`}
         >
             {!isMine && <div className="chat-author">{message.nickName}</div>}
             <div className="chat-message">{message.content}</div>
+                {isMine && (
+                    <button className="delete-button" onClick={() => handleDeleteMessage(message.chatId)}>
+                        X
+                    </button>
+                )}
         </div>
     );
 }
