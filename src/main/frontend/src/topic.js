@@ -14,7 +14,7 @@ const Topic = () => {
   const [chatModal, setChatModal] = useState(false);
   const {stompClient, isConnected, roomId} = useWebSocket(); // WebSocket 연결 관리
   const navigate = useNavigate();
-
+  const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
 
   // 방의 주제를 가져오는 함수
   const TopicsList = () => {
@@ -52,7 +52,11 @@ const Topic = () => {
   const onConnect = () => {
     //2-1 연결 성공의 경우
     TopicsList()
-    stompClient.current.subscribe(`/sub/rooms/${roomId}/topics`, receiveMessage, receiveError);
+    subscriptions.current = stompClient.current.subscribe(
+        `/sub/rooms/${roomId}/topics`,
+        receiveMessage,
+        receiveError
+    );
   }
 
   useEffect(() => {
@@ -64,7 +68,7 @@ const Topic = () => {
 
     return () => {
       if (stompClient.current) {
-        stompClient.current.deactivate(); // 언마운트 시 웹소켓 비활성화
+        subscriptions.current.unsubscribe();
       }
     };
   }, [roomId]);
@@ -143,11 +147,6 @@ const Topic = () => {
         body: JSON.stringify(data)
     })
   };
-  // ============================================채팅 관련===========================================
-  const toggleChatModal = () => {
-    setChatModal((prevState) => !prevState);
-  };
-  // ===============================================================================================
 
   const goSection = (path, subUrl) => {
     alert(path + " " + subUrl)
@@ -217,14 +216,17 @@ const Topic = () => {
               </div>
           )}
 
-          <div>
-            <button className="chat-button" onClick={toggleChatModal}>
-              <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
-            </button>
-            <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
-              {chatModal && <ChatPage/>}
-            </div>
-          </div>
+          <button>
+            <img className="chat_image" onClick={() => setChatModal(true)} src={chatImage} alt="채팅창 이미지"/>
+          </button>
+
+          {chatModal && (
+              <div className="chat-overlay">
+                <div className="chat-content">
+                  <button className="chat-close-button" onClick={() => setChatModal(false)}> X</button>
+                </div>
+              </div>
+          )}
 
           <div className="process">
             <div>주제 선정</div>

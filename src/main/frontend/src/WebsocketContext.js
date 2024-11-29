@@ -23,7 +23,6 @@ export const WebSocketProvider = ({ children }) => {
     }
 
     useEffect(() => {
-        alert("소켓 연결중, roomId = " + roomId + " subUrl = " + subUrl + "user = " + userId);
         stompClient.current = new Client({
             webSocketFactory: () => new SockJS(`${domain}/ws-stomp`),
             connectHeaders: {
