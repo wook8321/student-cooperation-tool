@@ -29,7 +29,7 @@ const Footer = () => {
             <Link to="/project">
                 <img src={projectImage} alt="프로젝트 이미지" />
             </Link>
-            <Link>
+            <Link className="exit-link">
                 <img onClick={handleClick} src={exitDoor}/>
             </Link>
         </footer>

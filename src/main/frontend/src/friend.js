@@ -75,7 +75,6 @@ const Friend = () => {
         },  { "Content-Type": "application/json"},)
         .then((res) => {
           console.log("Friend added:", res.data);
-          handleCloseModal(); // 친구 추가 후 모달 닫기
           createFriendDiv(email,profile, nickname);
         })
         .catch(() => {

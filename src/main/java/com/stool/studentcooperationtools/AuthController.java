@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools;
 
+import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,5 +19,10 @@ public class AuthController {
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
+    }
+
+    @GetMapping("/user-info")
+    public ResponseEntity<Long> userInfo(SessionMember sessionMember){
+        return new ResponseEntity<>(sessionMember.getMemberSeq(), HttpStatus.OK);
     }
 }

@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import './topic.css';
 import chatImage from './images/chat.svg';
 import {domain} from "./domain";
+import ChatPage from "./chatroom";
 
 const Topic = () => {
   const [topics, setTopics] = useState({num: 0, topics: []});
@@ -43,7 +44,7 @@ const Topic = () => {
 
   const receiveError = (error) => {
     //3-2 구독한 url에서 온 메세지를 못 받아 에러가 발생했을 때
-    alert("방에 입장에 실패하였습니다.");
+    alert("방 입장에 실패하였습니다.");
     console.error("STOMP Error", error);
     window.location.href = "/";
   }
@@ -67,7 +68,6 @@ const Topic = () => {
 
     return () => {
       if (stompClient.current) {
-        alert(`/sub/rooms${roomId}/topics, 구독을 취소합니다.`)
         subscriptions.current.unsubscribe();
       }
     };
@@ -147,8 +147,6 @@ const Topic = () => {
         body: JSON.stringify(data)
     })
   };
-
-  // ===============================================================================================
 
   const goSection = (path, subUrl) => {
     alert(path + " " + subUrl)
