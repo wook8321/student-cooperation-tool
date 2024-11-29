@@ -7,7 +7,9 @@ import './ppt.css';
 import ChatPage from "./chatroom";
 import chatImage from './images/chat.svg';
 import EditImage from './images/edit.svg';
+import pptImage from './images/ppt.svg';
 import {domain} from "./domain";
+import emptyBox from "./images/emptyBox.svg";
 
 const PPT = () => {
   const [pptModal, setPPTModal] = useState(false); // ppt 생성 클릭 시 나오는 모달
@@ -20,10 +22,10 @@ const PPT = () => {
   const pptThumbURL = 'https://drive.google.com/thumbnail?authuser=0&sz=w320&id='
   const [newPPTName, setNewPPTName] = useState(' ');
   const [isLoading, setIsLoading] = useState(false);
-
+  const isLeader = (userId === leaderId);
   // 방의 PPT를 가져오는 함수
   const fetchPPT = () => {
-      console.log(domain, roomId);
+      console.log(userId, leaderId);
       axios.get(`${domain}/api/v1/rooms/${roomId}/presentation`)
           .then((res) => {
             setPPTData(res.data.data);
@@ -105,9 +107,7 @@ const PPT = () => {
       console.log('new PPT : ', frame);
       setPPTData(frame);
   }
-  //============================================================================
-
-
+  //==================================PPT 업데이트========================================
   // 수정 버튼 클릭 시
   const editPPT = () => {
     if (stompClient && pptData.presentationId) {
@@ -124,11 +124,21 @@ const PPT = () => {
     setEditMode(true);
     setPPTModal(true);
   }};
+  //================================PPT 다운로드===================================
+    const downloadPDF = () => {
 
+    }
+
+    const downloadPPT = () => {
+
+    }
+
+  //뒤로가기
   const goBack = () => {
     navigate("/project"); // "/project" 경로로 이동
   };
 
+  //채팅창 토글로 구현
   const toggleChatModal = () => {
         setChatModal((prevState) => !prevState);
   };
@@ -148,86 +158,111 @@ const PPT = () => {
 
   return (
       <>
-          <div className="background">
-              <button onClick={goBack} className="back_link">
-                  뒤로 가기
-              </button>
-              <div className="PPT">
-                  {!pptData ? (
-                      // PPT 경로가 없으면 생성 버튼
-                      <button className="create-ppt-btn" onClick={() => setPPTModal(true)}>
-                          PPT 생성
-                      </button>
+      <div className="background">
+          <button onClick={goBack} className="back_link">
+              뒤로 가기
+          </button>
+          <div className="ppt-container">
+              {/* 발표자료가 없을 때 */}
+              {!pptData ? (
+                  isLeader ? (
+                      <div className="no-ppt-container">
+                          <p className="no-ppt-text">새로운 발표자료를 생성해 보세요!</p>
+                          <button className="create-ppt-btn" onClick={() => setPPTModal(true)}>
+                              생성
+                          </button>
+                      </div>
                   ) : (
+                      <div className="no-ppt-view">
+                          <img src={pptImage} height="300" width="300"/>
+                          <p className="no-ppt-text">아직 발표자료가 등록되지 않았어요.</p>
+                      </div>
+                  )
+              ) : (
+                  <div className="ppt-content">
+                      {/* 썸네일 */}
                       <div className="ppt-thumbnail-container">
                           <img
                               src={`${pptThumbURL}${pptData.presentationId}`}
                               alt="PPT 썸네일"
                               className="ppt-thumbnail"
-                              onClick={() => navigate("/slide")}
                           />
-
-                          <button className="edit-ppt-btn">
-                              <img className="edit_image" onClick={() => editPPT()} src={EditImage} alt="수정버튼 이미지"/>
-                          </button>
                       </div>
-                  )}
 
-                  {pptModal && (
-                      <div className="ppt-modal">
-                          <h2>{editMode ? 'PPT 수정' : 'PPT 등록'}</h2>
-                          <p>생성할 ppt 제목을 아래에 작성해주세요.</p>
-                          <input
-                              type="text"
-                              value={newPPTName}
-                              onChange={(e) => setNewPPTName(e.target.value)}
-                          />
-                          <div className="modal-buttons">
-                              <button className="close-modal-btn" onClick={()=>setPPTModal(false)}>
-                                  닫기
+                      {/* 오른쪽 버튼 영역 */}
+                      <div className="ppt-actions">
+                          <div className="download-buttons">
+                              <button onClick={() => downloadPDF()} className="download-pdf-btn">
+                                  PDF로 다운하기
                               </button>
-                              <div>
-                              {isLoading && (
-                                  <div className="loading-overlay">
-                                      <div className="spinner"></div>
-                                      <p>Loading...</p>
-                                  </div>
-                              )}
-                              </div>
-                              <button className="register-btn" onClick={createPPT} disabled={isLoading}>
-                                  {isLoading ? '생성 중...' : '생성'}
+                              <button onClick={() => downloadPPT()} className="download-ppt-btn">
+                                  PPT로 다운하기
                               </button>
-                              </div>
-                      </div>
-                  )}
-
-
-                  <div className="process-container">
-                      <div className="process-step">
-                          <div className="process-text">주제 선정</div>
-                      </div>
-                      <div className="process-step">
-                          <div className="process-text">자료 조사</div>
-                      </div>
-                      <div className="process-step">
-                          <div className="process-text">발표 자료</div>
-                      </div>
-                      <div className="process-step">
-                          <div className="process-text">발표 준비</div>
+                          </div>
+                          {isLeader && (
+                              <button className="edit-ppt-btn" onClick={() => editPPT()}>
+                                  수정
+                              </button>
+                          )}
                       </div>
                   </div>
+              )}
 
-                  <div>
-                      <button className="chat-button" onClick={toggleChatModal}>
-                          <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
+          {pptModal && (
+              <div className="ppt-modal">
+                  <h2>{editMode ? 'PPT 수정' : 'PPT 등록'}</h2>
+                  <p>생성할 ppt 제목을 아래에 작성해주세요.</p>
+                  <input
+                      type="text"
+                      value={newPPTName}
+                      onChange={(e) => setNewPPTName(e.target.value)}
+                  />
+                  <div className="modal-buttons">
+                      <button className="close-modal-btn" onClick={() => setPPTModal(false)}>
+                          닫기
                       </button>
-                      <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
-                          {chatModal && <ChatPage/>}
+                      <div>
+                          {isLoading && (
+                              <div className="loading-overlay">
+                                  <div className="spinner"></div>
+                                  <p>Loading...</p>
+                              </div>
+                          )}
                       </div>
+                      <button className="register-btn" onClick={createPPT} disabled={isLoading}>
+                          {isLoading ? '생성 중...' : '생성'}
+                      </button>
                   </div>
               </div>
+          )}
+
+
+          <div className="process-container">
+              <div className="process-step">
+                  <div className="process-text">주제 선정</div>
+              </div>
+              <div className="process-step">
+                  <div className="process-text">자료 조사</div>
+              </div>
+              <div className="process-step">
+                  <div className="process-text">발표 자료</div>
+              </div>
+              <div className="process-step">
+                  <div className="process-text">발표 준비</div>
+              </div>
           </div>
-      </>
+
+          <div>
+              <button className="chat-button" onClick={toggleChatModal}>
+                  <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
+              </button>
+              <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
+                  {chatModal && <ChatPage/>}
+              </div>
+          </div>
+      </div>
+      </div>
+</>
   );
 };
 
