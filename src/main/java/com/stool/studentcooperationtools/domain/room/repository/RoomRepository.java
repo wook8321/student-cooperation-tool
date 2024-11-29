@@ -29,5 +29,8 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     @Query("select exists(select 1 from Participation p where p.member.id = :memberId and p.room.id = :roomId)")
     Boolean existMemberInRoom(@Param("memberId") Long memberId, @Param("roomId") Long roomId);
+
+    @Query("select exists(select 1 from Participation p where p.member.email = :email and p.room.id = :roomId)")
+    Boolean existMemberInRoom(@Param("email") String email, @Param("roomId") Long roomId);
 }
 

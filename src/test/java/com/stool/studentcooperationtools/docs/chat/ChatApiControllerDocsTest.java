@@ -52,7 +52,7 @@ public class ChatApiControllerDocsTest extends RestDocsSupport {
                 .hasNext(true)
                 .build();
 
-        Mockito.when(chatService.findChats(Mockito.anyLong(),Mockito.anyInt()))
+        Mockito.when(chatService.findChats(Mockito.anyLong(),Mockito.anyInt(),Mockito.anyLong()))
                 .thenReturn(response);
 
         //when

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class VoteAddWebSocketRequest {
+public class VoteUpdateWebSocketRequest {
 
     @NotNull
     private Long roomId;
@@ -16,7 +16,7 @@ public class VoteAddWebSocketRequest {
     private Long topicId;
 
     @Builder
-    private VoteAddWebSocketRequest(final Long roomId, final Long topicId) {
+    private VoteUpdateWebSocketRequest(final Long roomId, final Long topicId) {
         this.roomId = roomId;
         this.topicId = topicId;
     }

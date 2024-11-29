@@ -225,21 +225,3 @@ textarea {
     padding: 5px 10px;
     cursor: pointer;
 }
-
-.delete-file-button {
-    margin-left: "10px";
-    color : white;
-    background-color: "red";
-    border: "none";
-    padding: "2px 5px";
-    cursor: "pointer";
-}
-
-.download-file-button {
-    margin-left: "10px";
-    color : white;
-    background-color: blue;
-    border: "none";
-    padding: "2px 5px";
-    cursor: "pointer";
-}

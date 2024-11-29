@@ -60,7 +60,7 @@ class VoteRepositoryTest extends IntegrationTest {
                 .voter(member)
                 .topic(topic)
                 .build();
-        topic.addVote(vote);
+        topic.addVoteNum();
         topicRepository.save(topic);
         voteRepository.save(vote);
         //when
@@ -97,7 +97,7 @@ class VoteRepositoryTest extends IntegrationTest {
                 .voter(member)
                 .topic(topic)
                 .build();
-        topic.addVote(vote);
+        topic.addVoteNum();
         topicRepository.save(topic);
         voteRepository.save(vote);
         //when

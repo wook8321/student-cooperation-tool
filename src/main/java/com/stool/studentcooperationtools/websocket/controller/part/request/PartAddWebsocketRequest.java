@@ -12,11 +12,14 @@ public class PartAddWebsocketRequest {
     private Long roomId;
     @NotBlank
     private String partName;
+    @NotNull
+    private Long memberId;
 
     @Builder
-    private PartAddWebsocketRequest(final Long roomId, final String partName) {
+    private PartAddWebsocketRequest(final Long roomId, final String partName,final Long memberId) {
         this.roomId = roomId;
         this.partName = partName;
+        this.memberId = memberId;
     }
 
 }

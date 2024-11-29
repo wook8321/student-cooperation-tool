@@ -46,7 +46,6 @@ public class TopicApiControllerDocsTest extends RestDocsSupport {
                         .topicId(1L)
                         .memberId(1L)
                         .voteNum(votes.size())
-                        .votes(votes)
                         .topic("주제")
                         .build()
         );

@@ -1,10 +1,13 @@
 package com.stool.studentcooperationtools.domain.room.service;
 
 import com.stool.studentcooperationtools.domain.PagingUtils;
+import com.stool.studentcooperationtools.domain.chat.repository.ChatRepository;
 import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.member.repository.MemberRepository;
+import com.stool.studentcooperationtools.domain.part.repository.PartRepository;
 import com.stool.studentcooperationtools.domain.participation.Participation;
 import com.stool.studentcooperationtools.domain.participation.repository.ParticipationRepository;
+import com.stool.studentcooperationtools.domain.presentation.repository.PresentationRepository;
 import com.stool.studentcooperationtools.domain.presentation.service.PresentationService;
 import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
@@ -39,6 +42,9 @@ public class RoomService {
     private final TopicRepository topicRepository;
     private final ParticipationRepository participationRepository;
     private final PresentationService presentationService;
+    private final ChatRepository chatRepository;
+    private final PartRepository partRepository;
+    private final PresentationRepository presentationRepository;
 
     public RoomsFindResponse findRooms(SessionMember member, final int page) {
         Pageable pageable = PageRequest.of(page, PagingUtils.ROOM_PAGING_PARSE);
@@ -59,7 +65,7 @@ public class RoomService {
         try {
             roomRepository.save(room);
         } catch (DataIntegrityViolationException e){
-            throw new IllegalArgumentException("방 정보 오류입니다");
+            throw new DataIntegrityViolationException("방 제목 중복 오류입니다");
         }
         participationRepository.save(Participation.of(user, room));
         List<Member> memberList = memberRepository.findMembersByMemberIdList(request.getParticipation());
@@ -84,6 +90,10 @@ public class RoomService {
         Room room = roomRepository.findRoomByRoomId(member.getMemberSeq(), request.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("소속되지 않은 방 정보입니다"));
         if(Objects.equals(member.getMemberSeq(), room.getLeader().getId())){
+            chatRepository.deleteByRoomId(room.getId());
+            partRepository.deleteByRoomId(room.getId());
+            topicRepository.deleteByRoomId(room.getId());
+            presentationRepository.deleteByRoomId(room.getId());
             participationRepository.deleteByRoomId(room.getId());
             roomRepository.deleteById(room.getId());
         }

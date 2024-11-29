@@ -17,6 +17,7 @@ const handleClick = () => {
 const Footer = () => {
     return (
         <footer>
+            <h2>Stool</h2>
             <Link to="/">
                 <img src={homeImage} alt="홈 화면" />
             </Link>
@@ -28,8 +29,8 @@ const Footer = () => {
             <Link to="/project">
                 <img src={projectImage} alt="프로젝트 이미지" />
             </Link>
-            <Link>
-                <img onClick={handleClick} src={exitDoor} alt="프로젝트 이미지" />
+            <Link className="exit-link">
+                <img onClick={handleClick} src={exitDoor}/>
             </Link>
         </footer>
     );

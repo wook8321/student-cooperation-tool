@@ -1,0 +1,10 @@
+/*폰트 지정*/
+*{
+    font-family: "Jua", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+@font-face {
+    font-family: "Jua";
+    src: url("fonts/BMJUA_ttf.ttf");
+}
