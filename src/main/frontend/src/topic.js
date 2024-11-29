@@ -61,7 +61,6 @@ const Topic = () => {
 
   useEffect(() => {
     //1. broker endPoint에 연결, WebsocketConfig에 설정한 EndPoint를 말함
-    alert(roomId)
     if (stompClient.current) {
       stompClient.current.activate(); // 웹소켓 활성화
     }
@@ -148,6 +147,12 @@ const Topic = () => {
     })
   };
 
+  // ============================================채팅 관련===========================================
+  const toggleChatModal = () => {
+    setChatModal((prevState) => !prevState);
+  };
+  // ==================================================================================================
+
   const goSection = (path, subUrl) => {
     alert(path + " " + subUrl)
     navigate(path, {state: {
@@ -216,17 +221,14 @@ const Topic = () => {
               </div>
           )}
 
-          <button>
-            <img className="chat_image" onClick={() => setChatModal(true)} src={chatImage} alt="채팅창 이미지"/>
-          </button>
-
-          {chatModal && (
-              <div className="chat-overlay">
-                <div className="chat-content">
-                  <button className="chat-close-button" onClick={() => setChatModal(false)}> X</button>
-                </div>
-              </div>
-          )}
+          <div>
+            <button className="chat-button" onClick={toggleChatModal}>
+              <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
+            </button>
+            <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
+              {chatModal && <ChatPage/>}
+            </div>
+          </div>
 
           <div className="process">
             <div>주제 선정</div>
