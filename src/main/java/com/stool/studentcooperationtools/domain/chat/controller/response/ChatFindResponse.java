@@ -12,13 +12,11 @@ public class ChatFindResponse {
 
     private int num;
     private List<ChatFindDto> chats;
-    private boolean hasNext;
 
     @Builder
-    private ChatFindResponse(final int num, final List<ChatFindDto> chats,boolean hasNext) {
+    private ChatFindResponse(final int num, final List<ChatFindDto> chats) {
         this.num = num;
         this.chats = chats;
-        this.hasNext = hasNext;
     }
 
     public static ChatFindResponse of(Slice<Chat> chats){
@@ -28,7 +26,6 @@ public class ChatFindResponse {
                         .map(ChatFindDto::of)
                         .toList()
                 )
-                .hasNext(chats.hasNext())
                 .build();
     }
 }
