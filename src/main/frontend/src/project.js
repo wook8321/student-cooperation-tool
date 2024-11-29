@@ -20,6 +20,7 @@ const RoomList = ({setCreateModal}) => {
     const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태 추가
     const navigate = useNavigate();
     const [userId, setUserId] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     //유저 id 들고오기(소켓에서 활용)
     const userFetch = async () => {
         try {
@@ -53,22 +54,27 @@ const RoomList = ({setCreateModal}) => {
     }, []);
 
 
-    const deleteRoom = (roomId) => {
-        axios
-            .delete(`${domain}/api/v1/rooms`, {
+
+    const deleteRoom = async (roomId) => {
+        try {
+            setIsLoading(true); // 로딩 시작
+            await axios.delete(`${domain}/api/v1/rooms`, {
                 data: {
                     roomId,
                 },
-            })
-            .then((res) => {
-                const roomCard = document.getElementById('room'+`${roomId}`);
-                fetchRooms(currentPage)
-            })
-            .catch(() => {
-                alert("프로젝트를 삭제하지 못했습니다.")
-                console.log("Failed to delete room");
             });
-    }
+            const roomCard = document.getElementById('room' + `${roomId}`);
+            if (roomCard) {
+                roomCard.remove(); // DOM에서 카드 제거
+            }
+            fetchRooms(currentPage); // 방 목록 다시 불러오기
+        } catch (error) {
+            alert("프로젝트를 삭제하지 못했습니다.");
+            console.error("Failed to delete room:", error);
+        } finally {
+            setIsLoading(false); // 로딩 종료
+        }
+    };
 
     function verifyPasswordAndEnterRoom(roomId){
         const password = document.getElementById("roomPasswordInput").value
@@ -138,6 +144,14 @@ const RoomList = ({setCreateModal}) => {
             <div>
                 {rooms.num > 0 ? (
                     <>
+                        <div>
+                            {isLoading && (
+                                <div className="loading-overlay">
+                                    <div className="spinner"></div>
+                                    <p className="loading-text">Loading...</p>
+                                </div>
+                            )}
+                        </div>
                         <div className="card-container">
                             {rooms.rooms.map((room) => {
                                 const capColors = ["pink-cap", "green-cap", "orange-cap"];

@@ -657,3 +657,48 @@ h3, h2 {
     font-size: 14px;
     margin-bottom: 10px;
 }
+
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loading-text {
+    display: flex;
+    align-items: center;
+    gap: 10px;  /* 스피너와 텍스트 사이 간격 */
+}
+
+/* 텍스트 스타일에 클래스 적용 */
+.loading-text-message {
+    color: white; /* 텍스트 색상 */
+    font-size: 18px; /* 글자 크기 */
+    font-weight: bold; /* 글자 두께 */
+}
+
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #fff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
