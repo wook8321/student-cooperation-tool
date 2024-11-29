@@ -4,6 +4,7 @@ import { WebSocketProvider } from './WebsocketContext';
 import Login from './login.js';
 import Main from './main.js';
 import Friend from './friend.js';
+import Project from './project.js';
 import Auth from "./auth";
 import Topic from "./topic";
 import Part from "./part";
