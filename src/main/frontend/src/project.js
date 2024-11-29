@@ -50,7 +50,6 @@ const RoomList = ({setCreateModal}) => {
         fetchRooms(0);
         // 첫 페이지로 초기화
         userFetch();
-
     }, []);
 
 
@@ -501,6 +500,7 @@ const Project = () => {
                         </button>
                     </form>
                         <RoomList setCreateModal={setCreateModal}/>
+
                         {searchModal && (
                             <div className="add_project_container">
                                 <div className="modal_overlay" onClick={closeSearchModal}>
@@ -642,6 +642,5 @@ const Project = () => {
     </div>
   );
 };
-
 
 export default Project;
