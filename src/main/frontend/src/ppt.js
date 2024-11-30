@@ -125,6 +125,7 @@ const PPT = () => {
               setIsValid(true);
           })
           .catch(()=>{
+               setIsLoading(false);
             setErrorMessage("존재하지 않는 슬라이드입니다. 다시 확인해주세요");
           })
   }
