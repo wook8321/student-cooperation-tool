@@ -6,26 +6,24 @@ import { useWebSocket } from './WebsocketContext'; // WebSocketProvider의 훅 �
 import './ppt.css';
 import ChatPage from "./chatroom";
 import chatImage from './images/chat.svg';
-import EditImage from './images/edit.svg';
 import pptImage from './images/ppt.svg';
 import {domain} from "./domain";
-import emptyBox from "./images/emptyBox.svg";
 
 const PPT = () => {
   const [pptModal, setPPTModal] = useState(false); // ppt 생성 클릭 시 나오는 모달
   const [pptData, setPPTData] = useState(null); // get한 ppt 데이터 저장 공간
-  const [editMode, setEditMode] = useState(false); // 처음 생성인 지, 이후 수정인 지 구별
+  const [editModal, setEditModal] = useState(false); // ppt 수정 모달
   const [chatModal, setChatModal] = useState(false);
   const {stompClient, isConnected, roomId, userId, leaderId} = useWebSocket();
   const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
   const navigate = useNavigate();
   const pptThumbURL = 'https://drive.google.com/thumbnail?authuser=0&sz=w320&id='
-  const [newPPTName, setNewPPTName] = useState(' ');
+  const [newPPTName, setNewPPTName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const isLeader = (userId === leaderId);
+  const [errorMessage, setErrorMessage] = useState('');
   // 방의 PPT를 가져오는 함수
   const fetchPPT = () => {
-      console.log(userId, leaderId);
       axios.get(`${domain}/api/v1/rooms/${roomId}/presentation`)
           .then((res) => {
             setPPTData(res.data.data);
@@ -43,10 +41,9 @@ const PPT = () => {
       //3-1 구독한 url에서 온 메세지를 받았을 때
       const frame = JSON.parse(message.body)
       if (frame.messageType === "PRESENTATION_UPDATE") {
-          //updatePPTInScreen(frame.data)
+          updatePPTInScreen(frame.data)
       } else if (frame.messageType === "PRESENTATION_CREATE") {
           setIsLoading(false);
-          setPPTModal(false);
           createPPTInScreen(frame.data)
       } else {
           console.log("Not Supported Message Type")
@@ -92,6 +89,8 @@ const PPT = () => {
     // PPT 생성 클릭
   const createPPT =  () => {
     setIsLoading(true);
+    setPPTModal(false);
+    setNewPPTName('');
     const data = {
         roomId,
         presentationName: newPPTName
@@ -104,35 +103,53 @@ const PPT = () => {
 
   // 생성된 PPT 반영
   const createPPTInScreen = (frame) => {
-      console.log('new PPT : ', frame);
       setPPTData(frame);
+  }
+
+  const closePPTModal = () => {
+      setPPTModal(false);
+      setNewPPTName('');
   }
   //==================================PPT 업데이트========================================
   // 수정 버튼 클릭 시
+  const updatePPTInScreen = (frame) => {
+      setPPTData(frame);
+  }
   const editPPT = () => {
-    if (stompClient && pptData.presentationId) {
-      const payload = {
-        presentationId: pptData.presentationId,
-        presentationPath: pptData.presentationPath,
-      };
+      const newPath = newPPTName.split('/d/')[1]?.split('/')[0];
+      if(newPath) {
+          const payload = {
+              roomId,
+              presentationPath: newPath,
+          };
+          stompClient.current.publish({
+              destination: "/pub/presentation/update",
+              body: JSON.stringify(payload),
+          });
+          closeEditModal();
+      }
+      else{
+          setErrorMessage("슬라이드 url을 전부 복사해주세요");
+      }
+  };
 
-      stompClient.publish({
-        destination: "/pub/presentations/update",
-        body: payload,
-      });
+  const closeEditModal = () => {
+      setErrorMessage('');
+      setEditModal(false);
+      setNewPPTName('');
+  }
 
-    setEditMode(true);
-    setPPTModal(true);
-  }};
   //================================PPT 다운로드===================================
     const downloadPDF = () => {
-
+        const pdfURL = `${domain}/api/v1/presentation/${pptData.presentationId}/exportPdf`;
+        window.location.href = pdfURL;
     }
 
     const downloadPPT = () => {
-
+        const pptURL = `${domain}/api/v1/presentation/${pptData.presentationId}/exportPptx`;
+        window.location.href = pptURL;
     }
-
+  //==============================================================================
   //뒤로가기
   const goBack = () => {
     navigate("/project"); // "/project" 경로로 이동
@@ -147,123 +164,125 @@ const PPT = () => {
       fetchPPT();
   }, []);
 
-    useEffect(() => {
-        if(pptData){
-           setEditMode(true);
-        }
-        else{
-            setEditMode(false);
-        }
-    }, [pptData]);
-
   return (
-      <>
       <div className="background">
-          <button onClick={goBack} className="back_link">
-              뒤로 가기
-          </button>
+          <button onClick={goBack} className="back_link">뒤로 가기</button>
           <div className="ppt-container">
-              {/* 발표자료가 없을 때 */}
               {!pptData ? (
-                  isLeader ? (
-                      <div className="no-ppt-container">
-                          <p className="no-ppt-text">새로운 발표자료를 생성해 보세요!</p>
-                          <button className="create-ppt-btn" onClick={() => setPPTModal(true)}>
-                              생성
-                          </button>
+                  <div className="no-ppt-container">
+                      <img src={pptImage} className="empty-thumbnail" alt="빈 썸네일" />
+                      <p className="no-ppt-text">
+                          팀장을 통해 새로운 발표자료를 생성해 보세요!<br />
+                          생성된 발표자료는 미리보기 클릭 후 구글 드라이브에서 확인할 수 있습니다.
+                      </p>
+                      {isLeader && (
+                      <div className="button-group">
+                          <button className="create-ppt-btn" onClick={() => setPPTModal(true)}>새 슬라이드 생성</button>
+                          <button className="edit-ppt-btn" onClick={() => setEditModal(true)}>기존 슬라이드 등록</button>
                       </div>
-                  ) : (
-                      <div className="no-ppt-view">
-                          <img src={pptImage} height="300" width="300"/>
-                          <p className="no-ppt-text">아직 발표자료가 등록되지 않았어요.</p>
-                      </div>
-                  )
+                          )}
+                  </div>
               ) : (
                   <div className="ppt-content">
-                      {/* 썸네일 */}
-                      <div className="ppt-thumbnail-container">
                           <img
-                              src={`${pptThumbURL}${pptData.presentationId}`}
+                              src={'https://lh3.googleusercontent.com/a/ACg8ocIVE91mLIl5JWIJMspkKSG8TkwjqURIkAXOIp6UMRhwa3UoBg=s360-c-no'}
                               alt="PPT 썸네일"
-                              className="ppt-thumbnail"
+                              className="main-thumbnail"
+                              onClick={() => {
+                                  const slideUrl = `https://docs.google.com/presentation/d/${pptData.presentationPath}`;
+                                  window.open(slideUrl, "_blank");
+                              }}
                           />
-                      </div>
-
-                      {/* 오른쪽 버튼 영역 */}
-                      <div className="ppt-actions">
-                          <div className="download-buttons">
-                              <button onClick={() => downloadPDF()} className="download-pdf-btn">
-                                  PDF로 다운하기
-                              </button>
-                              <button onClick={() => downloadPPT()} className="download-ppt-btn">
-                                  PPT로 다운하기
-                              </button>
-                          </div>
+                      <div className="bookmark-buttons">
+                          <button className="download-pdf-btn" onClick={downloadPDF}>PDF로 다운로드</button>
+                          <button className="download-ppt-btn" onClick={downloadPPT}>PPT로 다운로드</button>
                           {isLeader && (
-                              <button className="edit-ppt-btn" onClick={() => editPPT()}>
-                                  수정
-                              </button>
+                              <>
+                                  <button className="create-ppt-after-btn" onClick={() => setPPTModal(true)}>새 슬라이드 생성</button>
+                                  <button className="edit-ppt-after-btn" onClick={() => setEditModal(true)}>기존 슬라이드 등록</button>
+                              </>
                           )}
                       </div>
                   </div>
               )}
+          </div>
 
-          {pptModal && (
-              <div className="ppt-modal">
-                  <h2>{editMode ? 'PPT 수정' : 'PPT 등록'}</h2>
-                  <p>생성할 ppt 제목을 아래에 작성해주세요.</p>
-                  <input
-                      type="text"
-                      value={newPPTName}
-                      onChange={(e) => setNewPPTName(e.target.value)}
-                  />
-                  <div className="modal-buttons">
-                      <button className="close-modal-btn" onClick={() => setPPTModal(false)}>
-                          닫기
+              {isLoading && (
+                  <div className="loading-overlay">
+                      <div className="spinner"></div>
+                      <p>Loading...</p>
+                  </div>
+              )}
+
+              {pptModal && (
+                  <div className="ppt-modal-overlay" onClick={closePPTModal}>
+                  <div className="ppt-modal" onClick={(e)=>e.stopPropagation()}>
+                      <h2>PPT 생성</h2>
+                      <p>생성 할 ppt 제목을 아래에 작성해주세요.</p>
+                      <input className="ppt-input"
+                          type="text"
+                          value={newPPTName}
+                          onChange={(e) => setNewPPTName(e.target.value)}
+                      />
+                      <button className="register-btn" onClick={createPPT}>
+                          생성
                       </button>
-                      <div>
-                          {isLoading && (
-                              <div className="loading-overlay">
-                                  <div className="spinner"></div>
-                                  <p>Loading...</p>
-                              </div>
-                          )}
-                      </div>
-                      <button className="register-btn" onClick={createPPT} disabled={isLoading}>
-                          {isLoading ? '생성 중...' : '생성'}
+                      <button className="close-modal-btn" onClick={closePPTModal}>
+                          X
                       </button>
                   </div>
-              </div>
-          )}
+                  </div>
+              )}
+
+              {editModal && (
+                  <div className="ppt-modal-overlay" onClick={closeEditModal}>
+                      <div className="ppt-modal" onClick={(e)=>e.stopPropagation()}>
+                          <h2>PPT 등록</h2>
+                          <p>등록 할 슬라이드 url을 아래에 붙여넣기 해주세요.</p>
+                          <input className="ppt-input"
+                                 type="text"
+                                 value={newPPTName}
+                                 onChange={(e) => setNewPPTName(e.target.value)}
+                          />
+                          {errorMessage && (
+                              <p className="error-message">{errorMessage}</p>
+                          )}
+                          <button className="register-btn" onClick={editPPT}>
+                              등록
+                          </button>
+                          <button className="close-modal-btn" onClick={closeEditModal}>
+                              X
+                          </button>
+                      </div>
+                  </div>
+                      )}
 
 
-          <div className="process-container">
-              <div className="process-step">
-                  <div className="process-text">주제 선정</div>
-              </div>
-              <div className="process-step">
-                  <div className="process-text">자료 조사</div>
-              </div>
-              <div className="process-step">
-                  <div className="process-text">발표 자료</div>
-              </div>
-              <div className="process-step">
-                  <div className="process-text">발표 준비</div>
-              </div>
-          </div>
+                      <div className="process-container">
+                          <div className="process-step">
+                              <div className="process-text">주제 선정</div>
+                          </div>
+                          <div className="process-step">
+                              <div className="process-text">자료 조사</div>
+                          </div>
+                          <div className="process-step">
+                              <div className="process-text">발표 자료</div>
+                          </div>
+                          <div className="process-step">
+                              <div className="process-text">발표 준비</div>
+                          </div>
+                      </div>
 
-          <div>
-              <button className="chat-button" onClick={toggleChatModal}>
-                  <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
-              </button>
-              <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
-                  {chatModal && <ChatPage/>}
-              </div>
-          </div>
-      </div>
-      </div>
-</>
-  );
-};
+                      <div>
+                          <button className="chat-button" onClick={toggleChatModal}>
+                              <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
+                          </button>
+                          <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
+                              {chatModal && <ChatPage/>}
+                          </div>
+                      </div>
+                  </div>
+              );
+              };
 
-export default PPT;
+          export default PPT;
