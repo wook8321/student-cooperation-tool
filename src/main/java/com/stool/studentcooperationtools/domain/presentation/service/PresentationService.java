@@ -110,12 +110,20 @@ public class PresentationService {
         catch (IOException e) {
             throw new VerifyException(e.getMessage(),e.getCause());
         }
-        Presentation presentation = Presentation.builder()
-                .room(room)
-                .presentationPath(fileId)
-                .build();
-        presentationRepository.save(presentation);
-        return PresentationUpdateSocketResponse.of(presentation);
+        if(presentationRepository.existsByRoomId(room.getId())){
+            Presentation presentation = presentationRepository.findByRoomId(room.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("발표자료를 들고 오던 중 에러 발생"));
+            presentation.updatePath(fileId);
+            return PresentationUpdateSocketResponse.of(presentation);
+        }
+        else {
+            Presentation presentation = Presentation.builder()
+                    .room(room)
+                    .presentationPath(fileId)
+                    .build();
+            presentationRepository.save(presentation);
+            return PresentationUpdateSocketResponse.of(presentation);
+        }
     }
 
     public ByteArrayOutputStream exportPdf(HttpCredentialsAdapter credentialsAdapter, Long presentationId) {
