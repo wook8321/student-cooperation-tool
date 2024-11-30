@@ -14,13 +14,16 @@ public class FileDeleteWebsocketRequest {
     @NotNull
     private Long roomId;
     @NotNull
+    private Long partId;
+    @NotNull
     private Long fileId;
     @NotBlank
     private String fileName;
 
     @Builder
-    private FileDeleteWebsocketRequest(final Long roomId, final Long fileId, final String fileName) {
+    private FileDeleteWebsocketRequest(final Long roomId, final Long partId, final Long fileId, final String fileName) {
         this.roomId = roomId;
+        this.partId = partId;
         this.fileId = fileId;
         this.fileName = fileName;
     }
