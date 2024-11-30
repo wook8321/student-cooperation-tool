@@ -17,11 +17,12 @@ const PPT = () => {
   const {stompClient, isConnected, roomId, userId, leaderId} = useWebSocket();
   const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
   const navigate = useNavigate();
-  const pptThumbURL = 'https://drive.google.com/thumbnail?authuser=0&sz=w320&id='
+  const [isValid, setIsValid] = useState(false);
   const [newPPTName, setNewPPTName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const isLeader = (userId === leaderId);
   const [errorMessage, setErrorMessage] = useState('');
+  const [newPath, setNewPath] = useState('');
   // 방의 PPT를 가져오는 함수
   const fetchPPT = () => {
       axios.get(`${domain}/api/v1/rooms/${roomId}/presentation`)
@@ -41,6 +42,7 @@ const PPT = () => {
       //3-1 구독한 url에서 온 메세지를 받았을 때
       const frame = JSON.parse(message.body)
       if (frame.messageType === "PRESENTATION_UPDATE") {
+          setIsLoading(false);
           updatePPTInScreen(frame.data)
       } else if (frame.messageType === "PRESENTATION_CREATE") {
           setIsLoading(false);
@@ -115,28 +117,48 @@ const PPT = () => {
   const updatePPTInScreen = (frame) => {
       setPPTData(frame);
   }
+
+  const checkValidPPT = (newPath) => {
+      axios.get(`${domain}/api/v1/checkValidPPT/${newPath}`)
+          .then(()=>{
+              setNewPath(newPath);
+              setIsValid(true);
+          })
+          .catch(()=>{
+            setErrorMessage("존재하지 않는 슬라이드입니다. 다시 확인해주세요");
+          })
+  }
   const editPPT = () => {
+      setIsLoading(true);
       const newPath = newPPTName.split('/d/')[1]?.split('/')[0];
       if(newPath) {
-          const payload = {
-              roomId,
-              presentationPath: newPath,
-          };
-          stompClient.current.publish({
-              destination: "/pub/presentation/update",
-              body: JSON.stringify(payload),
-          });
-          closeEditModal();
+          checkValidPPT(newPath);
       }
       else{
+          setIsLoading(false);
           setErrorMessage("슬라이드 url을 전부 복사해주세요");
       }
   };
+
+    useEffect(() => {
+        if(isValid) {
+            const payload = {
+                roomId,
+                presentationPath: newPath,
+            };
+            stompClient.current.publish({
+                destination: "/pub/presentation/update",
+                body: JSON.stringify(payload),
+            });
+            closeEditModal();
+        }
+    }, [isValid]);
 
   const closeEditModal = () => {
       setErrorMessage('');
       setEditModal(false);
       setNewPPTName('');
+      setNewPath('');
   }
 
   //================================PPT 다운로드===================================
@@ -185,7 +207,7 @@ const PPT = () => {
               ) : (
                   <div className="ppt-content">
                           <img
-                              src={'https://lh3.googleusercontent.com/a/ACg8ocIVE91mLIl5JWIJMspkKSG8TkwjqURIkAXOIp6UMRhwa3UoBg=s360-c-no'}
+                              src={'https://drive.google.com/thumbnail?id='+pptData.presentationPath}
                               alt="PPT 썸네일"
                               className="main-thumbnail"
                               onClick={() => {
