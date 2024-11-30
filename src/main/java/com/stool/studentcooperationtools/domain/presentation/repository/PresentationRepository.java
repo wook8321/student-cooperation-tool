@@ -16,4 +16,8 @@ public interface PresentationRepository extends JpaRepository<Presentation, Long
 
     Boolean existsByRoomId(Long roomId);
 
+    @Modifying
+    @Query("delete from Presentation p where p.room.id =:roomId")
+    void deleteByRoomId(@Param("roomId") Long roomId);
+
 }

@@ -1,6 +1,5 @@
 /* 전체 레이아웃 */
 .container {
-    height: 100vh;
     display: flex;
     background-color: #f9fafc;
     font-family: "Roboto", Arial, sans-serif;
@@ -38,8 +37,13 @@ footer > a > img:hover {
     transform: scale(1.1);
 }
 
+.exit-link {
+    margin-top: auto; /* 남는 공간을 위로 밀기 */
+}
+
 /* 메인 컨텐츠 스타일 */
 main {
+    min-height: 100vh;
     flex: 1;
     display: flex;
     flex-direction: column;

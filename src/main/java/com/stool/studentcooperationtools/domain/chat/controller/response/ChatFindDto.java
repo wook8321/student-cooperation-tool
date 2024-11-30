@@ -14,14 +14,16 @@ public class ChatFindDto {
     private String nickName;
     private String profile;
     private String content;
+    private Long userId;
 
     @Builder
-    private ChatFindDto(final Long chatId, final LocalDate createdTime, final String nickName, final String profile, final String content) {
+    private ChatFindDto(final Long chatId, final LocalDate createdTime, final String nickName, final String profile, final String content, final Long userId) {
         this.chatId = chatId;
         this.createdTime = createdTime;
         this.nickName = nickName;
         this.profile = profile;
         this.content = content;
+        this.userId = userId;
     }
 
     public static ChatFindDto of(Chat chat){
@@ -31,6 +33,7 @@ public class ChatFindDto {
                 .nickName(chat.getMember().getNickName())
                 .profile(chat.getMember().getProfile())
                 .content(chat.getContent())
+                .userId(chat.getMember().getId())
                 .build();
     }
 }

@@ -21,7 +21,7 @@ public class Topic extends BaseTimeEntity {
     @Column(nullable = false)
     private String topic;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Room room;
 
     @ManyToOne(fetch = FetchType.LAZY)
