@@ -12,6 +12,7 @@ public class PartFindDto {
 
     private Long partId;
     private String partName;
+    private Long memberId;
     private String nickName;
     private String profile;
     private List<PartFindFileDto> files;
@@ -20,19 +21,21 @@ public class PartFindDto {
     private PartFindDto(
             final Long partId, final String partName,
             final String nickName, final String profile,
-            final List<PartFindFileDto> files
+            final List<PartFindFileDto> files, final Long memberId
     ) {
         this.partId = partId;
         this.partName = partName;
         this.nickName = nickName;
         this.profile = profile;
         this.files = files;
+        this.memberId = memberId;
     }
 
     public static PartFindDto of(Part part){
         return PartFindDto.builder()
                 .partId(part.getId())
                 .partName(part.getPartName())
+                .memberId(part.getMember().getId())
                 .nickName(part.getMember().getNickName())
                 .profile(part.getMember().getProfile())
                 .files(
