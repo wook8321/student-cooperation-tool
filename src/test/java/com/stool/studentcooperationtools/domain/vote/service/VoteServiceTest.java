@@ -102,10 +102,37 @@ class VoteServiceTest extends IntegrationTest {
     @Test
     void updateVoteWithNotExistMember(){
         //given
-        Long InvalidMemberId = 1L;
+        Member member = Member.builder()
+                .nickName("닉네임")
+                .email("email")
+                .profile("profile")
+                .role(Role.USER)
+                .build();
+
+        memberRepository.save(member);
+
+        Room room = Room.builder()
+                .password("password")
+                .title("제목")
+                .participationNum(1)
+                .build();
+
+        roomRepository.save(room);
+
+        int voteNum = 2;
+        Topic topic = Topic.builder()
+                .topic("주제")
+                .room(room)
+                .member(member)
+                .voteNum(voteNum)
+                .build();
+
+        topicRepository.save(topic);
+
+        Long InvalidMemberId = 2024L;
         VoteUpdateWebSocketRequest request = VoteUpdateWebSocketRequest.builder()
-                .roomId(1L)
-                .topicId(1L)
+                .roomId(room.getId())
+                .topicId(topic.getId())
                 .build();
 
         SessionMember sessionMember = SessionMember.builder()

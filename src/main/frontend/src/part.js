@@ -1,467 +1,699 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, {useState, useEffect, useCallback, useRef} from "react";
 import axios from "axios";
-import { Client } from "@stomp/stompjs";
-import chatImage from './images/chat.svg';
-import CheckImage from './images/check-circle.svg';
-import unCheckImage from './images/circle.svg';
-import userImage from './images/user.svg';
+import "./review-modal.css"
 import {domain} from "./domain";
 import "./part.css"
+import "./dropbox.css"
+import { useWebSocket } from './WebsocketContext';
+import {useNavigate} from "react-router-dom"; // WebSocketProvider의 훅 사용
+
 
 //
-const Part = (roomId) => {
+const Part = () => {
     const [parts, setParts] = useState({num: 0, parts: []});
     const [partID, setPartID] = useState(""); // 존재하는 역할을 수정하거나 삭제할 때 필요한 주제 ID
-
     const [newPartName, setNewPartName] = useState(""); // 역할 추가 시 필요한 역할 이름
     const [selectedMember, setSelectedMember] = useState(""); // 역할 추가 시 필요한 역할 담당자
-
     const [error, setError] = useState(null);
     const [addModal, setAddModal] = useState(false);
-    const [updateModal, setUpdateModal] = useState(false);
-    const [reviewModal, setReviewModal] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false); // 드롭다운 열림/닫힘 상태
-    const [chatModal, setChatModal] = useState(false);
-    const [reviewPartId, setReviewPartId] = useState(null);
 
-    const [review, setReview] = useState({num: 0, reviews:[]}); // 기존 평가 내용
-    const [reviewContent, setReviewContent] = useState(""); // 평가 내용
+    const [isOpen, setIsOpen] = useState(false);
+    const [partName, setPartName] = useState("")
+    const [selectedMemberId, setSelectedMemberId] = useState(null);
+    const [participation, setParticipation] = useState({ num: 0, participation: [] });
+    const {stompClient, isConnected, roomId} = useWebSocket(); // WebSocket 연결 관리
+    const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
+    const navigate = useNavigate();
 
-    const PartsList = ({ roomId }) => {
-        useEffect( () => {
-            axios.get(`${domain}/api/v1/rooms/${roomId}/parts`)
-                .then((res) => {
-                    setParts(res.data.data);
-                })
-                .catch(() => {
-                    setError(new Error("Failed to get partslist"));
-                });
-        }, [roomId]);
-      }
 
-    const stompClient = new Client({
-      brokerURL: `ws://sub/rooms/${roomId}/part`, // 역할 추가 단계 WebSocket
-      reconnectDelay: 5000,
-      onConnect: () => {
-        stompClient.subscribe(`${domain}/sub/rooms/${roomId}/part`);
-      },
-      onStompError: (frame) => {
-        setError(new Error("STOMP error: ", frame.headers["message"]));
-      },
-    });
+    const PartsList = () => {
+        axios.get(`${domain}/api/v1/rooms/${roomId}/parts`)
+            .then((res) => {
+                console.log(res.data.data)
+                setParts(res.data.data);
+            })
+            .catch(() => {
+                setError(new Error("Failed to get partslist"));
+            });
+    }
+
+    //=============================================웹소켓========================================================
+
+    const receiveMessage = (message) => {
+        //3-1 구독한 url에서 온 메세지를 받았을 때
+        console.log(JSON.parse(message.body))
+        const frame = JSON.parse(message.body)
+
+        if(frame.messageType === "PART_ADD"){
+            addPartInScreen(frame.data);
+        } else if(frame.messageType === "PART_DELETE"){
+            deletePartInScreen(frame.data)
+        } else if(frame.messageType === "PART_UPDATE"){
+            updatePartInScreen(frame.data)
+        } else if(frame.messageType === "PART_FILE_UPLOAD"){
+            uploadFileInScreen(frame.data)
+        } else if(frame.messageType === "PART_FILE_REMOVE"){
+            deleteFileInScreen(frame.data)
+        } else {
+            console.log("Not Supported Message Type")
+        }
+    }
+
+    const receiveError = (error) => {
+        //3-2 구독한 url에서 온 메세지를 못 받아 에러가 발생했을 때
+        alert("방에 입장에 실패하였습니다.");
+        console.error("STOMP Error", error);
+        window.location.href = "/";
+    }
+
+    const onConnect = () => {
+        //2-1 연결 성공의 경우
+        PartsList()
+        subscriptions.current = stompClient.current.subscribe(
+            `/sub/rooms/${roomId}/part`,
+            receiveMessage,
+            receiveError
+        );
+    }
 
     useEffect(() => {
-      stompClient.activate();
-      return () => {
-          stompClient.deactivate();  // 연결 해제
-      };
-  }, []); // 초기화 시 한 번만 실행
-
-    // 주제 추가 함수
-    const addPart = (newPart) => {
-      if (!newPart.trim()) return;
-
-        const updatedParts = {
-          roomId : roomId,
-          partName : newPart
-        };
-
-      stompClient.publish({
-        destination : `${domain}/pub/parts/add`,
-        body : updatedParts
-      });
-
-      setNewPartName("");
-
-      return updatedParts; // 상태 업데이트
-    };
-
-    const deletePart = (part_id) => {
-
-      const deletedPart = {
-        roomId : roomId,
-        partId : part_id
-      };
-
-        stompClient.publish({
-          destination :`${domain}/pub/parts/delete`,
-          body : deletedPart
-        });
-
-        return deletedPart;
-    };
-
-    const updatePart = (part_id, memberId) => {
-
-        const changedParts = parts.parts.map((part) =>
-        part.partId === part_id
-          ? { ...part, nickName: memberId } // 담당자만 변경
-          : part // 다른 역할은 변경하지 않음
-        );
-
-        setParts(prevParts => ({
-          ...prevParts,
-          parts: changedParts
-        }));
-
-        const updatedPart = changedParts.find((part) => part.partId === part_id);
-
-        const updateRequest = {
-          roomId: roomId,
-          partId: updatedPart.partId,
-          partName: updatedPart.partName,
-          memberId: memberId
+        //1. broker endPoint에 연결, WebsocketConfig에 설정한 EndPoint를 말함
+        alert("part" + roomId)
+        if (stompClient.current) {
+            stompClient.current.activate(); // 웹소켓 활성화
         }
 
-        stompClient.publish({
-          destination : `${domain}/pub/parts/update`,
-          body : updateRequest
-      });
-    };
+        return () => {
+            if (stompClient.current) {
+                alert(`/sub/rooms/${roomId}/part, 구독 취소`)
+                subscriptions.current.unsubscribe(); // 언마운트 시 웹소켓 비활성화
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        if (isConnected) {
+            onConnect(); // 연결이 완료되면 onConnect 호출
+        }
+    }, [isConnected]); //isConnected 상태가 바뀌면 실행된다.
 
     const openAddModal = () => {
-      setAddModal(true);
+        axios
+            .get(`/api/v1/rooms/${roomId}/participations`)
+            .then((res) => {
+                setParticipation(() => ({
+                    num: res.data.data.num, // 역할 개수 증가
+                    participation: res.data.data.participations
+                }));
+            })
+            .catch((error) => {
+                console.error("Failed to fetch participation data:", error);
+            });
+        setAddModal(true);
+    }
+    // ========================================== 역할 추가 ============================================
+    const addPartInScreen = (part) => {
+        alert("파트 추가!")
+        setParts((preParts) => ({
+            ...preParts,
+            num: preParts.num + 1,
+            parts: [...preParts.parts, part]
+        }))
     }
 
-    const closeAddModal = () => setAddModal(false);
-    const openUpdateModal = () => setUpdateModal(true);
-    const closeUpdateModal = () => setUpdateModal(false);
-    const openReviewModal = (partId) => setReviewPartId(partId); setReviewModal(true);
-    const closeReviewModal = () => setReviewModal(false);
+    const addPart = () => {
+        closeAddModal()
 
-    const toggleMenu = (part_id) => {
-        setMenuOpen(!menuOpen); // 드롭다운 열림/닫힘 토글
-        setPartID(part_id); // 주제 ID 저장
+        const data = {
+            roomId : roomId,
+            partName : partName,
+            memberId : selectedMemberId
+        }
+
+        stompClient.current.publish({
+            destination: '/pub/parts/add',
+            body: JSON.stringify(data)
+        })
     };
 
-    const [files, setFiles] = useState([]); //업로드한 파일 데이터 보관
+    // ========================================== 파일 업로드 ============================================
 
-    const handleFilesChange = (e) => {
-        setFiles(Array.from(e.target.files));
+    const uploadFileInScreen = (file) => {
+        console.log(file);  // 업로드한 파일 정보 확인
+
+        // 파트를 업데이트하고 해당 파트의 파일 목록을 수정
+        setParts((preParts) => ({
+            ...preParts,
+            parts: preParts.parts.map((part) =>
+                // partId가 일치하는 파트만 파일 목록을 업데이트
+                part.partId === file.partId
+                    ? {
+                        ...part,
+                        files: part.files ? [...part.files, file] : [file],  // 새 파일을 파일 목록에 추가
+                    }
+                    : part // 해당 파트는 그대로 두기
+            ),
+        }));
+    };
+
+
+    // ========================================== 파일 다운로드 ============================================
+
+    const downloadFile = (fileName,fileOriginalName) => {
+        alert("다운로드 = " + fileName + "s3에 저장된 이름 = " + fileOriginalName)
+        axios
+            .get(`/api/v1/files/${fileName}?roomId=${roomId}&fileOriginalName=${fileOriginalName}`,{
+                responseType: 'blob' // 없다면 다운로드하지 않음
+            })
+            .then((res) =>{
+                const url = window.URL.createObjectURL(new Blob([res.data])); // Blob 생성
+                const link = document.createElement('a'); // a 태그 생성
+                link.href = url;
+                link.setAttribute('download', fileOriginalName); // 원래 파일명으로 다운로드
+                document.body.appendChild(link);
+                link.click(); // 다운로드 실행
+                link.remove(); // DOM에서 제거
+            })
+            .catch((error) =>{
+                console.error(error)
+            })
+    };
+
+    // ========================================== 파일 삭제 ============================================
+
+    const deleteFileInScreen = (file) => {
+        setParts((preParts) => ({
+            ...preParts,
+            parts: preParts.parts.map((part) =>
+                // partId가 일치하는 파트만 파일 목록을 업데이트
+                part.partId === file.partId
+                    ? {
+                        ...part,
+                        files: part.files ? part.files.filter((preFile) => preFile.fileId !== file.fileId) : [],
+                    }
+                    : part // 해당 파트는 그대로 두기
+            ),
+        }));
+    };
+
+    const deleteFile = (fileName,fileId,partId) => {
+        alert("삭제 = " + fileName + "fileId = " + fileId)
+        const data = {
+            roomId : roomId,
+            fileId : fileId,
+            partId : partId,
+            fileName : fileName
+        }
+
+        stompClient.current.publish({
+            destination:"/pub/file/delete",
+            body : JSON.stringify(data)
+        })
     }
 
-    const uploadFiles = (e) => {
-        e.preventDefault();
+    //============================================파일 미리보기=========================================================
+    const PreviewFile = ({fileUrl, fileType}) => {
+        console.log(fileUrl)
+        console.log(fileType)
+        if (fileType === "PNG" || fileType ==="JPG") {
+            return <img src={fileUrl} alt="미리보기 이미지" style={{ maxWidth: "50%" }} />;
+        } else if (fileType === "PDF") {
+            return <iframe src={fileUrl} width="50%" height="300px" />;
+        } else if ( fileType === "DOCX" || fileType === "XLS" || fileType === "XLSX" ) {
+            const encodedUrl = encodeURIComponent(fileUrl);
+            return (
+                <iframe
+                    src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`}
+                    width="50%"
+                    height="300px"
+                />
+            );
+        } else {
+            return <span>미리 보여줄 수 없는 파일입니다.</span>;
+        }
+    };
+    //==============================================================================================================
 
-       // 선택된 파일을 하나씩 읽어서 전송
-        files.forEach((file) => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              const fileData = {
-                fileName: file.name, // 실제 파일명
-                fileType: file.type || "unknown", // 파일 타입
-                filePath: "S3_URL/" + file.name, // S3에 저장된 파일 주소
-                originalName: file.name, // 업로드한 원본 파일명
-              };
-
-
-              // STOMP 메시지 전송
-              if (stompClient.connected) {
-                  stompClient.publish({
-                  destination: "/pub/part/file/add",
-                  body: ({
-                      fileName: file.name,
-                      fileCode: event.target.result, // Base64로 인코딩된 파일 내용
-                  }),
-                  headers: { "content-type": "multipart-form-data" },
-                  });
-                  console.log(`${file.name} file is sent.`);
-
-              } else {
-                  setError(new Error("STOMP Client is not connected"));
-              }
-            };
-
-            reader.onerror = () => {
-                setError(new Error("Failed to read the file"));
-            };
-
-            reader.readAsDataURL(file); // 파일을 Base64로 읽기
-        });
+    const closeAddModal = () => {
+        setSelectedMemberId(0)
+        setAddModal(false)
     }
 
-    const submitReview = (reviewContent, partId) => {
-        const payload = {
-          /* reviewId: userId,  (유저 아이디 필요) */
-          content: reviewContent
+    //역할 삭제 후, 웹소켓 메세지를 받아서 화면에 반영
+    const deletePartInScreen = (part) => {
+        setParts((preParts) =>({
+            ...preParts,
+            num: preParts.num - 1,
+            parts: preParts.parts.filter((p) => p.partId !== part.partId)
+        }))
+    }
+
+    //역할 수정 후, 웹소켓 메시지를 받아서 화면에 반영
+    const updatePartInScreen = (updatedPart) => {
+        setParts((preParts) => ({
+            ...preParts,
+            parts: preParts.parts.map((part) =>
+                part.partId === updatedPart.partId
+                    ? { ...part, partName: updatedPart.partName,
+                        nickname: updatedPart.nickname,
+                        profile: updatedPart.profile,
+                        memberId: updatedPart.memberId
+                      }
+                    : part
+            )
+        }));
+    };
+
+    // ========================================== 역할 메뉴 ============================================
+
+    //<< 다른 코드를 볼때는 접어서 보는 것을 추천(해당 dropbox에는 삭제,수정, 파일 업로드 기능들이 있음)
+    const Dropdown = ({ part }) => {
+        const [isOpen, setIsOpen] = useState(false);
+        const [updateModal, setUpdateModal] = useState(false);
+        const [participation, setParticipation] = useState({ num: 0, participation: [] });
+        const [updatedMemberId, setUpdatedMemberId] = useState(null);
+        const [updatedPartName, setUpdatedPartName] = useState("")
+        const [reviewModal, setReviewModal] = useState(false);
+        const [reviews, setReviews] = useState({num : 0, reviews : []})
+        const [reviewAddModal, setReviewAddModal] = useState(false)
+        const [reviewTextArea, setTextArea] = useState("")
+        const [fileUploadModal, setFileUploadModal] = useState(false)
+        const [uploadingFile, setUploadingFile] = useState(null);
+        const MAX_FILE_SIZE = 7 * 1024 * 1024; // 5MB 제한
+
+        // 드롭다운 열기/닫기
+        const toggleDropdown = () => {
+            if(isOpen){
+                setIsOpen(false)
+            } else{
+                setIsOpen(true)
+            }
         };
 
-        axios.post(`/api/v1/parts/${partId}/review`, payload)
-          .then(() => {
-            setReview((prev) => ({
-              ...prev,
-              reviews: [...prev.reviews, { content: reviewContent }],
-          }));
-            setReviewContent(""); // 입력창 초기화
-          })
-          .catch(() => {
-              setError(new Error("Failed to submit review"));
-          });
-    };
+        // 드롭다운 외부 클릭 시 닫기
+        const closeDropdown = (e) => {
+            if (!e.currentTarget.contains(e.relatedTarget)) {
+                //자기 자신이 아닌 다른 곳을 클릭했다면 드롭박스 닫기
+                setIsOpen(false);
+            }
+        };
 
-    const ClickMember = (part_name) => {
-      const filteredPart = parts.parts.filter((part) => part.partName === part_name);
 
-      const changeClick = () => {
-        setSelectedMember(filteredPart.nickName);
-        setNewPartName(filteredPart.partName);
-      }
+        // 1.역할 삭제 함수
+        const deletePart = (partId) => {
+            const data = {
+                roomId: roomId,
+                partId: partId
+            }
 
-      return (
-        <div className="member-container">
-          <button className="check-button" onClick={() => changeClick()}>
-            <MemberImage Click={filteredPart.nickName === selectedMember} />
-          </button>
-        </div>
-      )
-    }
+            stompClient.current.publish({
+                destination: "/pub/parts/delete",
+                body: JSON.stringify(data)
+            })
+        };
 
-    const MemberImage = ({Click}) => {
-      return Click ? (
-          <img src={CheckImage} width={24} height={24}/>
-      ) : (
-          <img src={unCheckImage} width={24} height={24}/>
-      );
-    };
+        //2. 역할 수정
+        const openUpdateModal = () => {
+            alert("수정 모달")
+            setIsOpen(false)
+            //방에 유저들을 조회
+            axios
+                .get(`/api/v1/rooms/${roomId}/participations`)
+                .then((res) => {
+                    setParticipation(() => ({
+                        num: res.data.data.num, // 역할 개수 증가
+                        participation: res.data.data.participations
+                    }));
+                })
+                .catch((error) => {
+                    console.error("Failed to fetch participation data:", error);
+                });
+            setUpdatedPartName(part.partName);  // partName 초기화
+            setUpdatedMemberId(part.memberId);  // memberId 초기화
+            setUpdateModal(true);
+        }
 
-    const ReviewList = ({ partId }) => {
-      useEffect( () => {
-          axios.get(`${domain}/api/v1/parts/${partId}/review`)
-              .then((res) => {
-                  setReview(res.data.data);
-              })
-              .catch(() => {
-                  setError(new Error("Failed to get review"));
-              });
-      }, [partId]);
+        const closeUpdateModal = () => {
+            setUpdatedMemberId(part.memberId)
+            setUpdatedPartName(part.partName)
+            setUpdateModal(false);
+        }
 
-      if (review.length === 0)
-        setError(new Error("There is no error"));
+        const updatePart = () => {
+            setUpdateModal(false)
+            const data = {
+                roomId: roomId,
+                partId: part.partId,
+                partName : updatedPartName,
+                memberId : updatedMemberId
+            }
+            stompClient.current.publish({
+                destination : "/pub/parts/update",
+                body : JSON.stringify(data)
+            })
+        }
 
-      return (
-        <div>
-            <h3> 자료 평가 </h3>
-            <ul>
-                {review.map((review) => (
-                    <li key={review.reviewId}>
-                       <img src={review.profile || userImage} alt={`${review.nickName}'s 프로필`} />
-                       {review.nickName} ({review.createdTime[0]-review.createdTime[1]-review.createdTime[2]}) : {review.content}
-                    </li>
-                ))}
-            </ul>
-        </div>
-      );
-    }
+        //3. 리뷰 조회
+        const closeReviewModal = (e) => {
+            if (!e.currentTarget.contains(e.relatedTarget)) {
+                //자기 자신이 아닌 다른 곳을 클릭했다면 드롭박스 닫기
+                setReviewModal(false);
+            }
+        }
 
-    const ErrorModal = ({ error, closeErrorModal }) => {
-      if (!error) return null; // 에러가 없을 때
+        //4. 리뷰 작성
+        const openAddReviewModal = () => {
+            setReviewModal(false)
+            setReviewAddModal(true)
+        }
 
-      return (
-          <div className="error-modal-overlay">
-            <h2>오류 발생</h2>
-            <button className="close-error-button" onClick={closeErrorModal}>
-              X
-            </button>
-              <div className="error-modal" onClick={(e) => e.stopPropagation()}>
-                  <p>{error.message || "알 수 없는 에러가 발생했습니다."}</p>
-              </div>
-          </div>
-      );
-    };
+        const openReviewModal = () => {
+            setIsOpen(false)
+            axios
+                .get(`/api/v1/parts/${part.partId}/review`)
+                .then((res) => {
+                    setReviews(() => ({
+                        num: res.data.data.num, // 역할 개수 증가
+                        reviews: res.data.data.reviews
+                    }));
+                    console.log(res.data.data)
+                })
+                .catch((error) =>{
+                    console.log(error.message)
+                })
+            //리뷰창 뛰우기
+            setReviewModal(true)
+        }
 
-    const closeErrorModal = () => { setError(null) };
+        const addReview = () => {
+            const data = {
+                partId : part.partId,
+                content : reviewTextArea
+            }
+            axios
+                .post("/api/v1/parts/review",data)
+                .then(() => {
+                    // 정상 등록 후, 리뷰 등록 모달을 내리고, 리뷰 조회 모달을 뛰운다.
+                    setReviewAddModal(false)
+                    openReviewModal()
+                })
+                .catch((error) =>{
+                    console.error(error)
+                })
+        }
 
-    const downloadFile = (fileName) => {
-      axios.get(`/api/v1/files/${fileName}`)
-        .then((res) => {
-          const fileData = res.data.data;
+        //5. 파일 업로드
 
-      if (!fileData || !fileData.contentAsByteArray)
-        setError(new Error("Failed to bring fileData"));
+        const closeFileUploadModal = () => {
+            setFileUploadModal(false)
+            setUploadingFile(null)
+        }
 
-      const byteCharacters = atob(fileData.contentAsByteArray); // Base64 디코딩
-      const byteNumbers = Array.from(byteCharacters).map((char) => char.charCodeAt(0)); // 각 문자를 배열의 요소로 하나씩 변환 후 각 문자의 아스키코드 값으로 변환
-      const byteArray = new Uint8Array(byteNumbers);
+        const uploadFileWebsocket = (file) => {
+            const data ={
+                roomId : roomId,
+                partId : part.partId,
+                fileId: file.fileId,
+                originalName: file.originalName,
+                fileType: file.fileType,
+                fileName: file.fileName,
+            }
+            console.log(data)
+            stompClient.current.publish({
+                destination:"/pub/file/upload",
+                body : JSON.stringify(data)
+            })
+        }
 
-      const blob = new Blob([byteArray], { type: "application/octet-stream" }); // blob의 미디어 타입을 일반적인 바이너리 데이터 타입으로 지정
+        const uploadFile = () =>{
+            if (uploadingFile) {
+                if (uploadingFile.size > MAX_FILE_SIZE) {
+                    // 업로드 할 수 있는 파일 크기 제한보다 큰 파일을 업로드는 올릴 수 없다.(서버엔 10MB 설정)
+                    alert("파일 크기가 너무 큽니다. 업로드 제한은 7MB입니다.");
+                    return;
+                }
 
-      const url = URL.createObjectURL(blob); // 파일 객체를 Blob URL로 변환
-      const link = document.createElement("a"); // <a> 태그 생성으로 파일 다운로드
-      link.href = url;
-      link.download = fileData.filename; // 원래 파일 이름으로 다운로드
-      link.click();
-      URL.revokeObjectURL(url); // Blob URL 해제
-      })
-        .catch((error) => {
-          setError(new Error("Failed to download file"));
-        });
-    };
+                // 파일 이름 출력
+                console.log("파일 이름: " + uploadingFile.name);
+                // FileReader로 파일 읽기
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const data = {
+                        roomId : roomId,
+                        partId : part.partId,
+                        fileName : uploadingFile.name,
+                        fileCode: e.target.result
+                    }
+                    console.log("파일 내용:", data);
+                    axios
+                        .post("/api/v1/files",data)
+                        .then((res) =>{
+                            uploadFileWebsocket(res.data.data.files[0])
+                        })
+                        .catch((error) =>{
+                            console.error(error)
+                        })
+                }
+                reader.readAsDataURL(uploadingFile);
+            }
+        }
 
-    // 파일 삭제
-    const deleteFile = (fileName) => {
-        setFiles((prev) =>
-          prev.filter((file) => file.fileName !== fileName)
+        return (
+            <div className="dropdown" onBlur={(e) => closeDropdown(e)} tabIndex={0}>
+                <button className="dropdown-btn" onClick={() => toggleDropdown()}>
+                    ⚙
+                </button>
+                {isOpen && (
+                    <ul className="dropdown-menu">
+                        <li>
+                            <button onClick={() => deletePart(part.partId)} className="dropdown-item">
+                                역할 삭제하기
+                            </button>
+                        </li>
+                        <li>
+                            <button className="dropdown-item" onClick={() => openUpdateModal()}>
+                                역할 수정하기
+                            </button>
+                        </li>
+                        <li>
+                            <button className="dropdown-item" onClick={() => openReviewModal()}>
+                                리뷰 보기
+                            </button>
+                        </li>
+                        <li>
+                            <button className="dropdown-item" onClick={() => setFileUploadModal(true)}>
+                                파일 올리기
+                            </button>
+                        </li>
+                    </ul>
+                )}
+
+                {fileUploadModal && (
+                    <div className="review-modal-overlay">
+                        <div className="review-modal-content" onClick={(e) => e.stopPropagation()}>
+                            <button className="review-close-button" onClick={() => closeFileUploadModal()}> X </button>
+                            <h2 className="review-modal-title">파일 올리기</h2>
+                            <input id="file-upload" className="file-input" type="file"
+                                   onChange={(e) => setUploadingFile(e.target.files[0])}/>
+                            <div className="review-write-buttons">
+                                <button className="review-write-button" onClick={() => uploadFile()}>파일 업로드</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {updateModal && (
+                    <div style={{ textAlign: "center", justifyContent: "center" }} className="modal_overlay">
+                        <div className="modal_content">
+                            <button className="close_button" onClick={() => closeUpdateModal()}>
+                                x
+                            </button>
+                            <div className="modal_body">
+                                <h3>역할 추가</h3>
+                                <div className="modal_section">
+                                    <label className="modal_label" htmlFor="partName">
+                                        역할 이름
+                                    </label>
+                                    <input className="modal_input" id="partName"
+                                        type="text" value={updatedPartName}
+                                        onChange={(e) => setUpdatedPartName(e.target.value)}/>
+                                </div>
+                                <div className="modal_section">
+                                    <h4>담당자</h4>
+                                    <ul className="members-list">
+                                        {participation.num > 0 ?
+                                            (participation.participation.map((p) => (
+                                                <li key={p.memberId} id={"part" + p.memberId}>
+                                                    <img src={p.profile} alt={`${p.nickname}'s profile`} />
+                                                    <p>{p.nickname}</p>
+                                                    <input type="radio" value={p.memberId}
+                                                        checked={updatedMemberId === p.memberId}
+                                                        onChange={() => setUpdatedMemberId(p.memberId)}/>
+                                                </li>
+                                            ))) : <h2> 참여자가 없습니다.</h2>
+                                        }
+                                    </ul>
+                                </div>
+                                <button className="add-button" onClick={() => updatePart()}>
+                                    수정하기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {reviewModal && (
+                    <div className="review-modal-overlay" onBlur={(e) => closeReviewModal(e)}>
+                        <div className="review-modal-content" onClick={(e) => e.stopPropagation()}>
+                            <button className="review-close-button" onClick={() => setReviewModal(false)}> X </button>
+                            <h2 className="review-modal-title">Review</h2>
+                            {reviews.reviews.map((review) => (
+                                <div key={review.reviewId} className="review-card">
+                                    <img src={review.profile} alt={`${review.nickName} 프로필`} className="review-card-profile"/>
+                                    <div className="review-card-details">
+                                        <p className="review-card-name">{review.nickName}</p>
+                                        <p className="review-card-text">{review.content}</p>
+                                    </div>
+                                </div>
+                            ))}
+                            <button className="review-write-button" onClick={() => openAddReviewModal(true)}>
+                                리뷰 작성하기
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {reviewAddModal && (
+                    <div className="review-modal-overlay">
+                        <div className="review-modal-content">
+                            <h2 className="review-modal-title">리뷰 작성</h2>
+                            <div className="review-cart">
+                                <textarea id="review" className="review-write-textarea" placeholder="리뷰를 작성해주세요"
+                                          onChange={(e) => setTextArea(e.target.value)}>
+                                </textarea>
+                            </div>
+                            <div className="review-write-buttons">
+                                <button className="review-write-button" onClick={() => setReviewAddModal(false)}>
+                                    취소
+                                </button>
+                                <button className="review-write-button" onClick={() => addReview()}>
+                                    등록
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                )}
+            </div>
         );
-
-        stompClient.publish({
-          destination: "/pub/part/file/delete"});
     };
+    // ================================================================================================
+
+    const goSection = (path, subUrl) => {
+        alert(path + " " + subUrl)
+        navigate(path, {state: {
+                roomId,
+                subUrl: subUrl
+            }})
+    }
+
+    if (!isConnected) {
+        // 연결 중인 상태일 때는 로딩 상태로
+        return (<div className="loading">
+            <div className="loading-container">
+                <div className="spinner"></div>
+                <p>로딩 중...</p>
+            </div>
+        </div>);
+    }
 
     return (
     <>
-      <ErrorModal error={error} closeErrorModal={closeErrorModal} /> {/* 에러 발생 시 모달 창*/}
-        <PartsList />
-        <ul>
-          {parts.map((part) => (
-            <li key={part.partId}>
-              {part.partName} : {part.memberId}
-              <button className="arrow-button" onClick={() => toggleMenu(part.partId)}>
-                ▼
-              </button>
-            </li>
-          ))}
-        </ul>
+        <main className="topic-background">
+            <ul>
+                {parts.parts.map((part) => (
+                    <li key={part.partId}>
+                        <span>{part.partName}</span>
+                        <img src={part.profile} alt="프로필" />
+                        <span>{part.nickName}</span>
+                        <Dropdown part={part} />
+                        <ul>
+                            {part.files?.length > 0 ? (
+                                part.files.map((file) => (
+                                    <li key={file.fileId}>
+                                        <span>{file.originalName}</span>
+                                        <PreviewFile fileUrl={file.fileUrl} fileType={file.fileType} />
+                                        <button onClick={() => deleteFile(file.fileName, file.fileId,part.partId)}>x</button>
+                                        <button onClick={() => downloadFile(file.fileName, file.originalName)}>
+                                            다운로드
+                                        </button>
+                                    </li>
+                                ))
+                            ) : (
+                                <span>업로드한 파일이 없습니다.</span>
+                            )}
+                        </ul>
+                    </li>
+                ))}
+                <li>
+                    <button className="role-add-btn" onClick={() => openAddModal()}>
+                        역할 추가
+                    </button>
+                </li>
+            </ul>
 
-        <div className="add_modal">
-          <button className="role-add-btn" onClick={() => openAddModal}>
-            역할 추가
-          </button>
 
-          {addModal && (
-            <div className="modal-overlay">
-              <div className="modal" onClick={(e) => e.stopPropagation()}>
-                <h3 className="modal-title">역할 추가</h3>
-                <button className="modal-close-button" onClick={closeAddModal}></button>
-                <form>
-                  <label htmlFor="partName">역할 이름</label>
-                  <input
-                    id="partName"
-                    type="text"
-                    placeholder="역할 이름을 입력하세요"
-                    onChange={(e) => setNewPartName(e.target.value)}
-                  />
-                  <h4>담당자</h4>
-
-                  <ul className="members-list">
-                    {parts.map((part) => (
-                        <li key={part.partId}>
-                            {part.parts.profile} {part.parts.nickname}
-                            <button img src={unCheckImage} width={24} height={24} onClick={ClickMember(part.partId)}/>
-                        </li>
-                    ))}
-                  </ul>
-                  <button className="add-button" type="submit" onClick={() => addPart(newPartName)}>
-                    생성
-                  </button>
-                </form>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {menuOpen && (
-        <div className="dropdown-menu">
-          <button className="menu-item" onClick={deletePart(partID)}>역할 삭제</button>
-          <button className="menu-item" onClick={openUpdateModal}>역할 수정</button>
-          <button className="menu-item" onClick={openReviewModal}>자료 평가</button>
-          <form>
-            <input
-                className='file-input'
-                type="file"
-                mulitple
-                style={{ display: "none" }}
-                onChange={handleFilesChange}
-            />
-            <button onClick={() => uploadFiles}> 파일 업로드</button>
-          </form>
-            <div className="uploaded-files">
-              <h3>업로드된 파일 목록</h3>
-                <ul>
-                    {files.map((file, index) => (
-                        <li key={index}>
-                          {file.name}
-                          <button className="download-file-button" onClick={() => downloadFile(file)}>
-                            다운로드
-                          </button>
-                          <button className="delete-file-button" onClick={() => deleteFile(file)}>
-                            삭제
-                          </button>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        </div>
-        )}
-
-        {updateModal && (
-            <div className="modal-overlay">
-              <div className="modal" onClick={(e) => e.stopPropagation()}>
-                <h3 className="modal-title">역할 추가</h3>
-                <button className="close-add-button" onClick={() => closeUpdateModal}></button>
-                <form>
-                  <label htmlFor="partName">역할 이름</label>
-                  <input
-                    id="partName"
-                    type="text"
-                    placeholder="역할 이름을 입력하세요"
-                    onChange={(e) => setNewPartName(e.target.value)}
-                  />
-                  <h4>담당자</h4>
-                  <ul className="members-list">
-                    {parts.map((part) => (
-                        <li key={part.partId}>
-                          {part.parts.profile} {part.parts.nickName}
-                            {/* if(part.parts.nickName === part.participation) 참가자들의 id를 하나씩 비교해서 역할 담당자와 이름이 같으면 체크 표시가 되어있어야 함. */}
-                              <button img src={unCheckImage} width={24} height={24} onClick={ClickMember(part.partId)}/>
-
-                        </li>
-                    ))}
-                  </ul>
-                  <button className="update-button" onClick={updatePart(newPartName, selectedMember)}>
-                    수정
-                  </button>
-                </form>
-              </div>
-            </div>
-        )}
-
-        {reviewModal && (
-            <div className="review-modal-overlay">
-              <div className="review-modal" onClick={(e) => e.stopPropagation()}>
-                <ReviewList />
-                <button className="close-review-button"onClick={() => closeReviewModal}> X </button>
-
-                <textarea
-                  value={reviewContent}
-                  onChange={(e) => setReviewContent(e.target.value)}
-                  placeholder="자료 평가 내용을 입력하세요."
-                />
-                <div className="review-actions">
-                    <button className="submit-review-button" onClick={() => submitReview(reviewContent,)}> 등록 </button>
-
+            {addModal && (
+                <div style={{ textAlign: "center", justifyContent: "center" }} className="modal_overlay">
+                    <div className="modal_content">
+                        <button className="close_button" onClick={() => closeAddModal()}>x</button>
+                        <div className="modal_body">
+                            <h3>역할 추가</h3>
+                            <div className="modal_section">
+                                <label className="modal_label" htmlFor="partName">역할 이름</label>
+                                <input className="modal_input"
+                                       id="partName" type="text"
+                                       onChange={(e) => setPartName(e.target.value)}
+                                       placeholder="역할 이름을 입력하세요"/>
+                            </div>
+                            <div className="modal_section">
+                                <h4>담당자</h4>
+                                <ul className="members-list">
+                                    {participation.num > 0 ?
+                                        (participation.participation.map((p) => (
+                                            <li key={p.memberId} id={"part" + p.memberId}>
+                                                <img src={p.profile} alt={`${p.nickname}'s profile`} />
+                                                <p>{p.nickname}</p>
+                                                <input
+                                                    type="radio"
+                                                    value={p.memberId}
+                                                    checked={selectedMemberId === p.memberId}
+                                                    onChange={() => setSelectedMemberId(p.memberId)}
+                                                />
+                                            </li>
+                                        ))) : <h2> 참여자가 없습니다.</h2>
+                                    }
+                                </ul>
+                            </div>
+                            <button className="add-button" onClick={() => addPart()}>
+                                생성
+                            </button>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </div>
-        )}
+            )}
 
-        <button>
-            <img className="chat_image" onClick={() => setChatModal(true)} src={chatImage} alt="채팅창 이미지"/>
-        </button>
 
-        {chatModal && (
-            <div className="chat-overlay">
-                <div className="chat-content">
-                    <button className="chat-close-button" onClick={() => setChatModal(false)}> X</button>
-                </div>
-            </div>
-        )}
-
+        </main>
         <div className="process">
-            <div>주제 선정</div>
-            <div>자료 조사</div>
-            <div>발표 자료</div>
-            <div>발표 준비</div>
+        <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
+            자료 조사
         </div>
+        <div>자료 조사</div>
+        <div>발표 자료</div>
+        <div>발표 준비</div>
+    </div>
     </>
     );
 }

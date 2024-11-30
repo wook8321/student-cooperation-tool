@@ -1,32 +1,44 @@
 package com.stool.studentcooperationtools.websocket.controller.file.response;
 
-import com.stool.studentcooperationtools.domain.file.File;
+import com.stool.studentcooperationtools.s3.S3Service;
+import com.stool.studentcooperationtools.websocket.controller.request.FileUploadWebsocketRequest;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FileUploadWebsocketResponse {
 
-    private int num;
-    private List<FileUploadDto> files;
+    private Long roomId;
+    private Long partId;
+    private Long fileId;
+    private String fileType;
+    private String fileName;
+    private String fileUrl;
+    private String originalName;
 
     @Builder
-    public FileUploadWebsocketResponse(final int num, final List<FileUploadDto> files) {
-        this.num = num;
-        this.files = files;
+    private FileUploadWebsocketResponse(final Long roomId, final Long partId, final Long fileId, final String fileName, final String fileType, final String fileUrl, final String originalName) {
+        this.roomId = roomId;
+        this.partId = partId;
+        this.fileId = fileId;
+        this.fileType = fileType;
+        this.fileName = fileName;
+        this.fileUrl = fileUrl;
+        this.originalName = originalName;
     }
 
-    public static FileUploadWebsocketResponse of(final List<File> files){
+    public static FileUploadWebsocketResponse of(final FileUploadWebsocketRequest request) {
         return FileUploadWebsocketResponse.builder()
-                .num(files.size())
-                .files(files.stream()
-                        .map(FileUploadDto::of).toList()
-                )
+                .roomId(request.getRoomId())
+                .partId(request.getPartId())
+                .fileId(request.getFileId())
+                .fileType(request.getFileType())
+                .fileName(request.getFileName())
+                .fileUrl(S3Service.getS3FileUrl(request.getFileName()))
+                .originalName(request.getOriginalName())
                 .build();
     }
 }

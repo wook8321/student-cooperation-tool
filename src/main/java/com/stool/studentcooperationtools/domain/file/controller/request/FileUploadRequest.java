@@ -1,4 +1,4 @@
-package com.stool.studentcooperationtools.websocket.controller.file.request;
+package com.stool.studentcooperationtools.domain.file.controller.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,22 +9,22 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class FileDeleteWebsocketRequest {
+public class FileUploadRequest {
 
     @NotNull
     private Long roomId;
     @NotNull
     private Long partId;
-    @NotNull
-    private Long fileId;
     @NotBlank
     private String fileName;
+    @NotBlank
+    private String fileCode;
 
     @Builder
-    private FileDeleteWebsocketRequest(final Long roomId, final Long partId, final Long fileId, final String fileName) {
+    private FileUploadRequest(final Long roomId, final Long partId, final String fileName, final String fileCode) {
         this.roomId = roomId;
         this.partId = partId;
-        this.fileId = fileId;
         this.fileName = fileName;
+        this.fileCode = fileCode;
     }
 }

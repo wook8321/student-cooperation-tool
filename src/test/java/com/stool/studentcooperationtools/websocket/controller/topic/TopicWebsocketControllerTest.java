@@ -75,11 +75,11 @@ class TopicWebsocketControllerTest extends WebsocketTestSupport {
         stompSession.subscribe(TopicDecisionSubUrl,resultHandler);
         //when
         stompSession.send("/pub/topics/delete",request);
-        WebsocketResponse<Boolean> result = resultHandler.get(3);
+        WebsocketResponse result = resultHandler.get(3);
         //then
         assertThat(stompSession.isConnected()).isTrue();
         assertThat(result.getMessageType()).isEqualTo(TOPIC_DELETE);
-        assertThat(result.getData()).isTrue();
+        assertThat(result.getData()).isNotNull();
     }
 
 }

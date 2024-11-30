@@ -17,7 +17,8 @@ import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -35,6 +36,7 @@ public class ChatApiControllerDocsTest extends RestDocsSupport {
     void findChats() throws Exception {
         //given
         String roomId = "1";
+        int lastMessageId = 1;
         int page = 1;
         List<ChatFindDto> chatFindDtoList = List.of(
                 ChatFindDto.builder()
@@ -58,7 +60,7 @@ public class ChatApiControllerDocsTest extends RestDocsSupport {
         //when
         //then
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/v1/rooms/"+ roomId + "/chats?page=" + page)
+                MockMvcRequestBuilders.get("/api/v1/rooms/"+ roomId + "/chats?page=" + page + "&lastMessageId=" + lastMessageId)
         )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -66,7 +68,8 @@ public class ChatApiControllerDocsTest extends RestDocsSupport {
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
                         queryParameters(
-                                parameterWithName("page").description("조회할 채팅의 페이지")
+                                parameterWithName("page").description("조회할 채팅의 페이지"),
+                                parameterWithName("lastMessageId").description("마지막 채팅 id")
                         ),
                         responseFields(
                                 fieldWithPath("code").type(NUMBER)
@@ -90,7 +93,7 @@ public class ChatApiControllerDocsTest extends RestDocsSupport {
                                 fieldWithPath("data.chats[].content").type(STRING)
                                         .description("채팅의 내용"),
                                 fieldWithPath("data.chats[].userId").type(NUMBER)
-                                        .description("유저 식별키")
+                                        .description("채팅을 작성한 유저의 식별키")
                         )
                 )
                 );

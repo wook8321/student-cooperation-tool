@@ -1,0 +1,165 @@
+/* Modal Overlay */
+.review-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Modal Content */
+.review-modal-content {
+    background: #ffffff;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+/* Modal Title */
+.review-modal-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Review Card */
+.review-card {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background: #f9f9f9;
+}
+
+/* Profile Image */
+.review-card-profile {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+}
+
+/* Content Section */
+.review-card-content {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+/* Logo Image */
+.review-card-logo {
+    width: 60px;
+    height: 60px;
+    margin-right: 15px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+}
+
+/* Review Details */
+.review-card-details {
+    text-align: left;
+}
+
+.review-card-category {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.review-card-stars {
+    color: #f39c12;
+    margin-bottom: 10px;
+}
+
+.review-card-text {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+}
+
+/* Reviewer Name */
+.review-card-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #000000;
+    margin-top: 5px;
+}
+
+/* Close Button */
+.review-close-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    justify-content: end;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.review-close-button:hover {
+    background: #0056b3;
+}
+
+.review-write-button:hover {
+    background: #218838;
+}
+
+.review-write-textarea {
+    width: 90%;
+    height: 80px;
+    padding: 10px;
+    border: 2px solid #d8d8d8;
+    border-radius: 8px;
+    font-size: 14px;
+    justify-content: center;
+    color: #333;
+    resize: none;
+}
+
+.review-write-textarea:focus {
+    outline: none;
+    border-color: #4dd0e1;
+}
+
+
+.review-write-buttons {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.review-write-cancel-button {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px 20px;
+    color: #666;
+}
+
+/* Write Review Button */
+.review-write-button {
+    margin-top: 20px;
+    padding: 12px 24px;
+    background: #28a745;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+

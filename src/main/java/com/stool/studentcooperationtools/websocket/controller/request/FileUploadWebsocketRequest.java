@@ -15,16 +15,26 @@ public class FileUploadWebsocketRequest {
     private Long roomId;
     @NotNull
     private Long partId;
+    @NotNull
+    private Long fileId;
+    @NotBlank
+    private String fileType;
     @NotBlank
     private String fileName;
     @NotBlank
-    private String fileCode;
+    private String originalName;
 
     @Builder
-    private FileUploadWebsocketRequest(final Long roomId, final Long partId, final String fileName, final String fileCode) {
+    private FileUploadWebsocketRequest(
+            final Long roomId, final Long partId,
+            final String fileName,final Long fileId,
+            final String originalName,final String fileType
+    ) {
         this.roomId = roomId;
         this.partId = partId;
         this.fileName = fileName;
-        this.fileCode = fileCode;
+        this.fileId = fileId;
+        this.originalName = originalName;
+        this.fileType = fileType;
     }
 }

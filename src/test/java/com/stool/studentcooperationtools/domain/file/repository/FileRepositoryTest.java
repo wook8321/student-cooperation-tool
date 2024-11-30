@@ -68,7 +68,7 @@ class FileRepositoryTest extends IntegrationTest {
                 .part(part)
                 .originalName(originalName)
                 .fileName(fileName)
-                .fileType(FileType.DOCS)
+                .fileType(FileType.DOCX)
                 .build();
         part.addFile(file);
         partRepository.save(part);

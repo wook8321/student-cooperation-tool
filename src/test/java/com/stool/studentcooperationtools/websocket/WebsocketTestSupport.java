@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.stool.studentcooperationtools.security.config.SecurityConfig.SESSION_NAME;
+import static com.stool.studentcooperationtools.websocket.interceptor.WebsocketSecurityInterceptor.SUB_URL_HEADER;
 
 @ActiveProfiles("test")
 @TestPropertySource(properties = "spring.config.location=classpath:application.yml")
@@ -61,6 +62,7 @@ public abstract class WebsocketTestSupport {
 
     @BeforeEach
     void setUp() throws ExecutionException, InterruptedException, TimeoutException, JsonProcessingException {
+        // validMemberInRoom 메서드를 스텁하여 실제 로직을 실행하지 않도록 설정
         Mockito.when(roomRepository.existMemberInRoom(Mockito.anyString(),Mockito.anyLong()))
                 .thenReturn(true);
         URL = "ws://localhost:%d/ws-stomp".formatted(port);
@@ -69,6 +71,8 @@ public abstract class WebsocketTestSupport {
         executeSql("sql/SpringSessionCreate.sql");
         StompHeaders stompHeaders = new StompHeaders();
         stompHeaders.add(SESSION_NAME,"testSession");
+        stompHeaders.add(SUB_URL_HEADER,"/sub/rooms/10/");
+        stompHeaders.add("email","email@email.com");
         stompSession = stompClient.connectAsync(URL,
                 new WebSocketHttpHeaders(),
                 stompHeaders,
