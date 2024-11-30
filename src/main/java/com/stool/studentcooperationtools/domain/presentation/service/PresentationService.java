@@ -1,10 +1,12 @@
 package com.stool.studentcooperationtools.domain.presentation.service;
 
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.Permission;
 import com.google.api.services.drive.model.PermissionList;
+import com.google.api.services.slides.v1.Slides;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.common.base.VerifyException;
 import com.stool.studentcooperationtools.domain.presentation.Presentation;
@@ -164,5 +166,15 @@ public class PresentationService {
         catch(IOException e){
             throw new IllegalStateException(e.getMessage(), e.getCause());
         }
+    }
+
+    public Boolean checkValidPPT(Credential credential, String presentationPath) {
+        Slides service = slidesFactory.createSlidesService(credential);
+        try {
+            service.presentations().get(presentationPath).execute();
+        } catch(IOException | IllegalStateException e){
+            throw new IllegalArgumentException(e.getMessage(),e.getCause());
+        }
+        return true;
     }
 }

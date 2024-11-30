@@ -1,9 +1,11 @@
 package com.stool.studentcooperationtools.domain.presentation.controller;
 
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.stool.studentcooperationtools.domain.api.ApiResponse;
 import com.stool.studentcooperationtools.domain.presentation.controller.response.PresentationFindResponse;
 import com.stool.studentcooperationtools.domain.presentation.service.PresentationService;
+import com.stool.studentcooperationtools.security.credential.GoogleCredentialProvider;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import java.security.GeneralSecurityException;
 public class PresentationApiController {
 
     private final PresentationService presentationService;
+    private final GoogleCredentialProvider credentialProvider;
 
     @GetMapping("/api/v1/rooms/{roomId}/presentation")
     public ApiResponse<PresentationFindResponse> findPresentation(@PathVariable("roomId") Long roomId){
@@ -57,6 +60,13 @@ public class PresentationApiController {
         } catch (IOException e) {
             throw new IllegalStateException(e.getMessage(),e.getCause());
         }
+    }
+
+    @GetMapping("/api/v1/checkValidPPT/{presentationPath}")
+    public ApiResponse<Boolean> checkValidPPT(@PathVariable("presentationPath") String presentationPath){
+        Credential credential = credentialProvider.getCredential();
+        boolean result = presentationService.checkValidPPT(credential, presentationPath);
+        return ApiResponse.of(HttpStatus.OK, result);
     }
 
 }
