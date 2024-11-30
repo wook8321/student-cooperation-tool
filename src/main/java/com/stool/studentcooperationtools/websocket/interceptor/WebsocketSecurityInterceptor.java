@@ -24,7 +24,7 @@ import static com.stool.studentcooperationtools.security.config.SecurityConfig.S
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
 public class WebsocketSecurityInterceptor implements ChannelInterceptor {
 
-    private final String SUB_URL_HEADER = "SubscribeUrl";
+    public static final String SUB_URL_HEADER = "SubscribeUrl";
     private final JdbcIndexedSessionRepository jdbcIndexedSessionRepository;
     private final RoomRepository roomRepository;
     @Override
@@ -36,7 +36,7 @@ public class WebsocketSecurityInterceptor implements ChannelInterceptor {
         return message;
     }
 
-    private void validAuthentication(final StompHeaderAccessor accessor, final OAuth2AuthenticationToken authentication) {
+    public void validAuthentication(final StompHeaderAccessor accessor, final OAuth2AuthenticationToken authentication) {
         //WebSocket의 EndPoint에 연결할 인증을 했는지 확인하는 함수
         if (!SimpMessageType.CONNECT.equals(accessor.getMessageType())) {
             return;
@@ -51,19 +51,26 @@ public class WebsocketSecurityInterceptor implements ChannelInterceptor {
         }
     }
 
-    private void validMemberInRoom(final StompHeaderAccessor accessor, final OAuth2AuthenticationToken authentication) {
+    public void validMemberInRoom(final StompHeaderAccessor accessor, final OAuth2AuthenticationToken authentication) {
         // 방에 들어가서 구독할 권한이 없는지 확인하는
         if(SimpMessageType.CONNECT.equals(accessor.getMessageType())){
             //방에 들어갈 권한이 없는 경우
             String subUrl = accessor.getFirstNativeHeader(SUB_URL_HEADER);
             Long roomId =  getRoomIdBy(subUrl);
-            String email = authentication.getPrincipal().getAttribute("email");
+            String email = getEmail(accessor, authentication);
             if(!roomRepository.existMemberInRoom(email, roomId)){
                 throw new AccessDeniedException("Authentication Failed");
             }
         }
     }
 
+    private String getEmail(final StompHeaderAccessor accessor, final OAuth2AuthenticationToken authentication){
+        if(authentication != null){
+            return authentication.getPrincipal().getAttribute("email");
+        } else {
+            return accessor.getFirstNativeHeader("email");
+        }
+    }
     private Long getRoomIdBy(final String destination){
         //방의 id를 추출하는 메소드
         return Long.valueOf(destination.split("/")[3]);
