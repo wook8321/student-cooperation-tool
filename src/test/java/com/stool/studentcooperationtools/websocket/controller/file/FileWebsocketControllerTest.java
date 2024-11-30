@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.websocket.controller.file;
 
+import com.stool.studentcooperationtools.domain.file.FileType;
 import com.stool.studentcooperationtools.domain.file.service.FileService;
 import com.stool.studentcooperationtools.s3.S3Service;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
@@ -37,39 +38,42 @@ class FileWebsocketControllerTest extends WebsocketTestSupport {
     void fileUpload() throws ExecutionException, InterruptedException, TimeoutException {
         //given
         String extension = "docs";
-        String originalFileName = "파일.docs";
+        String originalName = "파일.docx";
         String fileName = UUID.randomUUID().toString();
         long roomId = 1L;
+
         FileUploadWebsocketRequest request = FileUploadWebsocketRequest.builder()
-                .fileCode("파일의 Base64 인코딩 코드")
-                .fileName(originalFileName)
+                .fileType(FileType.JPG.getKey())
+                .fileName(fileName)
+                .originalName("originalName")
                 .partId(1L)
-                .roomId(roomId)
+                .roomId(1L)
+                .fileId(1L)
                 .build();
 
         List<FileUploadDto> files = List.of(
                 FileUploadDto.builder()
                         .fileId(1L)
-                        .originalFileName(originalFileName)
+                        .originalName(originalName)
                         .fileName(fileName)
+                        .fileUrl("fileUrl")
+                        .fileType(FileType.DOCX)
                         .build()
         );
 
         FileUploadWebsocketResponse response = FileUploadWebsocketResponse.builder()
-                .files(files)
-                .num(files.size())
+                .fileType(FileType.DOCX.getKey())
+                .fileUrl("fileUrl")
+                .originalName(originalName)
+                .fileName(fileName)
+                .fileId(1L)
+                .partId(1L)
+                .roomId(1L)
                 .build();
 
-        HashMap<String, List<String>> fileSet = new HashMap<>();
-        fileSet.put(originalFileName,List.of(fileName,extension));
 
-        Mockito.when(s3Service.uploadFile(Mockito.anyString(),Mockito.anyString()))
-                        .thenReturn(fileSet);
-        Mockito.when(fileService.addFile(
-                Mockito.any(FileUploadWebsocketRequest.class),
-                Mockito.any(HashMap.class),
-                Mockito.any(SessionMember.class)
-        )).thenReturn(response);
+        HashMap<String, List<String>> fileSet = new HashMap<>();
+        fileSet.put(originalName,List.of(fileName,extension));
 
         stompSession.subscribe(PART_RESEARCH_URL_FORMAT.formatted(roomId),resultHandler);
         stompSession.send("/pub/file/upload",request);
@@ -88,14 +92,17 @@ class FileWebsocketControllerTest extends WebsocketTestSupport {
         String fileName = UUID.randomUUID().toString();
         long roomId = 1L;
         long fileId = 1L;
+        long partId = 1L;
         FileDeleteWebsocketRequest request = FileDeleteWebsocketRequest.builder()
                 .fileId(fileId)
+                .partId(partId)
                 .fileName(fileName)
                 .roomId(roomId)
                 .build();
 
         FileDeleteWebsocketResponse response = FileDeleteWebsocketResponse.builder()
                 .fileId(fileId)
+                .partId(partId)
                 .build();
 
         Mockito.when(fileService.deleteFile(

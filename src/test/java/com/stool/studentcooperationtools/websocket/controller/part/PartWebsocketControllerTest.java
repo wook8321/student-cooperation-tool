@@ -37,10 +37,13 @@ class PartWebsocketControllerTest extends WebsocketTestSupport {
         PartAddWebsocketRequest request = PartAddWebsocketRequest.builder()
                 .partName(partName)
                 .roomId(1L)
+                .memberId(1L)
                 .build();
 
         PartAddWebsocketResponse response = PartAddWebsocketResponse.builder()
                 .partId(1L)
+                .profile("profile")
+                .nickName("nickName")
                 .partName(partName)
                 .createTime(LocalDate.of(2024,11,5))
                 .build();

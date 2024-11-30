@@ -5,7 +5,6 @@ import com.stool.studentcooperationtools.domain.topic.controller.TopicApiControl
 import com.stool.studentcooperationtools.domain.topic.controller.response.TopicFindDto;
 import com.stool.studentcooperationtools.domain.topic.controller.response.TopicFindResponse;
 import com.stool.studentcooperationtools.domain.topic.service.TopicService;
-import com.stool.studentcooperationtools.domain.vote.response.VoteFindDto;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -17,7 +16,8 @@ import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,19 +33,11 @@ public class TopicApiControllerDocsTest extends RestDocsSupport {
     void findTopics() throws Exception {
         //given
         String roomId = "1";
-
-        List<VoteFindDto> votes = List.of(
-                VoteFindDto.builder()
-                        .voteId(1L)
-                        .memberId(1L)
-                        .build()
-        );
-
         List<TopicFindDto> topicFindDtoList = List.of(
                 TopicFindDto.builder()
                         .topicId(1L)
                         .memberId(1L)
-                        .voteNum(votes.size())
+                        .voteNum(1)
                         .topic("주제")
                         .build()
         );
@@ -83,13 +75,7 @@ public class TopicApiControllerDocsTest extends RestDocsSupport {
                                         fieldWithPath("data.topics[].voteNum").type(NUMBER)
                                                 .description("투표 개수"),
                                         fieldWithPath("data.topics[].topic").type(STRING)
-                                                .description("방 주제"),
-                                        fieldWithPath("data.topics[].votes[]").type(ARRAY)
-                                                .description("주제의 투표 정보"),
-                                        fieldWithPath("data.topics[].votes[].memberId").type(NUMBER)
-                                                .description("주제를 투표한 유저의 식별키"),
-                                        fieldWithPath("data.topics[].votes[].voteId").type(NUMBER)
-                                                .description("주제의 투표 식별키")
+                                                .description("방 주제")
                                 )
                         )
                 );
