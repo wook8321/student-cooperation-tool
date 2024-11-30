@@ -16,7 +16,7 @@ public enum FileType {
 
     PDF("pdf",
             "data:application/pdf;base64",
-            "image/jpeg"
+            "application/pdf"
     ),
     XLS("xls",
             "data:application/vnd.ms-excel;base64",
