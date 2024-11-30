@@ -84,14 +84,15 @@ const RoomList = ({setCreateModal}) => {
         axios
             .post(`${domain}/api/v1/rooms/enter-room`,data,{ "Content-Type": "application/json"})
             .then((res) =>{
-                const isCorrect = res.data.data
-                if(isCorrect){
+                const leaderId = res.data.data.leaderId
+                if(leaderId){
                     //비밀 번호가 맞다면, 방을 입장
                     navigate('/topic', {
                         state: {
                             roomId,
                             subUrl: `/sub/rooms/${roomId}/topics`,
-                            userId
+                            userId,
+                            leaderId
                         }
                     });
                     closeEnterModal()
@@ -114,7 +115,7 @@ const RoomList = ({setCreateModal}) => {
         const enterRoomModalDiv = document.getElementById("enterRoomModalDiv")
         enterRoomModalDiv.innerHTML += `
                 <div class="enter_modal_overlay" id="passwordModalDiv">
-                    <div class="enter_modal_content" style="text-align: center;">
+                    <div class="enter_modal_content" style="text-align: center;" id="enterModalDiv">
                         <button class="close_button" id="closeModalButton">X</button>
                         <div id="passwordInvalidDiv"></div>
                         <label class="enter_modal_label">${roomTitle}</label>
@@ -123,6 +124,9 @@ const RoomList = ({setCreateModal}) => {
                     </div>
                 </div>
             `
+
+        document.getElementById("passwordModalDiv").onclick = closeEnterModal;
+        document.getElementById("enterModalDiv").onclick = function(e){e.stopPropagation();}
         document.getElementById("closeModalButton").onclick = closeEnterModal;
         document.getElementById("verifyRoomButton").onclick = () => verifyPasswordAndEnterRoom(roomId);
     }
@@ -329,7 +333,7 @@ const Project = () => {
         axios
             .post(`${domain}/api/v1/rooms/enter-room`,data,{ "Content-Type": "application/json"})
             .then((res) =>{
-                const leaderId = res.data.data
+                const leaderId = res.data.data.leaderId
                 if(leaderId){
                     //비밀 번호가 맞다면, 방을 입장
                     navigate('/topic', {
