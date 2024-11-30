@@ -58,7 +58,14 @@ public class PresentationService {
             throw new IllegalArgumentException("발표자료 변경 권한이 없습니다");
         }
         Presentation updatingPpt = presentationRepository.findByRoomId(room.getId())
-                .orElseThrow(()->new IllegalArgumentException("발표자료가 존재하지 않습니다"));
+                .orElseGet(()->{
+                    Presentation newPpt = Presentation.builder()
+                            .room(room)
+                            .presentationPath(request.getPresentationPath())
+                            .build();
+                    presentationRepository.save(newPpt);
+                    return newPpt;
+                });
         updatingPpt.updatePath(request.getPresentationPath());
         return PresentationUpdateSocketResponse.of(updatingPpt);
     }
