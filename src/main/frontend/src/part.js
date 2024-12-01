@@ -6,6 +6,8 @@ import "./part.css"
 import "./dropbox.css"
 import { useWebSocket } from './WebsocketContext';
 import {useNavigate} from "react-router-dom"; // WebSocketProvider의 훅 사용
+import "./part-card.css"
+import "./filepreview-modal.css"
 
 
 //
@@ -25,6 +27,9 @@ const Part = () => {
     const {stompClient, isConnected, roomId} = useWebSocket(); // WebSocket 연결 관리
     const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
     const navigate = useNavigate();
+    const [filePreviewModal, setFilePreviewModal] = useState(false)
+    const [fileUrl, setFileUrl] = useState("")
+    const [fileType, setFileType] = useState("")
 
 
     const PartsList = () => {
@@ -217,17 +222,14 @@ const Part = () => {
         console.log(fileUrl)
         console.log(fileType)
         if (fileType === "PNG" || fileType ==="JPG") {
-            return <img src={fileUrl} alt="미리보기 이미지" style={{ maxWidth: "50%" }} />;
+            return <img src={fileUrl} alt="미리보기 이미지" style={{ maxWidth: "80%" }} />;
         } else if (fileType === "PDF") {
-            return <iframe src={fileUrl} width="50%" height="300px" />;
+            return <iframe src={fileUrl} width="100%" height="600px" />;
         } else if ( fileType === "DOCX" || fileType === "XLS" || fileType === "XLSX" ) {
             const encodedUrl = encodeURIComponent(fileUrl);
             return (
-                <iframe
-                    src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`}
-                    width="50%"
-                    height="300px"
-                />
+                <iframe src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`}
+                    width="100%" height="600px"/>
             );
         } else {
             return <span>미리 보여줄 수 없는 파일입니다.</span>;
@@ -264,6 +266,12 @@ const Part = () => {
             )
         }));
     };
+
+    const openFilePreviewModal = (fileUrl, fileType) => {
+        setFileUrl(fileUrl)
+        setFileType(fileType)
+        setFilePreviewModal(true)
+    }
 
     // ========================================== 역할 메뉴 ============================================
 
@@ -610,39 +618,57 @@ const Part = () => {
 
     return (
     <>
-        <main className="topic-background">
-            <ul>
-                {parts.parts.map((part) => (
-                    <li key={part.partId}>
-                        <span>{part.partName}</span>
-                        <img src={part.profile} alt="프로필" />
-                        <span>{part.nickName}</span>
-                        <Dropdown part={part} />
-                        <ul>
-                            {part.files?.length > 0 ? (
-                                part.files.map((file) => (
-                                    <li key={file.fileId}>
-                                        <span>{file.originalName}</span>
-                                        <PreviewFile fileUrl={file.fileUrl} fileType={file.fileType} />
-                                        <button onClick={() => deleteFile(file.fileName, file.fileId,part.partId)}>x</button>
-                                        <button onClick={() => downloadFile(file.fileName, file.originalName)}>
-                                            다운로드
-                                        </button>
-                                    </li>
-                                ))
-                            ) : (
-                                <span>업로드한 파일이 없습니다.</span>
-                            )}
-                        </ul>
-                    </li>
-                ))}
-                <li>
-                    <button className="role-add-btn" onClick={() => openAddModal()}>
-                        역할 추가
-                    </button>
-                </li>
-            </ul>
+        <main className="part-main">
+            {parts.parts.map((part) => (
+                <div className="profile-container" key={part.partId}>
+                    <div className="profile-header">
+                        <img className="profile-picture" src={part.profile} alt="프로필" />
+                        <div className="profile-nickname">
+                            {part.nickName}
+                            <Dropdown part={part}/>
+                        </div>
+                    </div>
 
+                    <div className="profile-title">{part.partName}</div>
+
+                    <div className="file-list-container">
+                        {part.files?.length > 0 ? (
+                            part.files.map((file) => (
+                                <div className="file-item" key={file.fileId}>
+                                    {file.originalName}
+                                    <div className="file-buttons">
+                                        <button className="preview-button"
+                                                onClick={() => deleteFile(file.fileName, file.fileId,part.partId)}>
+                                            ✘
+                                        </button>
+                                        <button className="preview-button"
+                                                onClick={() => openFilePreviewModal(file.fileUrl,file.fileType)}>
+                                            🔍
+                                        </button>
+                                        <button className="download-button"
+                                                onClick={() => downloadFile(file.fileName, file.originalName)}>
+                                            ⬇️
+                                        </button>
+                                    </div>
+                                </div>
+                            ))) : <span> 업로드한 파일이 없습니다.</span>
+                        }
+                    </div>
+                </div>
+            ))}
+            <button className="role-add-btn" onClick={() => openAddModal()}>
+                            역할 추가
+            </button>
+
+            {filePreviewModal &&(
+                <div className="filepreview-modal-overlay">
+                    <div className="filepreview-modal-container">
+                        <h2>파일 미리보기</h2>
+                        <button className="filepreview-modal-close" onClick={() => setFilePreviewModal(false)}>X</button>
+                        <PreviewFile fileUrl={fileUrl} fileType={fileType} />
+                    </div>
+                </div>
+            )}
 
             {addModal && (
                 <div style={{ textAlign: "center", justifyContent: "center" }} className="modal_overlay">
