@@ -182,7 +182,7 @@ const Topic = () => {
       <>
         <div>
           <Link to={"/project"} className="back_link">
-            뒤로 가기
+            🔙
           </Link>
         </div>
 

@@ -230,7 +230,7 @@ const PPT = () => {
 
   return (
       <div className="background">
-          <button onClick={goBack} className="back_link">뒤로 가기</button>
+          <button onClick={goBack} className="back_link">🔙</button>
           <div className="ppt-container">
               {!pptData ? (
                   <div className="no-ppt-container">

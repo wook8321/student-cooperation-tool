@@ -193,7 +193,7 @@ const Script = () => {
 
   return (
       <div className="background">
-          <button onClick={goBack} className="back_link">뒤로 가기</button>
+          <button onClick={goBack} className="back_link">🔙</button>
           <div className="slide-view-container">
               <div className="slide-content">
                   <div className="slides-preview">
@@ -290,6 +290,9 @@ const Script = () => {
                   {chatModal && <ChatPage/>}
               </div>
           </div>
+
+          {/* 새로고침 버튼 */}
+          <button className="refresh-btn">🔄</button>
 
           <div className="process">
               <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
