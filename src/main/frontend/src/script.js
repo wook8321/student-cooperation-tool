@@ -11,7 +11,7 @@ import { useWebSocket } from './WebsocketContext'; // WebSocketProvider의 훅 �
 
 // 역할 추가 버튼을 누르면 나오는 모달에서 담당자 이름을 입력받고 따로 저장해서 사용하게 만들었어요
 
-const Script = ({ roomId, presentationId }) => {
+const Script = ({ presentationId }) => {
   const [slides, setSlides] = useState([]);
   const [selectedSlide, setSelectedSlide] = useState(null); // 모달에 사용할 선택한 슬라이드
   const [newScript, setNewScript] = useState(""); // 새로 입력된 스크립트
@@ -40,7 +40,8 @@ const Script = ({ roomId, presentationId }) => {
         //3-1 구독한 url에서 온 메세지를 받았을 때
         const frame = JSON.parse(message.body)
         if (frame.messageType === "SCRIPT_UPDATE") {
-            updateScriptInScreen(frame.data)
+            //updateScriptInScreen(frame.data)
+            console.log("message received");
         } else {
             console.log("Not Supported Message Type")
         }
@@ -86,7 +87,7 @@ const Script = ({ roomId, presentationId }) => {
 
     if (stompClient) {
       stompClient.publish({
-        destination: `${domain}/pub/presentations/update`,
+        destination: `/pub/presentations/update`,
         body: {
           roomId: roomId,
           slideId: selectedSlide.slideId,

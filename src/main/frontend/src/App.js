@@ -9,7 +9,7 @@ import Auth from "./auth";
 import Topic from "./topic";
 import Part from "./part";
 import PPT from "./ppt";
-import Slide from "./slide";
+import Script from "./script";
 
 const App = () => {
   return (
@@ -23,7 +23,7 @@ const App = () => {
           <Route path = "/topic" element = {<WebSocketProvider><Topic /></WebSocketProvider>}></Route>
           <Route path = "/part" element = {<WebSocketProvider><Part /></WebSocketProvider>}></Route>
           <Route path = "/presentation" element = {<WebSocketProvider><PPT /></WebSocketProvider>}></Route>
-          <Route path = "/slide" element = {<WebSocketProvider><Slide /></WebSocketProvider>}></Route>
+          <Route path = "/script" element = {<WebSocketProvider><Script /></WebSocketProvider>}></Route>
           {/*일치하는 라우트가 없는경우 처리 <Route path="/*" element={<NotFound />}></Route> */}
         </Routes>
       </BrowserRouter>
