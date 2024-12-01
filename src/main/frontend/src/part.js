@@ -605,11 +605,10 @@ const Part = () => {
             userId,
             leaderId,
         };
-        navigate(path, {state})
-
         if (presentationId != null) {
             state.presentationId = presentationId;
         }
+        navigate(path, {state})
     }
 
     if (!isConnected) {

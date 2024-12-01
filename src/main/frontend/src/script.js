@@ -149,11 +149,10 @@ const Script = () => {
             userId,
             leaderId,
         };
-        navigate(path, {state})
-
         if (presentationId != null) {
             state.presentationId = presentationId;
         }
+        navigate(path, {state})
     }
 
   return (

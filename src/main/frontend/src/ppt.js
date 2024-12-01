@@ -196,18 +196,17 @@ const PPT = () => {
   }
 
     const goSection = (path, subUrl) => {
-      console.log(pptData.presentationId);
-        const state = {
-            roomId,
-            subUrl: subUrl,
-            userId,
-            leaderId,
-        };
-        navigate(path, {state})
+      const state = {
+          roomId,
+          subUrl: subUrl,
+          userId,
+          leaderId,
+      };
+      if(pptData != null) {
+          state.presentationId = pptData.presentationId;
+      }
+      navigate(path, {state})
 
-        if (pptData?.presentationId != null) {
-            state.presentationId = pptData.presentationId;
-        }
     }
 
   useEffect(() => {
