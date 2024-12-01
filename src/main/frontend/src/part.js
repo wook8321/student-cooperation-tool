@@ -8,19 +8,15 @@ import { useWebSocket } from './WebsocketContext';
 import {useNavigate} from "react-router-dom"; // WebSocketProvider의 훅 사용
 import "./part-card.css"
 import "./filepreview-modal.css"
+import "./part-add-modal.css"
+import chatImage from "./images/chat.svg";
+import ChatPage from "./chatroom";
 
 
 //
 const Part = () => {
     const [parts, setParts] = useState({num: 0, parts: []});
-    const [partID, setPartID] = useState(""); // 존재하는 역할을 수정하거나 삭제할 때 필요한 주제 ID
-    const [newPartName, setNewPartName] = useState(""); // 역할 추가 시 필요한 역할 이름
-    const [selectedMember, setSelectedMember] = useState(""); // 역할 추가 시 필요한 역할 담당자
-    const [error, setError] = useState(null);
     const [addModal, setAddModal] = useState(false);
-    const [menuOpen, setMenuOpen] = useState(false); // 드롭다운 열림/닫힘 상태
-
-    const [isOpen, setIsOpen] = useState(false);
     const [partName, setPartName] = useState("")
     const [selectedMemberId, setSelectedMemberId] = useState(null);
     const [participation, setParticipation] = useState({ num: 0, participation: [] });
@@ -30,7 +26,7 @@ const Part = () => {
     const [filePreviewModal, setFilePreviewModal] = useState(false)
     const [fileUrl, setFileUrl] = useState("")
     const [fileType, setFileType] = useState("")
-
+    const [chatModal, setChatModal] = useState(false);
 
     const PartsList = () => {
         axios.get(`${domain}/api/v1/rooms/${roomId}/parts`)
@@ -39,7 +35,7 @@ const Part = () => {
                 setParts(res.data.data);
             })
             .catch(() => {
-                setError(new Error("Failed to get partslist"));
+               console.log(new Error("Failed to get partslist"))
             });
     }
 
@@ -272,6 +268,11 @@ const Part = () => {
         setFileType(fileType)
         setFilePreviewModal(true)
     }
+
+    // ============================================채팅 관련===========================================
+    const toggleChatModal = () => {
+        setChatModal((prevState) => !prevState);
+    };
 
     // ========================================== 역할 메뉴 ============================================
 
@@ -512,39 +513,36 @@ const Part = () => {
                 )}
 
                 {updateModal && (
-                    <div style={{ textAlign: "center", justifyContent: "center" }} className="modal_overlay">
-                        <div className="modal_content">
-                            <button className="close_button" onClick={() => closeUpdateModal()}>
-                                x
-                            </button>
-                            <div className="modal_body">
-                                <h3>역할 추가</h3>
-                                <div className="modal_section">
-                                    <label className="modal_label" htmlFor="partName">
-                                        역할 이름
-                                    </label>
-                                    <input className="modal_input" id="partName"
-                                        type="text" value={updatedPartName}
-                                        onChange={(e) => setUpdatedPartName(e.target.value)}/>
+                    <div style={{ textAlign: "center", justifyContent: "center" }} className="part-add-modal-overlay">
+                        <div className="part-add-modal">
+                            <button className="close-btn" onClick={() => closeUpdateModal()}>x</button>
+                            <span className="modal-title" style={{textAlign : "center"}}>역할 추가</span>
+                            <div className="part-add-modal-content">
+                                <div className="part-header">
+                                    <label className="modal_label" htmlFor="partName">역할 이름</label>
+                                    <input className="modal_input" id="partName" type="text"
+                                           onChange={(e) => setUpdatedPartName(e.target.value)}
+                                           placeholder="역할 이름을 입력하세요" value={updatedPartName}/>
                                 </div>
-                                <div className="modal_section">
-                                    <h4>담당자</h4>
-                                    <ul className="members-list">
-                                        {participation.num > 0 ?
-                                            (participation.participation.map((p) => (
-                                                <li key={p.memberId} id={"part" + p.memberId}>
-                                                    <img src={p.profile} alt={`${p.nickname}'s profile`} />
-                                                    <p>{p.nickname}</p>
-                                                    <input type="radio" value={p.memberId}
-                                                        checked={updatedMemberId === p.memberId}
-                                                        onChange={() => setUpdatedMemberId(p.memberId)}/>
-                                                </li>
-                                            ))) : <h2> 참여자가 없습니다.</h2>
-                                        }
-                                    </ul>
+
+                                <div className="part-title">역할을 맡은 사람</div>
+
+                                <div className="participation-list-container">
+                                    {participation.num > 0 ?
+                                        (participation.participation.map((p) => (
+                                            <div id={"part" + p.memberId} className="participation">
+                                                <img className="part-picture" src={p.profile} alt={`${p.nickname}'s profile`} />
+                                                {p.nickName}
+                                                <input type="radio" value={p.memberId}
+                                                       checked={updatedMemberId === p.memberId}
+                                                       onChange={() => setUpdatedMemberId(p.memberId)}
+                                                />
+                                            </div>
+                                        ))) : <h2> 참여자가 없습니다.</h2>
+                                    }
                                 </div>
-                                <button className="add-button" onClick={() => updatePart()}>
-                                    수정하기
+                                <button className="review-write-button" onClick={() => updatePart()}>
+                                    생성
                                 </button>
                             </div>
                         </div>
@@ -617,48 +615,58 @@ const Part = () => {
     }
 
     return (
-    <>
-        <main className="part-main">
-            {parts.parts.map((part) => (
-                <div className="profile-container" key={part.partId}>
-                    <div className="profile-header">
-                        <img className="profile-picture" src={part.profile} alt="프로필" />
-                        <div className="profile-nickname">
-                            {part.nickName}
-                            <Dropdown part={part}/>
+    <>  <div className="part-background">
+            <div className="part-main">
+                {parts.parts.map((part) => (
+                    <div className="part-card" key={part.partId}>
+                        <div className="part-header">
+                            <img className="part-picture" src={part.profile} alt="프로필" />
+                            <div className="part-nickname">
+                                {part.nickName}
+                                <Dropdown part={part}/>
+                            </div>
+                        </div>
+
+                        <div className="part-title">{part.partName}</div>
+
+                        <div className="file-list-container">
+                            {part.files?.length > 0 ? (
+                                part.files.map((file) => (
+                                    <div className="file-item" key={file.fileId}>
+                                        {file.originalName}
+                                        <div className="file-buttons">
+                                            <button className="preview-button"
+                                                    onClick={() => deleteFile(file.fileName, file.fileId,part.partId)}>
+                                                X
+                                            </button>
+                                            <button className="preview-button"
+                                                    onClick={() => openFilePreviewModal(file.fileUrl,file.fileType)}>
+                                                🔍
+                                            </button>
+                                            <button className="download-button"
+                                                    onClick={() => downloadFile(file.fileName, file.originalName)}>
+                                                ⬇️
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))) : <span> 업로드한 파일이 없습니다.</span>
+                            }
                         </div>
                     </div>
+                ))}
+                <button className="role-add-btn" onClick={() => openAddModal()}>
+                    +
+                </button>
+            </div>
 
-                    <div className="profile-title">{part.partName}</div>
-
-                    <div className="file-list-container">
-                        {part.files?.length > 0 ? (
-                            part.files.map((file) => (
-                                <div className="file-item" key={file.fileId}>
-                                    {file.originalName}
-                                    <div className="file-buttons">
-                                        <button className="preview-button"
-                                                onClick={() => deleteFile(file.fileName, file.fileId,part.partId)}>
-                                            ✘
-                                        </button>
-                                        <button className="preview-button"
-                                                onClick={() => openFilePreviewModal(file.fileUrl,file.fileType)}>
-                                            🔍
-                                        </button>
-                                        <button className="download-button"
-                                                onClick={() => downloadFile(file.fileName, file.originalName)}>
-                                            ⬇️
-                                        </button>
-                                    </div>
-                                </div>
-                            ))) : <span> 업로드한 파일이 없습니다.</span>
-                        }
-                    </div>
-                </div>
-            ))}
-            <button className="role-add-btn" onClick={() => openAddModal()}>
-                            역할 추가
+        <div>
+            <button className="chat-button" onClick={toggleChatModal}>
+                <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
             </button>
+            <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
+                {chatModal && <ChatPage/>}
+            </div>
+        </div>
 
             {filePreviewModal &&(
                 <div className="filepreview-modal-overlay">
@@ -671,38 +679,35 @@ const Part = () => {
             )}
 
             {addModal && (
-                <div style={{ textAlign: "center", justifyContent: "center" }} className="modal_overlay">
-                    <div className="modal_content">
-                        <button className="close_button" onClick={() => closeAddModal()}>x</button>
-                        <div className="modal_body">
-                            <h3>역할 추가</h3>
-                            <div className="modal_section">
+                <div style={{ textAlign: "center", justifyContent: "center" }} className="part-add-modal-overlay">
+                    <div className="part-add-modal">
+                        <button className="close-btn" onClick={() => closeAddModal()}>x</button>
+                        <span className="modal-title" style={{textAlign : "center"}}>역할 추가</span>
+                        <div className="part-add-modal-content">
+                            <div className="part-header">
                                 <label className="modal_label" htmlFor="partName">역할 이름</label>
-                                <input className="modal_input"
-                                       id="partName" type="text"
+                                <input className="modal_input" id="partName" type="text"
                                        onChange={(e) => setPartName(e.target.value)}
                                        placeholder="역할 이름을 입력하세요"/>
                             </div>
-                            <div className="modal_section">
-                                <h4>담당자</h4>
-                                <ul className="members-list">
-                                    {participation.num > 0 ?
-                                        (participation.participation.map((p) => (
-                                            <li key={p.memberId} id={"part" + p.memberId}>
-                                                <img src={p.profile} alt={`${p.nickname}'s profile`} />
-                                                <p>{p.nickname}</p>
-                                                <input
-                                                    type="radio"
-                                                    value={p.memberId}
-                                                    checked={selectedMemberId === p.memberId}
-                                                    onChange={() => setSelectedMemberId(p.memberId)}
-                                                />
-                                            </li>
-                                        ))) : <h2> 참여자가 없습니다.</h2>
-                                    }
-                                </ul>
+
+                            <div className="part-title">역할을 맡은 사람</div>
+
+                            <div className="participation-list-container">
+                                {participation.num > 0 ?
+                                    (participation.participation.map((p) => (
+                                        <div id={"part" + p.memberId} className="participation">
+                                            <img className="part-picture" src={p.profile} alt={`${p.nickname}'s profile`} />
+                                            {p.nickName}
+                                            <input type="radio" value={p.memberId}
+                                                   checked={selectedMemberId === p.memberId}
+                                                   onChange={() => setSelectedMemberId(p.memberId)}
+                                            />
+                                        </div>
+                                    ))) : <h2> 참여자가 없습니다.</h2>
+                                }
                             </div>
-                            <button className="add-button" onClick={() => addPart()}>
+                            <button className="review-write-button" onClick={() => addPart()}>
                                 생성
                             </button>
                         </div>
@@ -710,16 +715,15 @@ const Part = () => {
                 </div>
             )}
 
-
-        </main>
-        <div className="process">
-        <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
-            자료 조사
+            <div className="process">
+                <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
+                    자료 조사
+                </div>
+                <div>자료 조사</div>
+                <div>발표 자료</div>
+                <div>발표 준비</div>
+            </div>
         </div>
-        <div>자료 조사</div>
-        <div>발표 자료</div>
-        <div>발표 준비</div>
-    </div>
     </>
     );
 }
