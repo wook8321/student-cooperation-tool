@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { domain } from "./domain";
 import { useWebSocket } from './WebsocketContext'; // WebSocketProvider의 훅 사용
-import "./ChatRoom.css";
+import "./chatroom.css";
 
 function ChatRoom() {
     const [chatList, setChatList] = useState([]);
