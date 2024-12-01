@@ -11,27 +11,31 @@ import { useWebSocket } from './WebsocketContext'; // WebSocketProvider의 훅 �
 
 const Script = () => {
   const [slides, setSlides] = useState([]);
-  const [selectedSlide, setSelectedSlide] = useState(null); // 모달에 사용할 선택한 슬라이드
   const [newScript, setNewScript] = useState(""); // 새로 입력된 스크립트
-  const [scriptModal, setScriptModal] = useState(false); // 스크립트 등록 모달
-  const [selectedMember, setSelectedMember] = useState(""); // 담당자 이름 따로 저장
   const [chatModal, setChatModal] = useState(false); 
   const [error, setError] = useState(null);
-  const [scripts, setScripts] = useState([]); // 담당자와 스크립트ID 매칭을 위해 따로 저장하는 스크립트 데이터
   const {stompClient, isConnected, roomId, userId, leaderId, presentationId} = useWebSocket();
   const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
   const navigate = useNavigate();
+  const [pptPath, setPptPath] = useState('');
+  const [newScripts, setNewScripts] = useState({});
+  const [currentPage, setCurrentPage] = useState(0);
+
 
     // 발표자료의 슬라이드를 가져오는 함수
     const fetchSlides = () => {
         axios.get(`${domain}/api/v1/presentation/${presentationId}/slides`)
             .then((res) => {
-                setSlides(res.data.data);
+                setSlides(res.data.data.slides);
             })
             .catch((e) => {
                 alert("슬라이드를 가져오는 데 실패하였습니다!")
                 console.log(e);
             });
+        axios.get(`${domain}/api/v1/rooms/${roomId}/presentation`)
+            .then((res)=>{
+                setPptPath(res.data.data.presentationPath);
+            })
     }
 
     //=============================================웹소켓========================================================
@@ -39,7 +43,7 @@ const Script = () => {
         //3-1 구독한 url에서 온 메세지를 받았을 때
         const frame = JSON.parse(message.body)
         if (frame.messageType === "SCRIPT_UPDATE") {
-            //updateScriptInScreen(frame.data)
+            updateScriptInScreen(frame.data)
             console.log("message received");
         } else {
             console.log("Not Supported Message Type")
@@ -54,10 +58,7 @@ const Script = () => {
 
     const onConnect = () => {
         //2-1 연결 성공의 경우
-        if(!presentationId){
-            alert('아직 ppt가 없어요!');
-        }
-        else {
+        if(presentationId){
             fetchSlides();
         }
         subscriptions.current = stompClient.current.subscribe(
@@ -86,44 +87,42 @@ const Script = () => {
         }
     }, [isConnected]); //isConnected 상태가 바뀌면 실행된다.
     //===============================================================================
-
-  const addScript = (slide) => {
-
-    if (stompClient) {
-      stompClient.publish({
-        destination: `/pub/presentations/update`,
-        body: {
-          roomId: roomId,
-          slideId: selectedSlide.slideId,
-          script: newScript,
-      },
+   //===================================스크립트 추가===================================
+  const addScript = (scriptId, script) => {
+      const data = {
+          roomId,
+          scriptId,
+          script,
+      }
+      stompClient.current.publish({
+          destination: '/pub/scripts/update',
+          body: JSON.stringify(data)
       });
-    
-    setSelectedSlide(slide); // 선택한 슬라이드 저장
-    setScriptModal(true); // 스크립트 등록 모달 열기
-  }};
+      setNewScripts((prevScripts) => ({
+          ...prevScripts,
+          [scriptId]: "", // 저장 후 해당 슬라이드 입력값 초기화
+      }));
+  };
 
-  const saveScript = () => {
-    if (!selectedSlide || !newScript.trim()) return;
-
-    const updatedSlides = slides.map((slide) =>
-      slide.slideId === selectedSlide.slideId
-        ? { ...slide, script: newScript }
-        : slide
-    );
-
-    const newScriptObj = {
-      scriptId: selectedSlide.scriptId,
-      member : selectedMember, // 담당자
-    };
-
-    setScripts((prev) => [...prev, newScriptObj]); // 새로운 스크립트 추가
-    setSlides(updatedSlides); // 슬라이드 데이터 업데이트
-    setScriptModal(false); // 모달 닫기
-    setNewScript(""); // 입력값 초기화
-    setSelectedMember("");
+  const updateScriptInScreen = (frame) => {
+      console.log('frame : ',frame);
+      setSlides(prevSlides =>
+          prevSlides.map(slide =>
+              slide.scriptId === frame.scriptId
+                  ? { ...slide, script: frame.script }
+                  : slide
+          )
+      );
   }
 
+    const handleScriptChange = (slideId, value) => {
+        setNewScripts((prevScripts) => ({
+            ...prevScripts,
+            [slideId]: value, // slideId에 해당하는 상태만 업데이트
+        }));
+  };
+
+  //==================================================기타 기능==============================
   const ErrorModal = ({ error, closeErrorModal }) => {
     if (!error) return null; // 에러가 없을 때
 
@@ -155,114 +154,158 @@ const Script = () => {
         navigate(path, {state})
     }
 
+    //채팅창 토글로 구현
+    const toggleChatModal = () => {
+        setChatModal((prevState) => !prevState);
+    };
+
+    //뒤로가기
+    const goBack = () => {
+        navigate("/project"); // "/project" 경로로 이동
+    };
+
+    //슬라이드 페이지화
+
+    const goToNextPage = () => {
+        if (currentPage < slides.length - 1) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const goToPrevPage = () => {
+        if (currentPage > 0) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
+    const goToFirstPage = () => {
+        setCurrentPage(0);
+    };
+
+    const goToLastPage = () => {
+        setCurrentPage(slides.length - 1);
+    };
+
+    const handlePageSelectChange = (e) => {
+        setCurrentPage(Number(e.target.value)); // 선택된 페이지로 이동
+    };
+    //===============================================================================
+
   return (
-    <>
-      <Link to="/project" className="back_link">
-        뒤로 가기
-      </Link>
+      <div className="background">
+          <button onClick={goBack} className="back_link">뒤로 가기</button>
+          <div className="slide-view-container">
+              <div className="slide-content">
+                  <div className="slides-preview">
+                      {slides.length > 0 ? (
+                          <div key={slides[currentPage].slideId} className="slide-item">
+                              {/* 썸네일 - 왼쪽 */}
+                              <div
+                                  className="slide-thumbnail"
+                                  onClick={() =>
+                                      window.open(
+                                          `https://docs.google.com/presentation/d/${pptPath}/edit#slide=${slides[currentPage].slideUrl}`,
+                                          "_blank"
+                                      )
+                                  }
+                                  style={{cursor: "pointer"}}
+                              >
+                                  <img
+                                      src={slides[currentPage].thumbnailUrl}
+                                      alt={`Slide ${slides[currentPage].slideId}`}
+                                  />
+                              </div>
 
-      <ErrorModal error={error} closeErrorModal={closeErrorModal} />
+                              {/* 스크립트 - 오른쪽 */}
+                              <div className="slide-script">
+                                  <h4>슬라이드 {currentPage + 1}</h4>
+                                  <textarea
+                                      value={newScripts[slides[currentPage].slideId] || ""}
+                                      onChange={(e) =>
+                                          handleScriptChange(
+                                              slides[currentPage].slideId,
+                                              e.target.value
+                                          )
+                                      }
+                                      placeholder={
+                                          slides[currentPage].script || "스크립트를 입력하세요"
+                                      }
+                                      rows="5"
+                                  />
+                                  <button
+                                      onClick={() =>
+                                          addScript(
+                                              slides[currentPage].scriptId,
+                                              newScripts[slides[currentPage].slideId]
+                                          )
+                                      }
+                                      className="save-btn"
+                                  >
+                                      저장
+                                  </button>
+                              </div>
+                          </div>
+                      ) : (
+                          <p>슬라이드가 없습니다.</p>
+                      )}
 
-      <div className="slide-view-container">
-        <div className="slide-content">
-          <div className="slides-preview">
-            <h3>슬라이드</h3>
-            {slides.length > 0 ? (
-                slides.map((slide) => (
-                    <div key={slide.slideId} className="slide-item">
-                        <div
-                            className="slide-thumbnail"
-                            onClick={() => window.open(slide.slideUrl, "_blank")}
-                            style={{ cursor: "pointer" }}
-                        >
-                            <img
-                                src={slide.thumbnailUrl}
-                                alt={`Slide ${slide.slideId}`}
-                            />
-                        </div>
-                        <div className="slide-script">
-                            <h4>발표 스크립트</h4>
-                            {slide.script ? (
-                                <div>
-                                    <p>
-                                        <strong>담당자:</strong> {scripts.find((script) => script.slideId === slide.slideId)?.member || "미지정"}
-                                    </p>
-                                    <p>{slide.script}</p>
-                                </div>
-                            ) : (
-                                <button
-                                    onClick={() => addScript(slide)}
-                                    className="add-script-btn"
-                                >
-                                    스크립트 추가
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                ))
-            ) : (
-              <p>슬라이드가 없습니다.</p>
-            )}
+                      {/* 페이지 전환 버튼 */}
+                      <div className="pagination-buttons">
+                          <button onClick={goToFirstPage} disabled={currentPage === 0}>
+                              &lt;&lt; {/* 첫 번째 페이지로 */}
+                          </button>
+                          <button onClick={goToPrevPage} disabled={currentPage === 0}>
+                              &lt; {/* 이전 페이지로 */}
+                          </button>
+
+                          {/* 페이지 번호 선택 드롭다운 */}
+                          <div className="page-select">
+                              <select
+                                  value={currentPage}
+                                  onChange={handlePageSelectChange}
+                              >
+                                  {Array.from({length: slides.length}, (_, index) => (
+                                      <option key={index} value={index}>
+                                          {index + 1}
+                                      </option>
+                                  ))}
+                              </select>
+                          </div>
+
+                          <button onClick={goToNextPage} disabled={currentPage === slides.length - 1}>
+                              &gt; {/* 다음 페이지로 */}
+                          </button>
+                          <button onClick={goToLastPage} disabled={currentPage === slides.length - 1}>
+                              &gt;&gt; {/* 마지막 페이지로 */}
+                          </button>
+                      </div>
+                  </div>
+              </div>
           </div>
-        </div>
+          <div>
+              <button className="chat-button" onClick={toggleChatModal}>
+                  <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
+              </button>
+              <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
+                  {chatModal && <ChatPage/>}
+              </div>
+          </div>
+
+          <div className="process">
+              <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
+                  주제 선정
+              </div>
+              <div onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>
+                  자료 조사
+              </div>
+              <div onClick={() => goSection('/presentation', `/sub/rooms/${roomId}/presentation`)}>
+                  발표 자료
+              </div>
+              <div onClick={() => goSection('/script', `/sub/rooms/${roomId}/scripts`)}>
+                  발표 준비
+              </div>
+          </div>
       </div>
-
-      {scriptModal && (
-        <div className="script-overlay">
-          <div className="script-content">
-            <h3>스크립트 추가</h3>
-            <br></br>
-            <h1>담당자</h1>
-            <input
-              type="text"
-              value={selectedMember}
-              onChange={(e) => setSelectedMember(e.target.value)}
-              placeholder="담당자 이름을 입력하세요"
-            />
-            <textarea
-              value={newScript}
-              onChange={(e) => setNewScript(e.target.value)}
-              placeholder="스크립트를 입력하세요"
-              rows="5"
-            />
-            <div className="script-buttons">
-              <button onClick={() => setScriptModal(false)} className="cancel-btn">
-                취소
-              </button>
-              <button onClick={saveScript} className="save-btn">
-                저장
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-        <div className="process">
-            <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
-                주제 선정
-            </div>
-            <div onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>
-                자료 조사
-            </div>
-            <div onClick={() => goSection('/presentation', `/sub/rooms/${roomId}/presentation`)}>
-                발표 자료
-            </div>
-            <div onClick={() => goSection('/script', `/sub/rooms/${roomId}/scripts`)}>
-                발표 준비
-            </div>
-        </div>
-
-        <img className="chat_image" onClick={() => setChatModal(true)} src={chatImage} alt="채팅창 이미지"/>
-
-        {chatModal && (
-            <div className="chat-overlay">
-                <div className="chat-content">
-                    <ChatPage/>
-                    <button className="chat-close-button" onClick={() => setChatModal(false)}> X</button>
-                </div>
-            </div>
-        )}
-
-    </>
   );
 };
 
