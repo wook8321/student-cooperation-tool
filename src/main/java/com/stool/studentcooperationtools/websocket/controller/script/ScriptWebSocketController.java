@@ -21,11 +21,11 @@ public class ScriptWebSocketController {
     private final ScriptService scriptService;
     private final SimpleMessageSendingUtils sendingUtils;
 
-    @MessageMapping("script/update")
+    @MessageMapping("scripts/update")
     public void updateScript(@Valid @RequestBody ScriptUpdateSocketRequest request) {
         ScriptUpdateSocketResponse response = scriptService.updateScript(request);
         sendingUtils.convertAndSend(
-                sendingUtils.createPresentationManageSubUrl(request.getRoomId()),
+                sendingUtils.createScriptManageSubUrl(request.getRoomId()),
                 WebsocketResponse.of(SCRIPT_UPDATE, response)
         );
     }
