@@ -11,10 +11,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Set CI to false temporarily
-        run: |
-          export CI=false
-          node -e "console.log('CI:', process.env.CI)"
       - name: CheckOut
         uses: actions/checkout@v4.1.7
       # jdk 17 설치

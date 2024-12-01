@@ -152,13 +152,13 @@ task buildReact(type: Exec) {
     workingDir "$frontendDir"
     inputs.dir "$frontendDir"
     group = BasePlugin.BUILD_GROUP
+    environment "CI", "false" // 환경 변수 설정
     if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
         commandLine "npm.cmd", "run-script", "build"
     } else {
         commandLine "npm", "run-script", "build"
     }
 }
-
 task copyReactBuildFiles(type: Copy) {
     dependsOn "buildReact"
     from "$frontendDir/build"
