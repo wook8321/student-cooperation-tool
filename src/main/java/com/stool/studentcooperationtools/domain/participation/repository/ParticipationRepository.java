@@ -19,4 +19,6 @@ public interface ParticipationRepository extends JpaRepository<Participation, Lo
     @Modifying
     @Query("delete from Participation p where p.room.id =:roomId and p.member.id = :memberId")
     void deleteByMemberIdAndRoomId(@Param("memberId") Long memberId, @Param("roomId") Long roomId);
+
+    Participation findByMemberIdAndRoomId(Long memberId, Long roomId);
 }
