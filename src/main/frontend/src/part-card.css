@@ -1,136 +1,128 @@
-.part-main {
-    margin: 0;
-    padding: 0;
+/* 전체 컨테이너 */
+.part-main  {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* 컴포넌트를 행과 열로 균일 배치 */
+    gap: 20px; /* 컴포넌트 간격 */
+    padding: 20px;
+    justify-content: center;
+    align-items: start;
+    background: linear-gradient(135deg, #f9f9f9, #faf7f7, #f1cac1); /* 그라데이션 추가 */
     box-sizing: border-box;
 }
-
-.part-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f0f0f0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-.part-card {
+.profile-container {
     position: relative;
-    width: 350px;
-    height: 550px;
-    background-color: white;
-    border-radius: 25px;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    padding: 20px;
-    text-align: center;
+    width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.part-header-img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    border-bottom: 3px solid #ccc;
-}
-
-.part-profile-pic {
-    position: absolute;
-    top: 100px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background-color: #eee;
-    border: 5px solid white;
-    overflow: hidden;
-}
-
-.part-profile-pic img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.part-card-content {
-    margin-top: 60px;
-}
-
-.part-title {
-    font-size: 22px;
-    font-weight: bold;
-    color: #333;
+/* 프로필 헤더 */
+.profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 10px;
 }
 
-.part-description {
-    font-size: 16px;
-    color: #666;
-    padding: 0 10px;
-    line-height: 1.5;
+.profile-picture {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
 }
 
-.part-stats {
+.profile-nickname {
+    flex-grow: 1;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dropdown-button {
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 50%;
+    background-color: #00aaff;
+    cursor: pointer;
+}
+
+/* 제목 스타일 */
+.profile-title {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* 파일 리스트 컨테이너 */
+.file-list-container {
+    max-height: 150px; /* 스크롤바가 보일 만큼의 최대 높이 설정 */
+    overflow-y: auto; /* 세로 스크롤바 활성화 */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #fff;
+}
+
+/* 스크롤바 스타일 */
+.file-list-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.file-list-container::-webkit-scrollbar-thumb {
+    background-color: #00aaff;
+    border-radius: 5px;
+}
+
+.file-list-container::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+    border-radius: 5px;
+}
+
+/* 파일 항목 */
+.file-item {
     display: flex;
     justify-content: space-between;
-    margin: 20px 0;
-    padding: 0 10px;
-    color: #4CAF50;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    background-color: #fdfdfd;
 }
 
-.part-btn {
-    display: inline-block;
-    padding: 12px 30px;
-    background: linear-gradient(90deg, #4CAF50, #45a049);
+.file-item:last-child {
+    margin-bottom: 0;
+}
+
+/* 버튼 컨테이너 */
+.file-buttons {
+    display: flex;
+    gap: 5px; /* 버튼 간의 간격 */
+}
+
+/* 버튼 스타일 */
+.preview-button,
+.download-button {
+    background-color: #00aaff;
     color: white;
-    text-align: center;
     border: none;
-    border-radius: 25px;
-    font-size: 16px;
+    border-radius: 5px;
+    padding: 5px;
     cursor: pointer;
-    margin-top: 20px;
-    width: 100%;
+    font-size: 14px;
 }
 
-.part-btn:hover {
-    background: linear-gradient(90deg, #45a049, #4CAF50);
-}
-
-.part-image-container {
-    position: relative;
-    width: 500px; /* 컨테이너 너비 */
-    height: 300px; /* 컨테이너 높이 */
-    margin: 0 auto;
-    background-color: #f0f0f0; /* 컨테이너 배경색 */
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    overflow: hidden; /* 이미지가 영역을 벗어나지 않도록 */
-}
-
-.part-image-container img {
-    position: absolute;
-    width: 200px; /* 각 이미지 너비 */
-    height: 200px; /* 각 이미지 높이 */
-    object-fit: cover; /* 이미지 비율 유지 */
-    border: 3px solid white; /* 이미지 테두리 */
-    border-radius: 10px; /* 모서리 둥글게 */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
-}
-
-/* 겹치는 이미지 위치 지정 */
-.part-image-container img:nth-child(1) {
-    top: 20px;
-    left: 50px;
-    z-index: 3; /* 가장 위에 표시 */
-}
-
-.part-image-container img:nth-child(2) {
-    top: 40px;
-    left: 100px;
-    z-index: 2; /* 중간 레이어 */
-}
-
-.part-image-container img:nth-child(3) {
-    top: 60px;
-    left: 150px;
-    z-index: 1; /* 가장 아래 레이어 */
+.preview-button:hover,
+.download-button:hover {
+    background-color: #007acc;
 }
