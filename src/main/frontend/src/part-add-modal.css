@@ -1,0 +1,164 @@
+/* 모달 오버레이 */
+.part-add-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* 배경 어두운 오버레이 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* 모달을 맨 위로 올림 */
+}
+
+/* 모달 내용 */
+.part-add-modal {
+    position: relative;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1001; /* 모달 내용이 오버레이 위에 보이도록 설정 */
+}
+
+/* 모달 헤더 */
+.part-add-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.part-add-modal-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* 모달 닫기 버튼 */
+.part-add-modal-close {
+    background-color: transparent;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+}
+
+/* 모달 내용 */
+.part-add-modal-content {
+    padding: 10px;
+}
+
+/* 프로필 헤더 */
+.part-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+/* 프로필 사진 */
+.part-picture {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    margin-right: 10px; /* 텍스트와 간격을 주기 위해 추가 */
+}
+
+.part-nickname {
+    flex-grow: 1;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dropdown-button {
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 50%;
+    background-color: #00aaff;
+    cursor: pointer;
+}
+
+/* 제목 스타일 */
+.part-title {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* 파일 리스트 컨테이너 */
+.participation-list-container {
+    max-height: 150px; /* 스크롤바가 보일 만큼의 최대 높이 설정 */
+    overflow-y: auto; /* 세로 스크롤바 활성화 */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #fff;
+}
+
+/* 스크롤바 스타일 */
+.file-list-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.file-list-container::-webkit-scrollbar-thumb {
+    background-color: #00aaff;
+    border-radius: 5px;
+}
+
+.file-list-container::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+    border-radius: 5px;
+}
+
+/* participation 스타일 */
+.participation {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    background-color: #fdfdfd;
+}
+
+.file-item:last-child {
+    margin-bottom: 0;
+}
+
+/* 버튼 컨테이너 */
+.file-buttons {
+    display: flex;
+    gap: 5px; /* 버튼 간의 간격 */
+}
+
+/* 버튼 스타일 */
+.preview-button,
+.download-button {
+    background-color: #00aaff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.preview-button:hover,
+.download-button:hover {
+    background-color: #007acc;
+}
