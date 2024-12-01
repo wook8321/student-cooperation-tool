@@ -1,17 +1,17 @@
 
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import axios from "axios";
-import "./slide.css";
+import "./script.css";
 import { Client } from "@stomp/stompjs";
 import { Link } from "react-router-dom";
 import ChatPage from "./chatroom";
 import chatImage from './images/chat.svg';
+import {domain} from "./domain";
+import { useWebSocket } from './WebsocketContext'; // WebSocketProvider의 훅 사용
 
 // 역할 추가 버튼을 누르면 나오는 모달에서 담당자 이름을 입력받고 따로 저장해서 사용하게 만들었어요
 
-const domain = "http://localhost:8080"
-
-const Slide = ({ roomId, presentationId }) => {
+const Script = ({ roomId, presentationId }) => {
   const [slides, setSlides] = useState([]);
   const [selectedSlide, setSelectedSlide] = useState(null); // 모달에 사용할 선택한 슬라이드
   const [newScript, setNewScript] = useState(""); // 새로 입력된 스크립트
@@ -19,36 +19,68 @@ const Slide = ({ roomId, presentationId }) => {
   const [selectedMember, setSelectedMember] = useState(""); // 담당자 이름 따로 저장
   const [chatModal, setChatModal] = useState(false); 
   const [error, setError] = useState(null);
-
   const [scripts, setScripts] = useState([]); // 담당자와 스크립트ID 매칭을 위해 따로 저장하는 스크립트 데이터
+  const {stompClient, isConnected, roomId, userId, leaderId} = useWebSocket();
+  const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
 
-  const stompClient = new Client({
-        brokerURL: `ws://sub/rooms/${roomId}/presentations`, // 발표 자료 단계 WebSocket
-        reconnectDelay: 5000,
-        onConnect: () => {
-            stompClient.subscribe(`${domain}/sub/rooms/${roomId}/presentations`);
-        },
-        onStompError: (frame) => {
-            setError(new Error("STOMP error: ", frame.headers["message"]));
-        },
-      });
+    // 발표자료의 슬라이드를 가져오는 함수
+    const fetchSlides = () => {
+        axios.get(`${domain}/api/v1/presentation/${presentationId}/slides`)
+            .then((res) => {
+                setSlides(res.data.data);
+            })
+            .catch((e) => {
+                alert("슬라이드를 가져오는 데 실패하였습니다!")
+                console.log(e);
+            });
+    }
 
-  useEffect(() => {
-    if (!presentationId) return;
+    //=============================================웹소켓========================================================
+    const receiveMessage = (message) => {
+        //3-1 구독한 url에서 온 메세지를 받았을 때
+        const frame = JSON.parse(message.body)
+        if (frame.messageType === "SCRIPT_UPDATE") {
+            updateScriptInScreen(frame.data)
+        } else {
+            console.log("Not Supported Message Type")
+        }
+    }
 
-    stompClient.activate();
+    const receiveError = (error) => {
+        //3-2 구독한 url에서 온 메세지를 못 받아 에러가 발생했을 때
+        console.error("STOMP Error", error);
+        window.location.href = "/";
+    }
 
-    // 슬라이드 데이터
-    axios
-      .get(`${domain}/api/v1/presentations/${presentationId}/slides`)
-      .then((res) => {
-        const { slides } = res.data.data;
-        setSlides(slides);
-      })
-      .catch((error) => {
-        setError(new Error("슬라이드 데이터 가져오기 실패:", error));
-      });
-  }, [presentationId]); 
+    const onConnect = () => {
+        //2-1 연결 성공의 경우
+        fetchSlides();
+        subscriptions.current = stompClient.current.subscribe(
+            `/sub/room/${roomId}/scripts`,
+            receiveMessage,
+            receiveError
+        );
+    }
+
+    useEffect(() => {
+        //1. broker endPoint에 연결, WebsocketConfig에 설정한 EndPoint를 말함
+        if (stompClient.current) {
+            stompClient.current.activate(); // 웹소켓 활성화
+        }
+
+        return () => {
+            if (stompClient.current) {
+                subscriptions.current.unsubscribe();
+            }
+        };
+    }, [roomId]);
+
+    useEffect(() => {
+        if (isConnected) {
+            onConnect(); // 연결이 완료되면 onConnect 호출
+        }
+    }, [isConnected]); //isConnected 상태가 바뀌면 실행된다.
+    //===============================================================================
 
   const addScript = (slide) => {
 
@@ -118,39 +150,38 @@ const Slide = ({ roomId, presentationId }) => {
           <div className="slides-preview">
             <h3>슬라이드</h3>
             {slides.length > 0 ? (
-              slides.map((slide) => {
-                const scriptData = scripts.find(
-                  (script) => script.slideId === slide.slideId
-                );
-                <div key={slide.slideId} className="slide-item">
-                  <div className="slide-thumbnail"
-                      onClick={() => window.open(slide.slideUrl, "_blank")}
-                      style={{ cursor: "pointer" }}>
-                    <img
-                      src={slide.thumbnailUrl}
-                      alt={`Slide ${slide.slideId}`}
-                    />
-                  </div>
-                  <div className="slide-script">
-                    <h4>발표 스크립트</h4>
-                    {slide.script ? (
-                      <div>
-                        <p>
-                          <strong>담당자:</strong> {scriptData.member || "미지정"}
-                        </p>
-                        <p>{slide.script}</p>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => addScript(slide)}
-                        className="add-script-btn"
-                      >
-                        스크립트 추가
-                      </button>
-                    )}
-                  </div>
-                </div>
-              })
+                slides.map((slide) => (
+                    <div key={slide.slideId} className="slide-item">
+                        <div
+                            className="slide-thumbnail"
+                            onClick={() => window.open(slide.slideUrl, "_blank")}
+                            style={{ cursor: "pointer" }}
+                        >
+                            <img
+                                src={slide.thumbnailUrl}
+                                alt={`Slide ${slide.slideId}`}
+                            />
+                        </div>
+                        <div className="slide-script">
+                            <h4>발표 스크립트</h4>
+                            {slide.script ? (
+                                <div>
+                                    <p>
+                                        <strong>담당자:</strong> {scripts.find((script) => script.slideId === slide.slideId)?.member || "미지정"}
+                                    </p>
+                                    <p>{slide.script}</p>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={() => addScript(slide)}
+                                    className="add-script-btn"
+                                >
+                                    스크립트 추가
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                ))
             ) : (
               <p>슬라이드가 없습니다.</p>
             )}
@@ -217,4 +248,4 @@ const Slide = ({ roomId, presentationId }) => {
   );
 };
 
-export default Slide;
+export default Script;
