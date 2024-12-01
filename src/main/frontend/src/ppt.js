@@ -183,6 +183,18 @@ const PPT = () => {
         setChatModal((prevState) => !prevState);
   };
 
+  const handleCreateKeyPress = (e) => {
+    if (e.key === "Enter") {
+        createPPT();
+    }
+  };
+
+  const handleEditKeyPress = (e) => {
+      if (e.key === "Enter") {
+          editPPT();
+      }
+  }
+
   useEffect(() => {
       fetchPPT();
   }, []);
@@ -245,6 +257,7 @@ const PPT = () => {
                       <input className="ppt-input"
                           type="text"
                           value={newPPTName}
+                          onKeyPress={handleCreateKeyPress}
                           onChange={(e) => setNewPPTName(e.target.value)}
                       />
                       <button className="register-btn" onClick={createPPT}>
@@ -265,6 +278,7 @@ const PPT = () => {
                           <input className="ppt-input"
                                  type="text"
                                  value={newPPTName}
+                                 onKeyPress={handleEditKeyPress}
                                  onChange={(e) => setNewPPTName(e.target.value)}
                           />
                           {errorMessage && (
