@@ -2,16 +2,14 @@
 import React, {useEffect, useRef, useState} from "react";
 import axios from "axios";
 import "./script.css";
-import { Client } from "@stomp/stompjs";
-import { Link } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import ChatPage from "./chatroom";
 import chatImage from './images/chat.svg';
 import {domain} from "./domain";
 import { useWebSocket } from './WebsocketContext'; // WebSocketProvider의 훅 사용
 
-// 역할 추가 버튼을 누르면 나오는 모달에서 담당자 이름을 입력받고 따로 저장해서 사용하게 만들었어요
 
-const Script = ({ presentationId }) => {
+const Script = () => {
   const [slides, setSlides] = useState([]);
   const [selectedSlide, setSelectedSlide] = useState(null); // 모달에 사용할 선택한 슬라이드
   const [newScript, setNewScript] = useState(""); // 새로 입력된 스크립트
@@ -20,8 +18,9 @@ const Script = ({ presentationId }) => {
   const [chatModal, setChatModal] = useState(false); 
   const [error, setError] = useState(null);
   const [scripts, setScripts] = useState([]); // 담당자와 스크립트ID 매칭을 위해 따로 저장하는 스크립트 데이터
-  const {stompClient, isConnected, roomId, userId, leaderId} = useWebSocket();
+  const {stompClient, isConnected, roomId, userId, leaderId, presentationId} = useWebSocket();
   const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
+  const navigate = useNavigate();
 
     // 발표자료의 슬라이드를 가져오는 함수
     const fetchSlides = () => {
@@ -55,7 +54,12 @@ const Script = ({ presentationId }) => {
 
     const onConnect = () => {
         //2-1 연결 성공의 경우
-        fetchSlides();
+        if(!presentationId){
+            alert('아직 ppt가 없어요!');
+        }
+        else {
+            fetchSlides();
+        }
         subscriptions.current = stompClient.current.subscribe(
             `/sub/room/${roomId}/scripts`,
             receiveMessage,
@@ -138,6 +142,20 @@ const Script = ({ presentationId }) => {
 
   const closeErrorModal = () => { setError(null) };
 
+    const goSection = (path, subUrl) => {
+        const state = {
+            roomId,
+            subUrl: subUrl,
+            userId,
+            leaderId,
+        };
+        navigate(path, {state})
+
+        if (presentationId != null) {
+            state.presentationId = presentationId;
+        }
+    }
+
   return (
     <>
       <Link to="/project" className="back_link">
@@ -219,32 +237,32 @@ const Script = ({ presentationId }) => {
           </div>
         </div>
       )}
-          <div className="process-container">
-            <div className="process-step">
-              <div className="process-text">주제 선정</div>
+        <div className="process">
+            <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
+                주제 선정
             </div>
-            <div className="process-step">
-              <div className="process-text">자료 조사</div>
+            <div onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>
+                자료 조사
             </div>
-            <div className="process-step">
-              <div className="process-text">발표 자료</div>
+            <div onClick={() => goSection('/presentation', `/sub/rooms/${roomId}/presentation`)}>
+                발표 자료
             </div>
-            <div className="process-step">
-              <div className="process-text">발표 준비</div>
+            <div onClick={() => goSection('/script', `/sub/rooms/${roomId}/scripts`)}>
+                발표 준비
             </div>
-          </div>
+        </div>
 
-          <img className="chat_image" onClick={() => setChatModal(true)} src={chatImage} alt="채팅창 이미지"/>
+        <img className="chat_image" onClick={() => setChatModal(true)} src={chatImage} alt="채팅창 이미지"/>
 
-          {chatModal && (
-              <div className="chat-overlay">
-                  <div className="chat-content">
-                      <ChatPage />
-                      <button className="chat-close-button" onClick={() => setChatModal(false)}> X</button>
-                  </div>
-              </div>
-          )}
-      
+        {chatModal && (
+            <div className="chat-overlay">
+                <div className="chat-content">
+                    <ChatPage/>
+                    <button className="chat-close-button" onClick={() => setChatModal(false)}> X</button>
+                </div>
+            </div>
+        )}
+
     </>
   );
 };

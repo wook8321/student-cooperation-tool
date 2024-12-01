@@ -12,7 +12,7 @@ const Topic = () => {
   const [topics, setTopics] = useState({num: 0, topics: []});
   const [addModal, setAddModal] = useState(false);
   const [chatModal, setChatModal] = useState(false);
-  const {stompClient, isConnected, roomId, userId, leaderId} = useWebSocket(); // WebSocket 연결 관리
+  const {stompClient, isConnected, roomId, userId, leaderId, presentationId} = useWebSocket(); // WebSocket 연결 관리
   const navigate = useNavigate();
   const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
 
@@ -154,12 +154,17 @@ const Topic = () => {
   // ==================================================================================================
 
   const goSection = (path, subUrl) => {
-    navigate(path, {state: {
-        roomId,
-        subUrl: subUrl,
-        userId,
-        leaderId
-      }})
+    const state = {
+      roomId,
+      subUrl: subUrl,
+      userId,
+      leaderId,
+    };
+    navigate(path, {state})
+
+    if (presentationId != null) {
+      state.presentationId = presentationId;
+    }
   }
 
 
@@ -232,14 +237,18 @@ const Topic = () => {
           </div>
 
           <div className="process">
-            <div>주제 선정</div>
+            <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
+              주제 선정
+            </div>
             <div onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>
               자료 조사
             </div>
             <div onClick={() => goSection('/presentation', `/sub/rooms/${roomId}/presentation`)}>
               발표 자료
             </div>
-            <div>발표 준비</div>
+            <div onClick={() => goSection('/script', `/sub/rooms/${roomId}/scripts`)}>
+              발표 준비
+            </div>
           </div>
         </div>
 
