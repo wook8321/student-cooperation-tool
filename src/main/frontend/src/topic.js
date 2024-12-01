@@ -12,7 +12,7 @@ const Topic = () => {
   const [topics, setTopics] = useState({num: 0, topics: []});
   const [addModal, setAddModal] = useState(false);
   const [chatModal, setChatModal] = useState(false);
-  const {stompClient, isConnected, roomId} = useWebSocket(); // WebSocket 연결 관리
+  const {stompClient, isConnected, roomId, userId, leaderId} = useWebSocket(); // WebSocket 연결 관리
   const navigate = useNavigate();
   const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
 
@@ -61,7 +61,6 @@ const Topic = () => {
 
   useEffect(() => {
     //1. broker endPoint에 연결, WebsocketConfig에 설정한 EndPoint를 말함
-    alert(roomId)
     if (stompClient.current) {
       stompClient.current.activate(); // 웹소켓 활성화
     }
@@ -148,11 +147,18 @@ const Topic = () => {
     })
   };
 
+  // ============================================채팅 관련===========================================
+  const toggleChatModal = () => {
+    setChatModal((prevState) => !prevState);
+  };
+  // ==================================================================================================
+
   const goSection = (path, subUrl) => {
-    alert(path + " " + subUrl)
     navigate(path, {state: {
         roomId,
-        subUrl: subUrl
+        subUrl: subUrl,
+        userId,
+        leaderId
       }})
   }
 
@@ -216,24 +222,23 @@ const Topic = () => {
               </div>
           )}
 
-          <button>
-            <img className="chat_image" onClick={() => setChatModal(true)} src={chatImage} alt="채팅창 이미지"/>
-          </button>
-
-          {chatModal && (
-              <div className="chat-overlay">
-                <div className="chat-content">
-                  <button className="chat-close-button" onClick={() => setChatModal(false)}> X</button>
-                </div>
-              </div>
-          )}
+          <div>
+            <button className="chat-button" onClick={toggleChatModal}>
+              <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
+            </button>
+            <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
+              {chatModal && <ChatPage/>}
+            </div>
+          </div>
 
           <div className="process">
             <div>주제 선정</div>
             <div onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>
               자료 조사
             </div>
-            <div>발표 자료</div>
+            <div onClick={() => goSection('/presentation', `/sub/rooms/${roomId}/presentation`)}>
+              발표 자료
+            </div>
             <div>발표 준비</div>
           </div>
         </div>

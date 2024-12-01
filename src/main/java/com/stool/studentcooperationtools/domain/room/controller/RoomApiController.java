@@ -6,6 +6,7 @@ import com.stool.studentcooperationtools.domain.room.controller.request.RoomEnte
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomRemoveRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomTopicUpdateRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomAddResponse;
+import com.stool.studentcooperationtools.domain.room.controller.response.RoomEnterResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomSearchResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomsFindResponse;
 import com.stool.studentcooperationtools.domain.room.service.RoomService;
@@ -51,9 +52,9 @@ public class RoomApiController {
     }
 
     @PostMapping("/api/v1/rooms/enter-room")
-    public ApiResponse<Boolean> enterRoom(SessionMember member, @Valid @RequestBody RoomEnterRequest request){
-        Boolean result = roomService.enterRoom(member, request);
-        return ApiResponse.of(HttpStatus.OK, result);
+    public ApiResponse<RoomEnterResponse> enterRoom(SessionMember member, @Valid @RequestBody RoomEnterRequest request){
+        RoomEnterResponse response = roomService.enterRoom(member, request);
+        return ApiResponse.of(HttpStatus.OK, response);
     }
 
     @PostMapping("/api/v1/rooms/topics")

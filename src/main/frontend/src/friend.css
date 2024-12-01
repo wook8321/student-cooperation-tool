@@ -132,6 +132,10 @@ main {
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
 }
 
+.newFriend-container {
+    width : 100vh;
+}
+
 /* 프로필 이미지 */
 .profile-icon {
     width: 50px;      /* 프로필 아이콘 크기 조절 */
@@ -301,24 +305,152 @@ ul {
     margin: 0; /* 기본 여백 제거 */
 }
 
+.newFriend-container ul {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin: 16px auto; /* 가운데 정렬 */
+  }
+
+  .h1{
+    margin: 16px auto; /* 가운데 정렬 */
+}
+
 .newFriend-container h2 {
     grid-column: 1 / -1; /* 첫 번째 열을 전체 차지하도록 설정 */
     display: flex;
     justify-content: flex-start; /* 세로로 정렬될 수 있도록 */
     align-items: flex-start; /* 세로로 정렬 */
     margin-bottom: 16px; /* h2와 친구 목록 간격 */
+    text-align: center; /* 가운데 정렬 */
 }
 
 .newFriend-container{
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* 3열 반응형 */
+    grid-template-columns: repeat(3, minmax(150px, 1fr)); /* 3열 반응형 */
     gap: 16px; /* 카드 간격 */
     padding: 16px;
     list-style: none;
+}
+
+.divider-bar {
+    width: 1000px;
 }
 
 @media (max-width: 600px) {
     .newFriend-container {
         grid-template-columns: 1fr; /* 작은 화면에서는 한 열 */
     }
+}
+
+@media (max-width: 768px) {
+    .create_modal_content {
+        width: 90%;         /* 화면 너비 거의 전체 사용 */
+        height: auto;       /* 자동으로 높이 조정 */
+        max-height: 80%;    /* 최대 높이 설정 */
+    }
+
+    .modal_input {
+        width: 100%;        /* 입력 필드 전체 너비 사용 */
+    }
+
+    .modal_section {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .modal_section label {
+        margin-bottom: 10px; /* 필드 위 간격 추가 */
+        margin-right: 0;     /* 오른쪽 여백 제거 */
+    }
+}
+
+/* 모달 배경 */
+.enter_modal_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6); /* 반투명 배경 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000; /* 화면 위에 표시 */
+}
+
+/* 모달 컨텐츠 */
+.enter_modal_content {
+    background-color: #FAF3EF; /* 부드러운 배경색 */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+    height: 200px;
+    justify-content: space-between; /* 위아래 적절한 간격 */
+}
+
+/* 제목 라벨 */
+.enter_modal_label {
+    font-size: 50px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+    display: block;
+    height: 70px;
+}
+
+/* 입력 필드 */
+.enter_modal_input {
+    width: 80%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #E0AFA0;
+    border-radius: 5px;
+    font-size: 16px;
+    outline: none;
+    box-sizing: border-box;
+    color: black;
+    margin-bottom: 20px;
+    text-align: center; /* 입력 텍스트 가운데 정렬 */
+}
+
+.enter_modal_input::placeholder {
+    color: #A0A0A0; /* placeholder 색상 */
+    transition: color 0.3s ease;
+}
+
+.enter_modal_input:focus::placeholder {
+    color: transparent; /* 클릭 시 placeholder 숨기기 */
+}
+
+.enter_modal_input:focus {
+    border-color: #D48A78;
+    box-shadow: 0 0 5px rgba(212, 138, 120, 0.5);
+}
+
+/* 입장 버튼 */
+.enter_button {
+    background-color: #E0AFA0;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 25%; /* 버튼 전체 너비 */
+    margin-top: auto; /* 입력 필드와 떨어뜨림 */
+}
+
+.enter_button:hover {
+    background-color: #D48A78;
 }

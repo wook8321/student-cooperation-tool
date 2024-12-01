@@ -15,6 +15,7 @@ import com.stool.studentcooperationtools.domain.room.controller.request.RoomEnte
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomRemoveRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomTopicUpdateRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomAddResponse;
+import com.stool.studentcooperationtools.domain.room.controller.response.RoomEnterResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomSearchResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomsFindResponse;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
@@ -90,6 +91,7 @@ public class RoomService {
         Room room = roomRepository.findRoomByRoomId(member.getMemberSeq(), request.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("소속되지 않은 방 정보입니다"));
         if(Objects.equals(member.getMemberSeq(), room.getLeader().getId())){
+            presentationService.deletePresentation(request.getRoomId());
             chatRepository.deleteByRoomId(room.getId());
             partRepository.deleteByRoomId(room.getId());
             topicRepository.deleteByRoomId(room.getId());
@@ -102,19 +104,20 @@ public class RoomService {
                     .orElseThrow(() -> new IllegalArgumentException("유저 정보가 올바르지 않습니다"));
             participationRepository.deleteByMemberIdAndRoomId(teammate.getId(), room.getId());
         }
-        presentationService.deletePresentation(request.getRoomId());
         return true;
     }
 
     @Transactional
-    public boolean enterRoom(SessionMember member, final RoomEnterRequest request){
+    public RoomEnterResponse enterRoom(SessionMember member, final RoomEnterRequest request){
         Room room = roomRepository.findRoomWithPLock(request.getRoomId())
                 .orElseThrow(()-> new IllegalArgumentException("방 id 오류"));
         if(!room.verifyPassword(request.getPassword())) {
             throw new IllegalArgumentException("올바르지 않은 비밀번호입니다");
         }
         addParticipation(member,room);
-        return true;
+        return RoomEnterResponse.builder()
+                .leaderId(room.getLeader().getId())
+                .build();
     }
 
     private void addParticipation(SessionMember member, Room room){
