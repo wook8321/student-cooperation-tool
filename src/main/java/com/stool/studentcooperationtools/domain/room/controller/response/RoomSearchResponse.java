@@ -10,17 +10,20 @@ import java.util.List;
 public class RoomSearchResponse {
 
     private int num;
+    private boolean isLast;
     private List<RoomSearchDto> rooms;
 
     @Builder
-    private RoomSearchResponse(final int num, final List<RoomSearchDto> rooms) {
+    private RoomSearchResponse(final int num, final boolean isLast, final List<RoomSearchDto> rooms) {
         this.num = num;
+        this.isLast = isLast;
         this.rooms = rooms;
     }
 
-    public static RoomSearchResponse of(List<Room> rooms){
+    public static RoomSearchResponse of(boolean isLast,List<Room> rooms){
         return RoomSearchResponse.builder()
                 .num(rooms.size())
+                .isLast(isLast)
                 .rooms(
                         rooms.stream()
                                 .map(RoomSearchDto::of)

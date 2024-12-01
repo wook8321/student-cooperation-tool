@@ -3,7 +3,7 @@ package com.stool.studentcooperationtools.s3;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectRequest;import com.stool.studentcooperationtools.domain.file.FileType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +26,7 @@ import java.util.UUID;
 public class S3Service {
 
     @Value("${aws.s3.bucketName}")
-    private String bucketName;
+    public String bucketName;
 
     private final AmazonS3 amazonS3;
 
@@ -49,7 +49,10 @@ public class S3Service {
             String thumbnailUrl = amazonS3.getUrl(bucketName,fileName).toString();
             fileNameSet.put(originalFileName,List.of(fileName,extension,thumbnailUrl));
             amazonS3.putObject(new PutObjectRequest(bucketName,fileName,tempFile)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
+                            .withMetadata(new ObjectMetadata(){{
+                                setContentType(FileType.getMimeType(extension));
+                            }})
+                            .withCannedAcl(CannedAccessControlList.PublicRead));
             closeFile(tempFile);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -75,16 +78,7 @@ public class S3Service {
         if(!StringUtils.hasText(fileCode)){
             throw new IllegalArgumentException("저장할 파일이 없습니다.");
         }
-        return switch (fileCode) {
-            case "data:image/jpeg;base64" -> "jpeg";
-            case "data:image/png;base64" -> "png";
-            case "data:image/jpg;base64" -> "jpg";
-            case "data:application/pdf;base64" -> "pdf";
-            case "data:application/docs;base64" -> "docs";
-            case "data:application/doc;base64" -> "doc";
-            case "data:text/html;base64" -> "html";
-            default -> throw new IllegalArgumentException("해당 파일은 지원하지 않습니다.");
-        };
+        return FileType.getFileExtension(fileCode);
     }
 
     public HashMap<String,String> uploadFile(List<MultipartFile> multipartFiles){
@@ -138,5 +132,9 @@ public class S3Service {
 
     public String getContentDisposition(final String originalFileName){
         return "attachment; filename=\"" + originalFileName + "\"";
+    }
+
+    public static String getS3FileUrl(final String fileName){
+        return "https://stool-s3.s3.ap-northeast-2.amazonaws.com/userFile/" + fileName;
     }
 }

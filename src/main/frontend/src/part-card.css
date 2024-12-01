@@ -1,0 +1,136 @@
+.part-main {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.part-body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.part-card {
+    position: relative;
+    width: 350px;
+    height: 550px;
+    background-color: white;
+    border-radius: 25px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    padding: 20px;
+    text-align: center;
+}
+
+.part-header-img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-bottom: 3px solid #ccc;
+}
+
+.part-profile-pic {
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: #eee;
+    border: 5px solid white;
+    overflow: hidden;
+}
+
+.part-profile-pic img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.part-card-content {
+    margin-top: 60px;
+}
+
+.part-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.part-description {
+    font-size: 16px;
+    color: #666;
+    padding: 0 10px;
+    line-height: 1.5;
+}
+
+.part-stats {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+    padding: 0 10px;
+    color: #4CAF50;
+}
+
+.part-btn {
+    display: inline-block;
+    padding: 12px 30px;
+    background: linear-gradient(90deg, #4CAF50, #45a049);
+    color: white;
+    text-align: center;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.part-btn:hover {
+    background: linear-gradient(90deg, #45a049, #4CAF50);
+}
+
+.part-image-container {
+    position: relative;
+    width: 500px; /* 컨테이너 너비 */
+    height: 300px; /* 컨테이너 높이 */
+    margin: 0 auto;
+    background-color: #f0f0f0; /* 컨테이너 배경색 */
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    overflow: hidden; /* 이미지가 영역을 벗어나지 않도록 */
+}
+
+.part-image-container img {
+    position: absolute;
+    width: 200px; /* 각 이미지 너비 */
+    height: 200px; /* 각 이미지 높이 */
+    object-fit: cover; /* 이미지 비율 유지 */
+    border: 3px solid white; /* 이미지 테두리 */
+    border-radius: 10px; /* 모서리 둥글게 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+}
+
+/* 겹치는 이미지 위치 지정 */
+.part-image-container img:nth-child(1) {
+    top: 20px;
+    left: 50px;
+    z-index: 3; /* 가장 위에 표시 */
+}
+
+.part-image-container img:nth-child(2) {
+    top: 40px;
+    left: 100px;
+    z-index: 2; /* 중간 레이어 */
+}
+
+.part-image-container img:nth-child(3) {
+    top: 60px;
+    left: 150px;
+    z-index: 1; /* 가장 아래 레이어 */
+}

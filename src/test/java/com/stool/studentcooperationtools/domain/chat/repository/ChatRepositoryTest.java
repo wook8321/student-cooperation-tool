@@ -77,7 +77,7 @@ class ChatRepositoryTest extends IntegrationTest {
         PageRequest pageRequest = PageRequest.of(page, pageSize);
 
         //when
-        Slice<Chat> result = chatRepository.findChatsByIdAndSlicingASC(room.getId(), pageRequest);
+        Slice<Chat> result = chatRepository.findChatsByIdAndSlicingDESC(room.getId(), pageRequest);
         List<Chat> content = result.getContent();
 
         //then
@@ -94,7 +94,7 @@ class ChatRepositoryTest extends IntegrationTest {
 
     @DisplayName("방에 속하는 채팅이 11개 있고, 10개씩 조회할 경우 마지막은 1개가 조회된다.")
     @Test
-    void findChatsByIdAndSlicingASCWithLastPage(){
+    void findChatsByIdAndSlicingDESCWithLastPage(){
         //given
         int pageSize = 10;
         int page = 1;
@@ -112,7 +112,7 @@ class ChatRepositoryTest extends IntegrationTest {
                 .build();
         roomRepository.save(room);
         List<Chat> chats = List.of(
-                createChat("content1",member,room),
+                createChat("first",member,room),
                 createChat("content2",member,room),
                 createChat("content3",member,room),
                 createChat("content4",member,room),
@@ -122,13 +122,13 @@ class ChatRepositoryTest extends IntegrationTest {
                 createChat("content8",member,room),
                 createChat("content9",member,room),
                 createChat("content10",member,room),
-                createChat("last",member,room)
+                createChat("content11",member,room)
                 );
         chatRepository.saveAll(chats);
         PageRequest pageRequest = PageRequest.of(page, pageSize);
 
         //when
-        Slice<Chat> result = chatRepository.findChatsByIdAndSlicingASC(room.getId(), pageRequest);
+        Slice<Chat> result = chatRepository.findChatsByIdAndSlicingDESC(room.getId(), pageRequest);
         List<Chat> content = result.getContent();
 
         //then
@@ -136,7 +136,7 @@ class ChatRepositoryTest extends IntegrationTest {
         assertThat(content).hasSize(1)
                 .extracting("content")
                 .containsExactlyInAnyOrder(
-                        "last"
+                        "first"
                 );
 
     }

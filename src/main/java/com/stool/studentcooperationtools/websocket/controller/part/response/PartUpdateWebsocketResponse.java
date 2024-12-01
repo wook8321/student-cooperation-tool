@@ -11,13 +11,15 @@ import lombok.NoArgsConstructor;
 public class PartUpdateWebsocketResponse {
 
     private Long partId;
+    private Long memberId;
     private String partName;
     private String nickName;
     private String profile;
 
     @Builder
-    private PartUpdateWebsocketResponse(final Long partId, final String partName, final String nickName, final String profile) {
+    private PartUpdateWebsocketResponse(final Long partId, final Long memberId, final String partName, final String nickName, final String profile) {
         this.partId = partId;
+        this.memberId = memberId;
         this.partName = partName;
         this.nickName = nickName;
         this.profile = profile;
@@ -27,6 +29,7 @@ public class PartUpdateWebsocketResponse {
         return PartUpdateWebsocketResponse.builder()
                 .nickName(part.getMember().getNickName())
                 .partId(part.getId())
+                .memberId(part.getMember().getId())
                 .profile(part.getMember().getProfile())
                 .partName(part.getPartName())
                 .build();

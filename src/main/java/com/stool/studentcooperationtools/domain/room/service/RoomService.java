@@ -1,10 +1,13 @@
 package com.stool.studentcooperationtools.domain.room.service;
 
-import com.google.auth.http.HttpCredentialsAdapter;
+import com.stool.studentcooperationtools.domain.PagingUtils;
+import com.stool.studentcooperationtools.domain.chat.repository.ChatRepository;
 import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.member.repository.MemberRepository;
+import com.stool.studentcooperationtools.domain.part.repository.PartRepository;
 import com.stool.studentcooperationtools.domain.participation.Participation;
 import com.stool.studentcooperationtools.domain.participation.repository.ParticipationRepository;
+import com.stool.studentcooperationtools.domain.presentation.repository.PresentationRepository;
 import com.stool.studentcooperationtools.domain.presentation.service.PresentationService;
 import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
@@ -15,9 +18,7 @@ import com.stool.studentcooperationtools.domain.room.controller.response.RoomAdd
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomSearchResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomsFindResponse;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
-import com.stool.studentcooperationtools.domain.slide.SlidesFactory;
 import com.stool.studentcooperationtools.domain.topic.repository.TopicRepository;
-import com.stool.studentcooperationtools.security.credential.GoogleCredentialProvider;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,8 +29,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,16 +38,18 @@ import java.util.Objects;
 public class RoomService {
 
     private final RoomRepository roomRepository;
-    private final int pageSize = 6;
     private final MemberRepository memberRepository;
     private final TopicRepository topicRepository;
     private final ParticipationRepository participationRepository;
     private final PresentationService presentationService;
+    private final ChatRepository chatRepository;
+    private final PartRepository partRepository;
+    private final PresentationRepository presentationRepository;
 
     public RoomsFindResponse findRooms(SessionMember member, final int page) {
-        Pageable pageable = PageRequest.of(page, pageSize);
+        Pageable pageable = PageRequest.of(page, PagingUtils.ROOM_PAGING_PARSE);
         Page<Room> rooms = roomRepository.findRoomsByMemberIdWithPage(member.getMemberSeq(), pageable);
-        return RoomsFindResponse.of(rooms.getContent());
+        return RoomsFindResponse.of(rooms.getTotalElements(), page ,rooms.getTotalPages(), rooms.getContent());
     }
 
     @Transactional
@@ -64,7 +65,7 @@ public class RoomService {
         try {
             roomRepository.save(room);
         } catch (DataIntegrityViolationException e){
-            throw new IllegalArgumentException("방 정보 오류입니다");
+            throw new DataIntegrityViolationException("방 제목 중복 오류입니다");
         }
         participationRepository.save(Participation.of(user, room));
         List<Member> memberList = memberRepository.findMembersByMemberIdList(request.getParticipation());
@@ -79,9 +80,9 @@ public class RoomService {
     }
 
     public RoomSearchResponse searchRoom(final String title, final int page) {
-        Pageable pageable = PageRequest.of(page, pageSize);
+        Pageable pageable = PageRequest.of(page, PagingUtils.ROOM_PAGING_PARSE);
         Page<Room> rooms = roomRepository.findRoomsByTitleWithPage(title, pageable);
-        return RoomSearchResponse.of(rooms.getContent());
+        return RoomSearchResponse.of(rooms.isLast(),rooms.getContent());
     }
 
     @Transactional
@@ -89,6 +90,10 @@ public class RoomService {
         Room room = roomRepository.findRoomByRoomId(member.getMemberSeq(), request.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("소속되지 않은 방 정보입니다"));
         if(Objects.equals(member.getMemberSeq(), room.getLeader().getId())){
+            chatRepository.deleteByRoomId(room.getId());
+            partRepository.deleteByRoomId(room.getId());
+            topicRepository.deleteByRoomId(room.getId());
+            presentationRepository.deleteByRoomId(room.getId());
             participationRepository.deleteByRoomId(room.getId());
             roomRepository.deleteById(room.getId());
         }
@@ -116,7 +121,6 @@ public class RoomService {
         Member user = memberRepository.findById(member.getMemberSeq())
                 .orElseThrow(() -> new IllegalArgumentException("유저 정보가 올바르지 않습니다"));
         if(!participationRepository.existsByMemberIdAndRoomId(member.getMemberSeq(), room.getId())){
-            room.addParticipant();
             participationRepository.save(Participation.of(user, room));
         }
     }

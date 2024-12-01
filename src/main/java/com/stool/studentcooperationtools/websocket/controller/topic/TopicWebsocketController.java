@@ -7,6 +7,7 @@ import com.stool.studentcooperationtools.websocket.controller.request.WebsocketR
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicAddSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicDeleteSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.topic.response.TopicAddSocketResponse;
+import com.stool.studentcooperationtools.websocket.controller.topic.response.TopicDeleteSocketResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -33,7 +34,7 @@ public class TopicWebsocketController {
 
     @MessageMapping("/topics/delete")
     public void deleteTopic(@Valid @RequestBody TopicDeleteSocketRequest request, SessionMember member){
-        Boolean result = topicService.deleteTopic(request,member);
+        TopicDeleteSocketResponse result = topicService.deleteTopic(request,member);
         sendingUtils.convertAndSend(
                 sendingUtils.createTopicDecisionSubUrl(request.getRoomId()),
                 WebsocketResponse.of(TOPIC_DELETE,result)

@@ -3,6 +3,8 @@ package com.stool.studentcooperationtools.domain.file.service;
 import com.amazonaws.AmazonServiceException;
 import com.stool.studentcooperationtools.domain.file.File;
 import com.stool.studentcooperationtools.domain.file.FileType;
+import com.stool.studentcooperationtools.domain.file.controller.request.FileUploadRequest;
+import com.stool.studentcooperationtools.domain.file.controller.response.FileUploadResponse;
 import com.stool.studentcooperationtools.domain.file.repository.FileRepository;
 import com.stool.studentcooperationtools.domain.part.Part;
 import com.stool.studentcooperationtools.domain.part.repository.PartRepository;
@@ -10,8 +12,6 @@ import com.stool.studentcooperationtools.s3.S3Service;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.file.request.FileDeleteWebsocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.file.response.FileDeleteWebsocketResponse;
-import com.stool.studentcooperationtools.websocket.controller.file.response.FileUploadWebsocketResponse;
-import com.stool.studentcooperationtools.websocket.controller.request.FileUploadWebsocketRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
@@ -32,8 +32,8 @@ public class FileService {
     private final PartRepository partRepository;
     private final S3Service s3Service;
     @Transactional
-    public FileUploadWebsocketResponse addFile(
-            final FileUploadWebsocketRequest request,
+    public FileUploadResponse addFile(
+            final FileUploadRequest request,
             final HashMap<String, List<String>> fileMap,
             final SessionMember sessionMember
     ) {
@@ -41,11 +41,11 @@ public class FileService {
                 .orElseThrow(() -> new IllegalArgumentException("파일을 추가할 역할이 존재하지 않습니다."));
 
         if(hasNotAuthorization(sessionMember, part)){
-           throw new AccessDeniedException("파일을 올릴 권한이 없습니다.");
+            throw new AccessDeniedException("파일을 올릴 권한이 없습니다.");
         }
         List<File> files = createFiles(fileMap, part);
         fileRepository.saveAll(files);
-        return FileUploadWebsocketResponse.of(files);
+        return FileUploadResponse.of(files);
     }
 
     private static List<File> createFiles(final HashMap<String, List<String>> fileMap, final Part part) {
@@ -76,6 +76,6 @@ public class FileService {
         if(result == 0){
             throw new AccessDeniedException("파일을 삭제할 권한이 없습니다.");
         }
-        return FileDeleteWebsocketResponse.of(request.getFileId());
+        return FileDeleteWebsocketResponse.of(request.getFileId(),request.getPartId());
     }
 }

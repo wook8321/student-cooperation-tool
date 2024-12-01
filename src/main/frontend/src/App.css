@@ -1,5 +1,7 @@
 .App {
+  margin: 0;
   text-align: center;
+  padding: 0;
 }
 
 .App-logo {
@@ -35,4 +37,83 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.login_title {
+  font-family: arial;
+  font-size: 250px;
+  margin-top: 100px;
+  margin-left: 500px;
+  margin-bottom: 200px;
+}
+
+div {
+  width: 100%;
+  height: 500px;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.Social-Login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Social-Logout {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+div.images {
+  width: 20%;
+  height: 100px;
+  float: left;
+}
+
+div.container {
+  width: 80%;
+  float: right;
+}
+
+.images {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.friend_image,
+.project_image {
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+
+.friend_image img,
+.project_image img {
+  width: 100px;
+  height: auto;
+  transition: transform 0.2s;
+}
+
+.friend_image img:hover,
+.project_image img:hover {
+  transform: scale(1.1);
+}
+
+.main_title {
+  font-family: arial;
+  font-size: 200px;
+  margin-top: 50px;
+  margin-bottom: 200px;
 }

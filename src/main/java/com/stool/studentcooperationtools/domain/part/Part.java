@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -26,13 +27,14 @@ public class Part extends BaseTimeEntity {
     @Column(nullable = false)
     private String partName;
 
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Room room;
 
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
-    @OneToMany(mappedBy = "part")
+    @BatchSize(size = 10)
+    @OneToMany(mappedBy = "part", cascade = CascadeType.ALL)
     private List<File> fileList = new ArrayList<>();
 
     @Builder

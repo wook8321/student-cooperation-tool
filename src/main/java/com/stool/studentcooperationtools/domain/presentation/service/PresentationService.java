@@ -140,12 +140,11 @@ public class PresentationService {
             throw new IllegalStateException(e.getMessage(), e.getCause());
         }
     }
-
     public Boolean deletePresentation(Long roomId) {
         try {
             googleCredentialProvider.initializeCredentialAdapter();
             HttpCredentialsAdapter credentialsAdapter = googleCredentialProvider.getCredentialsAdapter();
-            Presentation presentation = presentationRepository.findById(roomId)
+            Presentation presentation = presentationRepository.findByRoomId(roomId)
                     .orElse(null);
             if (presentation == null) {
                 return true;

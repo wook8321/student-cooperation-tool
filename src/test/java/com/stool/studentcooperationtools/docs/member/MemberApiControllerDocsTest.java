@@ -40,6 +40,7 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
         //given
         List<MemberFindMemberDto> memberDtoList = List.of(
                 MemberFindMemberDto.builder()
+                        .id(1L)
                         .profile("profilePath")
                         .email("email")
                         .nickname("nickname")
@@ -76,6 +77,8 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                                         .description("유저 정보 리스트"),
                                 fieldWithPath("data.members[].email").type(STRING)
                                         .description("유저 이메일"),
+                                fieldWithPath("data.members[].id").type(NUMBER)
+                                        .description("유저 정보 리스트"),
                                 fieldWithPath("data.members[].nickname").type(STRING)
                                         .description("유저 닉네임"),
                                 fieldWithPath("data.members[].profile").type(STRING)
@@ -90,6 +93,7 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                 //given
                 List<MemberSearchMemberDto> memberDtoList = List.of(
                         MemberSearchMemberDto.builder()
+                                .id(1L)
                                 .profile("profilePath")
                                 .email("email")
                                 .nickname("nickname")
@@ -131,6 +135,8 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                                                 .description("데이터 개수"),
                                         fieldWithPath("data.members[]").type(ARRAY)
                                                 .description("유저 정보 리스트"),
+                                        fieldWithPath("data.members[].id").type(NUMBER)
+                                                .description("유저 id"),
                                         fieldWithPath("data.members[].email").type(STRING)
                                                 .description("유저 이메일"),
                                         fieldWithPath("data.members[].nickname").type(STRING)
@@ -148,6 +154,7 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                 //given
                 List<MemberSearchMemberDto> memberDtoList = List.of(
                         MemberSearchMemberDto.builder()
+                                .id(1L)
                                 .profile("profilePath")
                                 .email("email")
                                 .nickname("nickname")
@@ -190,6 +197,8 @@ public class MemberApiControllerDocsTest extends RestDocsSupport {
                                         fieldWithPath("data.members[]").type(ARRAY)
                                                 .description("유저 정보 리스트"),
                                         fieldWithPath("data.members[].email").type(STRING)
+                                                .description("유저 이메일"),
+                                        fieldWithPath("data.members[].id").type(NUMBER)
                                                 .description("유저 이메일"),
                                         fieldWithPath("data.members[].nickname").type(STRING)
                                                 .description("유저 닉네임"),

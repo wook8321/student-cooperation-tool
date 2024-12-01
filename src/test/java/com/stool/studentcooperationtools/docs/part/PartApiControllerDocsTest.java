@@ -36,6 +36,8 @@ public class PartApiControllerDocsTest extends RestDocsSupport {
         String roomId = "1";
         List<PartFindFileDto> files = List.of(
                 PartFindFileDto.builder()
+                        .fileId(1L)
+                        .fileUrl("파일의 url")
                         .fileName("S3에 저장된 파일 이름, 파일 식별키")
                         .originalName("원래 파일이름")
                         .fileType(FileType.PDF)
@@ -43,6 +45,7 @@ public class PartApiControllerDocsTest extends RestDocsSupport {
         );
         List<PartFindDto> parts = List.of(
                 PartFindDto.builder()
+                        .memberId(1L)
                         .partId(1L)
                         .partName("자료조사 섹션 이름")
                         .nickName("닉네임")
@@ -83,11 +86,17 @@ public class PartApiControllerDocsTest extends RestDocsSupport {
                                         .description("조사할 자료 이름"),
                                 fieldWithPath("data.parts[].nickName").type(STRING)
                                         .description("해당 조사 역할을 맡은 유저 닉네임"),
+                                fieldWithPath("data.parts[].memberId").type(NUMBER)
+                                        .description("해당 조사 역할을 맡은 유저 id"),
                                 fieldWithPath("data.parts[].profile").type(STRING)
                                         .description("해당 조사 역할을 맡은 유저 프로필"),
                                 fieldWithPath("data.parts[].files[]").type(ARRAY)
                                         .description("조사한 자료의 파일들"),
                                 fieldWithPath("data.parts[].files[].fileName").type(STRING)
+                                        .description("S3에 저장된 파일 이름, 파일 식별키"),
+                                fieldWithPath("data.parts[].files[].fileUrl").type(STRING)
+                                        .description("S3에 저장된 파일 url"),
+                                fieldWithPath("data.parts[].files[].fileId").type(NUMBER)
                                         .description("S3에 저장된 파일 이름, 파일 식별키"),
                                 fieldWithPath("data.parts[].files[].originalName").type(STRING)
                                         .description("원래 파일 이름"),

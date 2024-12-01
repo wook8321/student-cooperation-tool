@@ -14,13 +14,20 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select m from Member m join Friendship f on f.me.id = :memberId and f.friend.id = m.id order by m.nickName asc")
     List<Member> findFriendsByMemberId(@Param("memberId") Long memberId);
 
-    @Query("select m from Member m join Friendship f on f.me.id = :memberId and f.friend.id = m.id where m.nickName like %:nickName% order by m.nickName asc")
+    @Query("select m from Member m join Friendship f on f.me.id = :memberId and f.friend.id = m.id " +
+            "where m.nickName like %:nickName% and m.id <> :memberId " +
+            "order by m.nickName asc")
     List<Member> findFriendsByMemberNickName(@Param("nickName") String nickName, @Param("memberId") Long memberId);
 
-    @Query("select m from Member m left join Friendship f on f.me.id = :memberId and f.friend.id = m.id where m.nickName like %:nickName% and f.me.id is null order by m.nickName asc")
+    @Query("select m from Member m left join Friendship f on f.me.id = :memberId and f.friend.id = m.id " +
+            "where m.nickName like %:nickName% and m.id <> :memberId " +
+            "and f.me.id is null order by m.nickName asc")
     List<Member> findNonFriendsByMemberNickName(@Param("nickName") String nickName, @Param("memberId") Long memberId);
     
     Optional<Member> findMemberByEmail(String email);
     @Query("select m from Member m where m.id in :memberIds")
     List<Member> findMembersByMemberIdList(@Param("memberIds") List<Long> memberIds);
+
+    @Query(value = "select m from Member m join Participation p on p.member.id = m.id where p.room.id = :roomId")
+    List<Member> findAllByRoomId(@Param("roomId") Long roomId);
 }

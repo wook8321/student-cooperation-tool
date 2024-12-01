@@ -4,10 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.websocket.controller.request.WebsocketResponse;
 import com.stool.studentcooperationtools.websocket.converter.SessionMemberMessageConverter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -35,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.stool.studentcooperationtools.security.config.SecurityConfig.SESSION_NAME;
+import static com.stool.studentcooperationtools.websocket.interceptor.WebsocketSecurityInterceptor.SUB_URL_HEADER;
 
 @ActiveProfiles("test")
 @TestPropertySource(properties = "spring.config.location=classpath:application.yml")
@@ -54,14 +57,22 @@ public abstract class WebsocketTestSupport {
     @MockBean
     SessionMemberMessageConverter sessionMemberMessageConverter;
 
+    @MockBean
+    RoomRepository roomRepository;
+
     @BeforeEach
     void setUp() throws ExecutionException, InterruptedException, TimeoutException, JsonProcessingException {
+        // validMemberInRoom 메서드를 스텁하여 실제 로직을 실행하지 않도록 설정
+        Mockito.when(roomRepository.existMemberInRoom(Mockito.anyString(),Mockito.anyLong()))
+                .thenReturn(true);
         URL = "ws://localhost:%d/ws-stomp".formatted(port);
         stompClient = createStompClient();
         executeSql("sql/SpringSessionDelete.sql");
         executeSql("sql/SpringSessionCreate.sql");
         StompHeaders stompHeaders = new StompHeaders();
         stompHeaders.add(SESSION_NAME,"testSession");
+        stompHeaders.add(SUB_URL_HEADER,"/sub/rooms/10/");
+        stompHeaders.add("email","email@email.com");
         stompSession = stompClient.connectAsync(URL,
                 new WebSocketHttpHeaders(),
                 stompHeaders,

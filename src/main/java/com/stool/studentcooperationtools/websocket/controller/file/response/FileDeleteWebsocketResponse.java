@@ -10,14 +10,18 @@ import lombok.NoArgsConstructor;
 public class FileDeleteWebsocketResponse {
 
     private Long fileId;
+    private Long partId;
+
     @Builder
-    private FileDeleteWebsocketResponse(final Long fileId) {
+    private FileDeleteWebsocketResponse(final Long fileId, final Long partId) {
         this.fileId = fileId;
+        this.partId = partId;
     }
 
-    public static FileDeleteWebsocketResponse of(final Long fileId){
+    public static FileDeleteWebsocketResponse of(final Long fileId, final Long partId){
         return FileDeleteWebsocketResponse.builder()
                 .fileId(fileId)
+                .partId(partId)
                 .build();
     }
 }

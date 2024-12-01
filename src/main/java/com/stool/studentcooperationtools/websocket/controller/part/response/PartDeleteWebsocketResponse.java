@@ -17,6 +17,8 @@ public class PartDeleteWebsocketResponse {
     }
 
     public static PartDeleteWebsocketResponse of(final Long partId) {
-        return null;
+        return PartDeleteWebsocketResponse.builder()
+                .partId(partId)
+                .build();
     }
 }

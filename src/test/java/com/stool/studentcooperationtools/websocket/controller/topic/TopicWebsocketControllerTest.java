@@ -7,6 +7,7 @@ import com.stool.studentcooperationtools.websocket.controller.request.WebsocketR
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicAddSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.topic.request.TopicDeleteSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.topic.response.TopicAddSocketResponse;
+import com.stool.studentcooperationtools.websocket.controller.topic.response.TopicDeleteSocketResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -65,17 +66,20 @@ class TopicWebsocketControllerTest extends WebsocketTestSupport {
                 .roomId(1L)
                 .topicId(1L)
                 .build();
+        TopicDeleteSocketResponse topicDeleteSocketResponse = TopicDeleteSocketResponse.builder()
+                .topicId(1L)
+                .build();
         Mockito.when(topicService.deleteTopic(Mockito.any(TopicDeleteSocketRequest.class),Mockito.any(SessionMember.class)))
-                .thenReturn(true);
+                .thenReturn(topicDeleteSocketResponse);
 
         stompSession.subscribe(TopicDecisionSubUrl,resultHandler);
         //when
         stompSession.send("/pub/topics/delete",request);
-        WebsocketResponse<Boolean> result = resultHandler.get(3);
+        WebsocketResponse result = resultHandler.get(3);
         //then
         assertThat(stompSession.isConnected()).isTrue();
         assertThat(result.getMessageType()).isEqualTo(TOPIC_DELETE);
-        assertThat(result.getData()).isTrue();
+        assertThat(result.getData()).isNotNull();
     }
 
 }

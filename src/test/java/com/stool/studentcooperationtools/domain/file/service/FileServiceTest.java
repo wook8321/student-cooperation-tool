@@ -3,6 +3,8 @@ package com.stool.studentcooperationtools.domain.file.service;
 import com.stool.studentcooperationtools.IntegrationTest;
 import com.stool.studentcooperationtools.domain.file.File;
 import com.stool.studentcooperationtools.domain.file.FileType;
+import com.stool.studentcooperationtools.domain.file.controller.request.FileUploadRequest;
+import com.stool.studentcooperationtools.domain.file.controller.response.FileUploadResponse;
 import com.stool.studentcooperationtools.domain.file.repository.FileRepository;
 import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.member.Role;
@@ -15,8 +17,6 @@ import com.stool.studentcooperationtools.s3.S3Service;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.file.request.FileDeleteWebsocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.file.response.FileDeleteWebsocketResponse;
-import com.stool.studentcooperationtools.websocket.controller.file.response.FileUploadWebsocketResponse;
-import com.stool.studentcooperationtools.websocket.controller.request.FileUploadWebsocketRequest;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -74,9 +74,9 @@ class FileServiceTest extends IntegrationTest {
         String fileOriginalName = "파일 원래 이름";
         String fileName = UUID.randomUUID().toString();
         String extension = "docs";
-        FileUploadWebsocketRequest request = FileUploadWebsocketRequest.builder()
+        FileUploadRequest request = FileUploadRequest.builder()
                 .partId(invalidPartId)
-                .fileCode("파일 Base64 인코딩 코드")
+                .fileCode("base")
                 .roomId(room.getId())
                 .fileName(fileOriginalName)
                 .build();
@@ -133,9 +133,9 @@ class FileServiceTest extends IntegrationTest {
         String fileOriginalName = "파일 원래 이름";
         String fileName = UUID.randomUUID().toString();
         String extension = "docs";
-        FileUploadWebsocketRequest request = FileUploadWebsocketRequest.builder()
+        FileUploadRequest request = FileUploadRequest.builder()
                 .partId(part.getId())
-                .fileCode("파일 Base64 인코딩 코드")
+                .fileCode("base64 코드")
                 .roomId(room.getId())
                 .fileName(fileOriginalName)
                 .build();
@@ -184,10 +184,10 @@ class FileServiceTest extends IntegrationTest {
 
         String fileOriginalName = "파일 원래 이름";
         String fileName = UUID.randomUUID().toString();
-        String extension = "docs";
-        FileUploadWebsocketRequest request = FileUploadWebsocketRequest.builder()
+        String extension = "docx";
+        FileUploadRequest request = FileUploadRequest.builder()
                 .partId(part.getId())
-                .fileCode("파일 Base64 인코딩 코드")
+                .fileCode(extension)
                 .roomId(room.getId())
                 .fileName(fileOriginalName)
                 .build();
@@ -201,12 +201,12 @@ class FileServiceTest extends IntegrationTest {
         HashMap<String, List<String>> fileSet = new HashMap<>();
         fileSet.put(fileOriginalName,List.of(fileName,extension));
         //when
-        FileUploadWebsocketResponse response = fileService.addFile(request, fileSet, sessionMember);
+        FileUploadResponse response = fileService.addFile(request, fileSet, sessionMember);
         List<File> files = fileRepository.findAll();
         //then
         assertThat(response.getNum()).isEqualTo(1);
         assertThat(response.getFiles()).hasSize(1)
-                .extracting("fileId","originalFileName","fileName")
+                .extracting("fileId","originalName","fileName")
                 .containsExactlyInAnyOrder(tuple(files.get(0).getId(),fileOriginalName,fileName));
     }
 

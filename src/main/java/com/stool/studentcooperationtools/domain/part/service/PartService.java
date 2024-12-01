@@ -48,7 +48,7 @@ public class PartService {
                 .member(member)
                 .room(room)
                 .build();
-        return PartAddWebsocketResponse.of(partRepository.save(part));
+        return PartAddWebsocketResponse.of(partRepository.save(part),member);
     }
 
     @Transactional(rollbackFor = AccessDeniedException.class)

@@ -19,9 +19,10 @@ public class ChatApiController {
     @GetMapping("/api/v1/rooms/{roomId}/chats")
     public ApiResponse<ChatFindResponse> findChats(
             @PathVariable("roomId") Long roomId,
-            @RequestParam("page") int page
+            @RequestParam("page") int page,
+            @RequestParam(required = false) Long lastMessageId
     ){
-        ChatFindResponse response = chatService.findChats(roomId,page);
+        ChatFindResponse response = chatService.findChats(roomId,page, lastMessageId);
         return ApiResponse.of(HttpStatus.OK,response);
     }
 

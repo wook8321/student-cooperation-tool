@@ -9,8 +9,7 @@ public enum WebsocketMessageType {
 
     TOPIC_ADD("topic_add"),
     TOPIC_DELETE("topic_delete"),
-    VOTE_ADD("vote_add"),
-    VOTE_DELETE("vote_delete"),
+    VOTE_UPDATE("vote_update"),
     CHAT_ENTER("chat_enter"),
     CHAT_ADD("chat_add"),
     CHAT_DELETE("chat_delete"),

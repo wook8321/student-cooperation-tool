@@ -227,4 +227,74 @@ class RoomRepositoryTest extends IntegrationTest {
         assertThrows(IllegalArgumentException.class, () -> roomRepository.findRoomByRoomId(member.getMemberSeq(), invalidRoomId)
                 .orElseThrow(() -> new IllegalArgumentException("방 정보 오류")));
     }
+
+    @DisplayName("방 id와 유저의 id를 받아 해당 방의 참여 권한이 있는지 확인한다.")
+    @Test
+    void existMemberInRoomByMemberId(){
+        //given
+        Member member = Member.builder()
+                .nickName("유저")
+                .role(Role.USER)
+                .profile("profile")
+                .email("email")
+                .build();
+
+        memberRepository.save(member);
+
+        Room room = Room.builder()
+                .title("주제")
+                .leader(member)
+                .participationNum(1)
+                .password("1234")
+                .build();
+
+        roomRepository.save(room);
+
+        Participation participation = Participation.builder()
+                .member(member)
+                .room(room)
+                .build();
+        participationRepository.save(participation);
+        //when
+        Boolean result = roomRepository.existMemberInRoom(member.getId(), room.getId());
+
+        //then
+        assertThat(result).isTrue();
+    }
+
+    @DisplayName("방 id와 유저의 email를 받아 해당 방의 참여 권한이 있는지 확인한다.")
+    @Test
+    void existMemberInRoomByEmail(){
+        //given
+        String email = "email";
+        Member member = Member.builder()
+                .nickName("유저")
+                .role(Role.USER)
+                .profile("profile")
+                .email(email)
+                .build();
+
+        memberRepository.save(member);
+
+        Room room = Room.builder()
+                .title("주제")
+                .leader(member)
+                .participationNum(1)
+                .password("1234")
+                .build();
+
+        roomRepository.save(room);
+
+        Participation participation = Participation.builder()
+                .member(member)
+                .room(room)
+                .build();
+        participationRepository.save(participation);
+        //when
+        Boolean result = roomRepository.existMemberInRoom(email, room.getId());
+
+        //then
+        assertThat(result).isTrue();
+    }
+
 }
