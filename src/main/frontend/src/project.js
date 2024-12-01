@@ -62,10 +62,6 @@ const RoomList = ({setCreateModal}) => {
                     roomId,
                 },
             });
-            const roomCard = document.getElementById('room' + `${roomId}`);
-            if (roomCard) {
-                roomCard.remove(); // DOM에서 카드 제거
-            }
             fetchRooms(currentPage); // 방 목록 다시 불러오기
         } catch (error) {
             alert("프로젝트를 삭제하지 못했습니다.");
