@@ -45,11 +45,11 @@ const FriendsList = () => {
                         </div>
                         </div>
                     </ul>
-                ) : <h1 style={{textAlign : "center"}} id="notExistH">
+                ) : <h1 style={{textAlign : "center", width: "1000px"}} id="notExistH">
                     <div>
                         <img src={personHeart} height="200" width="200"/>
                     </div>
-                    아직 등록된 친구가 없습니다. 친구들을 찾아 볼까요?
+                    아직 등록된 친구가 없네요. 친구들을 찾아 볼까요?
                 </h1>}
         </div>
     );
