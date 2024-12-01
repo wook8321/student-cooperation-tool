@@ -195,6 +195,15 @@ const PPT = () => {
       }
   }
 
+    const goSection = (path, subUrl) => {
+        navigate(path, {state: {
+                roomId,
+                subUrl: subUrl,
+                userId,
+                leaderId
+            }})
+    }
+
   useEffect(() => {
       fetchPPT();
   }, []);
@@ -295,27 +304,28 @@ const PPT = () => {
                       )}
 
 
-                      <div className="process-container">
-                          <div className="process-step">
-                              <div className="process-text">주제 선정</div>
-                          </div>
-                          <div className="process-step">
-                              <div className="process-text">자료 조사</div>
-                          </div>
-                          <div className="process-step">
-                              <div className="process-text">발표 자료</div>
-                          </div>
-                          <div className="process-step">
-                              <div className="process-text">발표 준비</div>
-                          </div>
-                      </div>
+          <div className="process-container">
+              <div className="process">
+                  <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
+                      주제 선정
+                  </div>
+                  <div onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>
+                      자료 조사
+                  </div>
+                  <div onClick={() => goSection('/presentation', `/sub/rooms/${roomId}/presentation`)}>
+                      발표 자료
+                  </div>
+                  <div onClick={() => goSection('/script', `/sub/rooms/${roomId}/scripts`)}>
+                      발표 준비</div>
+              </div>
+          </div>
 
-                      <div>
-                          <button className="chat-button" onClick={toggleChatModal}>
-                              <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
-                          </button>
-                          <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
-                              {chatModal && <ChatPage/>}
+          <div>
+              <button className="chat-button" onClick={toggleChatModal}>
+                  <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
+              </button>
+              <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
+                  {chatModal && <ChatPage/>}
                           </div>
                       </div>
                   </div>
