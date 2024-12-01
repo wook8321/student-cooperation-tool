@@ -203,7 +203,7 @@ const RoomList = ({setCreateModal}) => {
                             </button>
                         </div>
                     </>
-                ) : <h1 style={{textAlign: "center"}} id="notExistH">
+                ) : <h1 style={{textAlign: "center", marginTop: "50px", padding: "20px"}} id="notExistH">
                     <div>
                         <img src={emptyBox} height="200" width="200"/>
                     </div>
@@ -503,7 +503,6 @@ const Project = () => {
   }
         return (
             <div className="container">
-                <Footer/>
                 <main>
                     <form className="search_box" onSubmit={(e) => e.preventDefault()}>
                         <input id="roomSearchInput" className="project_search_txt" type="text"
@@ -513,7 +512,8 @@ const Project = () => {
                         </button>
                     </form>
                         <RoomList setCreateModal={setCreateModal}/>
-
+                </main>
+                <Footer/>
                         {searchModal && (
                             <div className="add_project_container">
                                 <div className="modal_overlay" onClick={closeSearchModal}>
@@ -607,7 +607,6 @@ const Project = () => {
                                 </div>
                             </div>
                         )}
-                </main>
 
                 {enterModal && (
                     <div className="enter_modal_overlay" onClick={closeEnterModal}>
