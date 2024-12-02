@@ -14,6 +14,8 @@ import { useNavigate } from 'react-router-dom';
 import "./juaFont.css"
 import searchIcon from "./images/search.svg";
 import emptyBox from "./images/emptyBox.svg"
+import emptyProject from "./images/project.svg"
+import mainlogo from "./images/mainlogo.png";
 
 const RoomList = ({setCreateModal}) => {
     const [rooms, setRooms] = useState({num: 0, roomList: []});
@@ -209,7 +211,7 @@ const RoomList = ({setCreateModal}) => {
                     </>
                 ) : <h1 style={{textAlign: "center", marginTop: "50px", padding: "20px"}} id="notExistH">
                     <div>
-                        <img src={emptyBox} height="200" width="200"/>
+                        <img src={emptyProject} height="300" width="300"/>
                     </div>
                     아직 참여하는 프로젝트가 없네요. 프로젝트에 참여해볼까요?
                 </h1>}
@@ -512,6 +514,7 @@ const Project = () => {
         return (
             <div className="container">
                 <main>
+                    <img src={mainlogo} className="under-logo"/>
                     <form className="search_box" onSubmit={(e) => e.preventDefault()}>
                         <input id="roomSearchInput" className="project_search_txt" type="text"
                                placeholder="프로젝트 이름을 입력하세요."/>
@@ -519,10 +522,10 @@ const Project = () => {
                             <img src={searchIcon}/>
                         </button>
                     </form>
-                        <RoomList setCreateModal={setCreateModal}/>
+                    <RoomList setCreateModal={setCreateModal}/>
                 </main>
                 <Footer/>
-                        {searchModal && (
+                {searchModal && (
                             <div className="add_project_container">
                                 <div className="modal_overlay" onClick={closeSearchModal}>
                                     <div className="modal_content" onClick={(e)=> e.stopPropagation()}>
