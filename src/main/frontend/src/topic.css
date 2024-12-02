@@ -10,13 +10,13 @@
 
 .process {
     position: fixed;
+    border: none;
     bottom: 20px;
     width: 100%;
     display: flex;
     justify-content: space-around;
-    background-color: #fff4f0; /* 전체 배경: 연한 베이지 */
+    background-color: transparent;
     padding: 10px 0;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .process div {
