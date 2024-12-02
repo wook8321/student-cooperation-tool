@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SlideRepository extends JpaRepository<Slide, Long> {
@@ -20,6 +21,9 @@ public interface SlideRepository extends JpaRepository<Slide, Long> {
     @Transactional
     @Query(value = "delete from Slide s where s.presentation.id = :presentationId")
     void deleteByPresentationId(@Param("presentationId") Long presentationId);
+
+    @Query(value = "select s from Slide s where s.slide_idx = 0 and s.presentation.id = :presentationId")
+    Optional<Slide> findFirstByPresentationId(@Param("presentationId") Long presentationId);
 
 
 }

@@ -143,4 +143,10 @@ public class SlideService {
         slideRepository.deleteAll(slidesToDelete);
             return true;
     }
+
+    public String findFirstPage(Long presentationId) {
+        Slide slide = slideRepository.findFirstByPresentationId(presentationId)
+                .orElseThrow(()-> new IllegalArgumentException("ppt의 첫 슬라이드 정보가 없습니다"));
+        return slide.getThumbnail();
+    }
 }

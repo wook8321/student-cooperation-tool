@@ -36,4 +36,10 @@ public class SlideApiController {
         boolean result = slideService.compareSlides(presentationId, credential);
         return ApiResponse.of(HttpStatus.OK,result);
     }
+
+    @GetMapping("/api/v1/presentation/{presentationId}/first-page")
+    public ApiResponse<String> getFirstPage(@PathVariable("presentationId") Long presentationId){
+        String firstPage = slideService.findFirstPage(presentationId);
+        return ApiResponse.of(HttpStatus.OK,firstPage);
+    }
 }
