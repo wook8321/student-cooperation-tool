@@ -89,7 +89,7 @@ const Script = () => {
         }
     }, [isConnected]); //isConnected 상태가 바뀌면 실행된다.
     //===============================================================================
-   //===================================스크립트 추가===================================
+   //===================================스크립트 등록===================================
   const addScript = (scriptId, script) => {
       const data = {
           roomId,
@@ -123,26 +123,14 @@ const Script = () => {
             [slideId]: value, // slideId에 해당하는 상태만 업데이트
         }));
   };
-
-  //==================================================기타 기능==============================
-  const ErrorModal = ({ error, closeErrorModal }) => {
-    if (!error) return null; // 에러가 없을 때
-
-    return (
-        <div className="error-modal-overlay">
-          <h2>오류 발생</h2>
-          <button className="close-error-button" onClick={closeErrorModal}>
-            X
-          </button>
-            <div className="error-modal" onClick={(e) => e.stopPropagation()}>
-                <p>{error.message || "알 수 없는 에러가 발생했습니다."}</p>
-            </div>
-        </div>
-    );
-  };
-
-  const closeErrorModal = () => { setError(null) };
-
+  //========================================슬라이드 새로고침======================================
+    const refreshSlides = () => {
+        axios.post(`${domain}/api/v1/presentation/${presentationId}/slides-compare`)
+            .then(()=>{
+                fetchSlides();
+            })
+    }
+  //===========================================기타 기능===========================================
     const goSection = (path, subUrl) => {
         const state = {
             roomId,
@@ -220,7 +208,7 @@ const Script = () => {
                                   style={{cursor: "pointer"}}
                               >
                                   <img
-                                      src={slides[currentPage].thumbnailUrl}
+                                      src={`${domain}/proxy/thumbnail?url=${encodeURIComponent(slides[currentPage].thumbnailUrl)}`}
                                       alt={`Slide ${slides[currentPage].slideId}`}
                                   />
                               </div>
@@ -290,7 +278,7 @@ const Script = () => {
                           </button>
                       </div>
                       {/* 새로고침 버튼 */}
-                      <button className="refresh-btn">🔄</button>
+                      {presentationId && <button className="refresh-btn" onClick={refreshSlides}>🔄</button>}
                   </div>
               </div>
           </div>

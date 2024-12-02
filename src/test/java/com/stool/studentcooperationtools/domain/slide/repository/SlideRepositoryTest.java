@@ -67,4 +67,29 @@ class SlideRepositoryTest extends IntegrationTest {
         //then
         assertEquals(slides.size(), 0);
     }
+
+    @Test
+    @DisplayName("ppt의 모든 슬라이드 삭제")
+    void deleteAllByPresentationId() {
+        //given
+        Presentation presentation = Presentation.builder()
+                .presentationPath("path")
+                .build();
+        presentationRepository.save(presentation);
+        Script script = Script.builder()
+                .script("hi")
+                .presentation(presentation)
+                .build();
+        Slide slide = Slide.builder()
+                .thumbnail("t")
+                .slideUrl("u")
+                .script(script)
+                .presentation(presentation)
+                .build();
+        slideRepository.save(slide);
+        //when
+        slideRepository.deleteByPresentationId(presentation.getId());
+        //then
+        assertEquals(0, slideRepository.findSlidesAndScriptsByPresentationId(presentation.getId()).size());
+    }
 }
