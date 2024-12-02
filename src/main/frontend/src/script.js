@@ -283,6 +283,8 @@ const Script = () => {
                               &gt;&gt; {/* 마지막 페이지로 */}
                           </button>
                       </div>
+                      {/* 새로고침 버튼 */}
+                      <button className="refresh-btn">🔄</button>
                   </div>
               </div>
           </div>
@@ -295,8 +297,6 @@ const Script = () => {
               </div>
           </div>
 
-          {/* 새로고침 버튼 */}
-          <button className="refresh-btn">🔄</button>
 
           <div className="process">
               <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
