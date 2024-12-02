@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import {Link, useLocation} from 'react-router-dom';
 import axios from "axios";
 import userImage from "./images/user.svg"
 import "./project.css";
@@ -21,6 +21,8 @@ const RoomList = ({setCreateModal}) => {
     const navigate = useNavigate();
     const [userId, setUserId] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const location = useLocation();
+    const {presentationId} = location.state || {};
     //유저 id 들고오기(소켓에서 활용)
     const userFetch = async () => {
         try {
@@ -82,15 +84,17 @@ const RoomList = ({setCreateModal}) => {
             .then((res) =>{
                 const leaderId = res.data.data.leaderId
                 if(leaderId){
+                    const state = {
+                        roomId,
+                        subUrl: `/sub/rooms/${roomId}/topics`,
+                        userId,
+                        leaderId
+                    };
+                    if(presentationId!=null){
+                        state.presentationId = presentationId;
+                    }
                     //비밀 번호가 맞다면, 방을 입장
-                    navigate('/topic', {
-                        state: {
-                            roomId,
-                            subUrl: `/sub/rooms/${roomId}/topics`,
-                            userId,
-                            leaderId
-                        }
-                    });
+                    navigate('/topic', {state});
                     closeEnterModal()
                 }
             })
@@ -234,6 +238,8 @@ const Project = () => {
   const navigate = useNavigate();
   const [enterRoomTitle, setEnterRoomTitle] = useState("");
   const [userId, setUserId] = useState(null);
+  const location = useLocation();
+  const {presentationId} = location.state || {};
   useEffect(() => {
       const roomCardToDelete = document.querySelector(`li[key="${deleteRoomId}"]`);
       if (roomCardToDelete) {
@@ -331,15 +337,17 @@ const Project = () => {
             .then((res) =>{
                 const leaderId = res.data.data.leaderId
                 if(leaderId){
+                    const state = {
+                        roomId,
+                        subUrl: `/sub/rooms/${roomId}/topics`,
+                        userId,
+                        leaderId
+                    };
+                    if(presentationId!=null){
+                        state.presentationId = presentationId;
+                    }
                     //비밀 번호가 맞다면, 방을 입장
-                    navigate('/topic', {
-                        state: {
-                            roomId,
-                            subUrl: `/sub/rooms/${roomId}/topics`,
-                            userId,
-                            leaderId
-                        }
-                    });
+                    navigate('/topic', {state});
                     closeEnterModal()
                 }
             })

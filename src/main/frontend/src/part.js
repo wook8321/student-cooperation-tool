@@ -611,6 +611,15 @@ const Part = () => {
         navigate(path, {state})
     }
 
+    //뒤로가기
+    const goBack = () => {
+        const state = {};
+        if (presentationId != null) {
+            state.presentationId = presentationId;
+        }
+        navigate("/project", {state}); // "/project" 경로로 이동
+    };
+
     if (!isConnected) {
         // 연결 중인 상태일 때는 로딩 상태로
         return (<div className="loading">
@@ -624,10 +633,11 @@ const Part = () => {
     return (
     <>
         <main className="part-main">
+            <button onClick={goBack} className="back_link">🔙</button>
             {parts.parts.map((part) => (
                 <div className="profile-container" key={part.partId}>
                     <div className="profile-header">
-                        <img className="profile-picture" src={part.profile} alt="프로필" />
+                        <img className="profile-picture" src={part.profile} alt="프로필"/>
                         <div className="profile-nickname">
                             {part.nickName}
                             <Dropdown part={part}/>
@@ -643,11 +653,11 @@ const Part = () => {
                                     {file.originalName}
                                     <div className="file-buttons">
                                         <button className="preview-button"
-                                                onClick={() => deleteFile(file.fileName, file.fileId,part.partId)}>
+                                                onClick={() => deleteFile(file.fileName, file.fileId, part.partId)}>
                                             ✘
                                         </button>
                                         <button className="preview-button"
-                                                onClick={() => openFilePreviewModal(file.fileUrl,file.fileType)}>
+                                                onClick={() => openFilePreviewModal(file.fileUrl, file.fileType)}>
                                             🔍
                                         </button>
                                         <button className="download-button"
@@ -662,21 +672,22 @@ const Part = () => {
                 </div>
             ))}
             <button className="role-add-btn" onClick={() => openAddModal()}>
-                            역할 추가
+                역할 추가
             </button>
 
-            {filePreviewModal &&(
+            {filePreviewModal && (
                 <div className="filepreview-modal-overlay">
                     <div className="filepreview-modal-container">
                         <h2>파일 미리보기</h2>
-                        <button className="filepreview-modal-close" onClick={() => setFilePreviewModal(false)}>X</button>
-                        <PreviewFile fileUrl={fileUrl} fileType={fileType} />
+                        <button className="filepreview-modal-close" onClick={() => setFilePreviewModal(false)}>X
+                        </button>
+                        <PreviewFile fileUrl={fileUrl} fileType={fileType}/>
                     </div>
                 </div>
             )}
 
             {addModal && (
-                <div style={{ textAlign: "center", justifyContent: "center" }} className="modal_overlay">
+                <div style={{textAlign: "center", justifyContent: "center"}} className="modal_overlay">
                     <div className="modal_content">
                         <button className="close_button" onClick={() => closeAddModal()}>x</button>
                         <div className="modal_body">
@@ -694,7 +705,7 @@ const Part = () => {
                                     {participation.num > 0 ?
                                         (participation.participation.map((p) => (
                                             <li key={p.memberId} id={"part" + p.memberId}>
-                                                <img src={p.profile} alt={`${p.nickname}'s profile`} />
+                                                <img src={p.profile} alt={`${p.nickname}'s profile`}/>
                                                 <p>{p.nickname}</p>
                                                 <input
                                                     type="radio"

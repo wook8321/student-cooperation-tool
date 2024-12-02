@@ -14,7 +14,7 @@ const PPT = () => {
   const [pptData, setPPTData] = useState(null); // get한 ppt 데이터 저장 공간
   const [editModal, setEditModal] = useState(false); // ppt 수정 모달
   const [chatModal, setChatModal] = useState(false);
-  const {stompClient, isConnected, roomId, userId, leaderId} = useWebSocket();
+  const {stompClient, isConnected, roomId, userId, leaderId, presentationId} = useWebSocket();
   const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
   const navigate = useNavigate();
   const [isValid, setIsValid] = useState(false);
@@ -188,10 +188,14 @@ const PPT = () => {
         window.location.href = pptURL;
     }
   //==============================================================================
-  //뒤로가기
-  const goBack = () => {
-    navigate("/project"); // "/project" 경로로 이동
-  };
+    //뒤로가기
+    const goBack = () => {
+        const state = {};
+        if (presentationId != null) {
+            state.presentationId = presentationId;
+        }
+        navigate("/project", {state}); // "/project" 경로로 이동
+    };
 
   //채팅창 토글로 구현
   const toggleChatModal = () => {

@@ -167,6 +167,15 @@ const Topic = () => {
 
   }
 
+  //뒤로가기
+  const goBack = () => {
+    const state = {};
+    if (presentationId != null) {
+      state.presentationId = presentationId;
+    }
+    navigate("/project", {state}); // "/project" 경로로 이동
+  };
+
 
   if (!isConnected) {
     // 연결 중인 상태일 때는 로딩 상태로
@@ -180,13 +189,8 @@ const Topic = () => {
 
   return (
       <>
-        <div>
-          <Link to={"/project"} className="back_link">
-            🔙
-          </Link>
-        </div>
-
         <div className="background">
+          <button onClick={goBack} className="back_link">🔙</button>
           <div className="topics_overlay">
             <div className="card-container" id="topicsDiv">
               {topics.num > 0 ? (

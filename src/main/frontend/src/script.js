@@ -94,7 +94,7 @@ const Script = () => {
           scriptId,
           script,
       }
-      stompClient.current.publish({
+          stompClient.current.publish({
           destination: '/pub/scripts/update',
           body: JSON.stringify(data)
       });
@@ -161,7 +161,11 @@ const Script = () => {
 
     //뒤로가기
     const goBack = () => {
-        navigate("/project"); // "/project" 경로로 이동
+        const state = {};
+        if (presentationId != null) {
+            state.presentationId = presentationId;
+        }
+        navigate("/project", {state}); // "/project" 경로로 이동
     };
 
     //슬라이드 페이지화
