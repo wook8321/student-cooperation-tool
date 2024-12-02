@@ -208,7 +208,7 @@ const Script = () => {
                                   style={{cursor: "pointer"}}
                               >
                                   <img
-                                      src={slides[currentPage].thumbnailUrl}
+                                      src={`${domain}/proxy/thumbnail?url=${encodeURIComponent(slides[currentPage].thumbnailUrl)}`}
                                       alt={`Slide ${slides[currentPage].slideId}`}
                                   />
                               </div>
