@@ -259,11 +259,13 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
                 .roomId(1L)
                 .password("password")
                 .build();
-
+        RoomEnterResponse response = RoomEnterResponse.builder()
+                .leaderId(1L)
+                .build();
         String content = objectMapper.writeValueAsString(request);
 
         Mockito.when(roomService.enterRoom(any(SessionMember.class), any(RoomEnterRequest.class)))
-                .thenReturn(true);
+                .thenReturn(response);
 
         //when
         //then
@@ -287,8 +289,10 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
                                                 .description("상태 코드"),
                                         fieldWithPath("status").type(STRING)
                                                 .description("응답 상태"),
-                                        fieldWithPath("data").type(BOOLEAN)
-                                                .description("인증 성공 여부")
+                                        fieldWithPath("data").type(OBJECT)
+                                                .description("응답 데이터"),
+                                        fieldWithPath("data.leaderId").type(NUMBER)
+                                                .description("방장의 식별키")
                                 )
                         )
                 );

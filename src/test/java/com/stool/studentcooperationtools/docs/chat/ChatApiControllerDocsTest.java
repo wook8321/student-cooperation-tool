@@ -52,10 +52,9 @@ public class ChatApiControllerDocsTest extends RestDocsSupport {
         ChatFindResponse response = ChatFindResponse.builder()
                 .num(chatFindDtoList.size())
                 .chats(chatFindDtoList)
-                .hasNext(true)
                 .build();
 
-        Mockito.when(chatService.findChats(Mockito.anyLong(),Mockito.anyInt(),Mockito.anyLong()))
+        Mockito.when(chatService.findChats(Mockito.anyLong(),Mockito.anyInt(),Mockito.any()))
                 .thenReturn(response);
 
         //when
@@ -81,8 +80,6 @@ public class ChatApiControllerDocsTest extends RestDocsSupport {
                                         .description("응답 데이터"),
                                 fieldWithPath("data.num").type(NUMBER)
                                         .description("조회된 채팅 개수"),
-                                fieldWithPath("data.hasNext").type(BOOLEAN)
-                                        .description("다음 조회할 채팅이 존재 하는지"),
                                 fieldWithPath("data.chats[]").type(ARRAY)
                                         .description("채팅 정보 리스트"),
                                 fieldWithPath("data.chats[].chatId").type(NUMBER)
@@ -96,7 +93,7 @@ public class ChatApiControllerDocsTest extends RestDocsSupport {
                                 fieldWithPath("data.chats[].content").type(STRING)
                                         .description("채팅의 내용"),
                                 fieldWithPath("data.chats[].userId").type(NUMBER)
-                                        .description("채팅을 작성한 유저")
+                                        .description("채팅을 작성한 유저의 식별키")
                         )
                 )
                 );

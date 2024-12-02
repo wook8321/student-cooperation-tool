@@ -1,10 +1,12 @@
 package com.stool.studentcooperationtools.domain.presentation.service;
 
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.Permission;
 import com.google.api.services.drive.model.PermissionList;
+import com.google.api.services.slides.v1.Slides;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.common.base.VerifyException;
 import com.stool.studentcooperationtools.domain.presentation.Presentation;
@@ -58,7 +60,14 @@ public class PresentationService {
             throw new IllegalArgumentException("발표자료 변경 권한이 없습니다");
         }
         Presentation updatingPpt = presentationRepository.findByRoomId(room.getId())
-                .orElseThrow(()->new IllegalArgumentException("발표자료가 존재하지 않습니다"));
+                .orElseGet(()->{
+                    Presentation newPpt = Presentation.builder()
+                            .room(room)
+                            .presentationPath(request.getPresentationPath())
+                            .build();
+                    presentationRepository.save(newPpt);
+                    return newPpt;
+                });
         updatingPpt.updatePath(request.getPresentationPath());
         return PresentationUpdateSocketResponse.of(updatingPpt);
     }
@@ -67,6 +76,11 @@ public class PresentationService {
     public PresentationUpdateSocketResponse createPresentation(PresentationCreateSocketRequest request,
                                                                HttpCredentialsAdapter credentialsAdapter,
                                                                SessionMember member) {
+        Room room = roomRepository.findById(request.getRoomId())
+                .orElseThrow(()->new IllegalArgumentException("해당 방은 존재하지 않습니다"));
+        if(!room.getLeader().getId().equals(member.getMemberSeq())){
+            throw new IllegalArgumentException("발표자료 변경 권한이 없습니다");
+        }
         String fileId;
         Drive dservice = slidesFactory.createDriveService(credentialsAdapter);
         File fileMetadata = new File();
@@ -96,17 +110,20 @@ public class PresentationService {
         catch (IOException e) {
             throw new VerifyException(e.getMessage(),e.getCause());
         }
-        Room room = roomRepository.findById(request.getRoomId())
-                .orElseThrow(()->new IllegalArgumentException("해당 방은 존재하지 않습니다"));
-        if(!room.getLeader().getId().equals(member.getMemberSeq())){
-            throw new IllegalArgumentException("발표자료 변경 권한이 없습니다");
+        if(presentationRepository.existsByRoomId(room.getId())){
+            Presentation presentation = presentationRepository.findByRoomId(room.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("발표자료를 들고 오던 중 에러 발생"));
+            presentation.updatePath(fileId);
+            return PresentationUpdateSocketResponse.of(presentation);
         }
-        Presentation presentation = Presentation.builder()
-                .room(room)
-                .presentationPath(fileId)
-                .build();
-        presentationRepository.save(presentation);
-        return PresentationUpdateSocketResponse.of(presentation);
+        else {
+            Presentation presentation = Presentation.builder()
+                    .room(room)
+                    .presentationPath(fileId)
+                    .build();
+            presentationRepository.save(presentation);
+            return PresentationUpdateSocketResponse.of(presentation);
+        }
     }
 
     public ByteArrayOutputStream exportPdf(HttpCredentialsAdapter credentialsAdapter, Long presentationId) {
@@ -157,5 +174,15 @@ public class PresentationService {
         catch(IOException e){
             throw new IllegalStateException(e.getMessage(), e.getCause());
         }
+    }
+
+    public Boolean checkValidPPT(Credential credential, String presentationPath) {
+        Slides service = slidesFactory.createSlidesService(credential);
+        try {
+            service.presentations().get(presentationPath).execute();
+        } catch(IOException | IllegalStateException e){
+            throw new IllegalArgumentException(e.getMessage(),e.getCause());
+        }
+        return true;
     }
 }

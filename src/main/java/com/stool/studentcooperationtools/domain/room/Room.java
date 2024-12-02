@@ -60,6 +60,11 @@ public class Room extends BaseTimeEntity {
         addParticipantNum();
     }
 
+    public void deleteParticipation(Participation participation){
+        participationList.remove(participation);
+        minusParticipantNum();
+    }
+
     public Boolean verifyPassword(String password){
         return this.password.equals(password);
     }
@@ -71,4 +76,9 @@ public class Room extends BaseTimeEntity {
     public void addParticipantNum(){
         this.participationNum++;
     }
+
+    public void minusParticipantNum(){
+        this.participationNum--;
+    }
+
 }

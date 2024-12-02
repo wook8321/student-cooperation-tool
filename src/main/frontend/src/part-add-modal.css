@@ -1,33 +1,57 @@
-.part-background{
-    min-height: 100vh;
-    flex: 1;
+/* 모달 오버레이 */
+.part-add-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* 배경 어두운 오버레이 */
     display: flex;
-    flex-direction: column;
-    padding: 20px;
-    background: linear-gradient(135deg, #f9f9f9, #faf7f7, #f1cac1); /* 그라데이션 추가 */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* 모달을 맨 위로 올림 */
 }
-.part-main {
-     display: grid;
-     grid-template-columns: repeat(3, 1fr); /* 3개의 열 */
-     grid-auto-rows: min-content; /* 행 크기를 콘텐츠에 맞게 조정 */
-     gap: 30px; /* 카드 간의 간격 */
-     justify-content: center; /* 수평 가운데 정렬 */
-     align-content: start; /* 전체 컨텐츠 상단 정렬 */
-     padding-top: 10vh; /* 화면 상단에서부터의 여백 (중간 시작) */
-     box-sizing: border-box;
- }
 
-/* 파트 카드 */
-.part-card {
+/* 모달 내용 */
+.part-add-modal {
     position: relative;
-    width: 80%;
-    border: 1px solid #ccc;
+    width: 90%;
+    max-width: 600px;
     border-radius: 10px;
-    padding: 15px;
-    background-color: #f9f9f9;
+    padding: 20px;
+    background-color: #fff;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin: 0; /* 카드 간의 간격은 part-main에서 처리 */
+    z-index: 1001; /* 모달 내용이 오버레이 위에 보이도록 설정 */
 }
+
+/* 모달 헤더 */
+.part-add-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.part-add-modal-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* 모달 닫기 버튼 */
+.part-add-modal-close {
+    background-color: transparent;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+}
+
+/* 모달 내용 */
+.part-add-modal-content {
+    padding: 10px;
+}
+
 /* 프로필 헤더 */
 .part-header {
     display: flex;
@@ -36,6 +60,7 @@
     margin-bottom: 10px;
 }
 
+/* 프로필 사진 */
 .part-picture {
     width: 50px;
     height: 50px;
@@ -46,6 +71,7 @@
     justify-content: center;
     font-size: 14px;
     font-weight: bold;
+    margin-right: 10px; /* 텍스트와 간격을 주기 위해 추가 */
 }
 
 .part-nickname {
@@ -74,7 +100,7 @@
 }
 
 /* 파일 리스트 컨테이너 */
-.file-list-container {
+.participation-list-container {
     max-height: 150px; /* 스크롤바가 보일 만큼의 최대 높이 설정 */
     overflow-y: auto; /* 세로 스크롤바 활성화 */
     border: 1px solid #ccc;
@@ -98,10 +124,10 @@
     border-radius: 5px;
 }
 
-/* 파일 항목 */
-.file-item {
+/* participation 스타일 */
+.participation {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-evenly;
     align-items: center;
     margin-bottom: 10px;
     padding: 5px 10px;

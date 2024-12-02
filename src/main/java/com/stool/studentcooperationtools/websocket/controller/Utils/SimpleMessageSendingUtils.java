@@ -46,6 +46,13 @@ public class SimpleMessageSendingUtils {
     }
 
     /*
+    스크립트 관리 sub url을 생성하는 메소드이다.
+    */
+    public String createScriptManageSubUrl(final Long roomId){
+        return String.format(SCRIPT_MANAGE_URL_FORMAT,roomId);
+    }
+
+    /*
     simpMessageSendingOperations를 이용해서 subUrl로 response를 보낸다.
      */
     public void convertAndSend(final String subUrl, final Object response) {

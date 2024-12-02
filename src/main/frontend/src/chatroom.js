@@ -16,6 +16,7 @@ function ChatRoom() {
     const [isTop, setIsTop] = useState(false);
     const {stompClient, isConnected, roomId, userId} = useWebSocket(); // WebSocket 연결 관리
     const prevScrollHeight = useRef(null);
+    const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
 
     //==================================채팅방 구현 내용========================================
     const chatFetch = async () => {
@@ -107,6 +108,11 @@ function ChatRoom() {
         if (isConnected) {
             onConnect(); // 연결이 완료되면 onConnect 호출
         }
+        return () => {
+            if (stompClient.current) {
+                subscriptions.current.unsubscribe();
+            }
+        };
     }, [isConnected]); //isConnected 상태가 바뀌면 실행된다.
 
     const receiveError = (error) => {
@@ -133,7 +139,8 @@ function ChatRoom() {
 
     const onConnect = () => {
         //2-1 연결 성공의 경우
-        stompClient.current.subscribe(`/sub/rooms/${roomId}/chat`, receiveMessage, receiveError);
+        subscriptions.current = stompClient.current.subscribe(
+            `/sub/rooms/${roomId}/chat`, receiveMessage, receiveError);
         console.log('connected chat');
     }
     //================================================================================

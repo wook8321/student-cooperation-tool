@@ -37,7 +37,6 @@ class SlideRepositoryTest extends IntegrationTest {
                 .script("s")
                 .presentation(presentation)
                 .build();
-        scriptRepository.save(script);
         Slide slide = Slide.builder()
                 .slideUrl("url")
                 .presentation(presentation)

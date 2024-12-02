@@ -7,12 +7,14 @@ import './topic.css';
 import chatImage from './images/chat.svg';
 import {domain} from "./domain";
 import ChatPage from "./chatroom";
+import mainlogo from "./images/mainlogo.png";
+import backlink from "./images/back.svg"
 
 const Topic = () => {
   const [topics, setTopics] = useState({num: 0, topics: []});
   const [addModal, setAddModal] = useState(false);
   const [chatModal, setChatModal] = useState(false);
-  const {stompClient, isConnected, roomId} = useWebSocket(); // WebSocket 연결 관리
+  const {stompClient, isConnected, roomId, userId, leaderId, presentationId} = useWebSocket(); // WebSocket 연결 관리
   const navigate = useNavigate();
   const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
 
@@ -61,7 +63,6 @@ const Topic = () => {
 
   useEffect(() => {
     //1. broker endPoint에 연결, WebsocketConfig에 설정한 EndPoint를 말함
-    alert(roomId)
     if (stompClient.current) {
       stompClient.current.activate(); // 웹소켓 활성화
     }
@@ -114,7 +115,6 @@ const Topic = () => {
   };
 
   const deleteTopic = (topicId) => {
-    alert(topicId + "번 삭제하기")
     const data = {
       roomId : roomId,
       topicId : topicId
@@ -124,6 +124,13 @@ const Topic = () => {
       body: JSON.stringify(data)
     })
   }
+
+  const handleDeleteClick = (e,topicId) => {
+    // 클릭 이벤트 전파를 막아 삭제 버튼만 처리하도록 함
+    e.stopPropagation();
+    deleteTopic(topicId); // 부모 컴포넌트의 삭제 함수 호출
+  };
+
   // ================================================ 토픽 생성 ======================================
 
   const updateTopicInScreen = (topic) => {
@@ -148,13 +155,54 @@ const Topic = () => {
     })
   };
 
+  // ============================================채팅 관련===========================================
+  const toggleChatModal = () => {
+    setChatModal((prevState) => !prevState);
+  };
+  // ============================================포스트 잇 엄지================================================
+
+  const ThumbUp = ({ thumbsCount }) => {
+    const thumbs = Array.from({ length: thumbsCount }, (_, index) => ({
+      id: index + 1,
+      x: Math.random() * 80 + 10, // 10% ~ 90%
+      y: Math.random() * 80 + 10, // 10% ~ 90%
+    }));
+
+    return (
+          thumbs.map((thumb) => (
+              <span
+                  key={thumb.id}
+                  className="thumbs-up"
+                  style={{ left: `${thumb.x}%`, top: `${thumb.y}%` }}>
+          👍
+        </span>
+          ))
+    );
+  };
+
+
   const goSection = (path, subUrl) => {
-    alert(path + " " + subUrl)
-    navigate(path, {state: {
-        roomId,
-        subUrl: subUrl
-      }})
+    const state = {
+      roomId,
+      subUrl: subUrl,
+      userId,
+      leaderId,
+    };
+    if (presentationId != null) {
+      state.presentationId = presentationId;
+    }
+    navigate(path, {state})
+
   }
+
+  //뒤로가기
+  const goBack = () => {
+    const state = {};
+    if (presentationId != null) {
+      state.presentationId = presentationId;
+    }
+    navigate("/project", {state}); // "/project" 경로로 이동
+  };
 
 
   if (!isConnected) {
@@ -169,46 +217,44 @@ const Topic = () => {
 
   return (
       <>
-        <div>
-          <Link to={"/project"} className="back_link">
-            뒤로 가기
-          </Link>
-        </div>
-
         <div className="background">
+          <img src={mainlogo} className="upper-logo"/>
+          <button onClick={goBack} className="back_link">
+            <img src={backlink}/>
+          </button>
           <div className="topics_overlay">
             <div className="card-container" id="topicsDiv">
               {topics.num > 0 ? (
                   topics.topics.map((topic) => (
-                      <div className="card" id={`topic${topic.topicId}`}
-                           onClick={() => toggleVote(topic.topicId)}>
-                        <button className="card-button" onClick={() => deleteTopic(topic.topicId)}>
-                          X
-                        </button>
-                        <div className="card-body">
-                          <h3 className="card-text">{topic.title}</h3>
-                          <span className="card-text">좋아요 : {topic.voteNum === undefined ? 0 : topic.voteNum}</span>
-                        </div>
+                      <div className={`post-it post-it-${topic.topicId%4}`} id={`topic${topic.topicId}`} onClick={() => toggleVote(topic.topicId)}>
+                        {userId === leaderId || userId === topic.memberId ?
+                            <button className="delete-btn"  onClick={(e) => handleDeleteClick(e,topic.topicId)}>
+                              X
+                            </button> : <></>
+                        }
+                        {topic.topic}
+                        <ThumbUp thumbsCount={topic.voteNum === undefined ? 0 : topic.voteNum}/>
                       </div>
                   ))
               ) : (
                   <h2 id="notExsistTopicH">해당 방의 주제가 없습니다.</h2>
               )}
-            </div>
-            <div>
-              <button onClick={() => setAddModal(true)} className="add_topic">
-                주제 추가
-              </button>
+              <div>
+                <button onClick={() => setAddModal(true)} className="add_topic">
+                  +
+                </button>
+              </div>
             </div>
           </div>
 
           {addModal && (
-              <div className="modal">
-                <div className="modal_overlay">
-                  <div className="modal_content">
-                    <label className="modal_label">주제 추가</label>
-                    <input className="modal_input" id="topicTitleInput" type="text"/>
-                    <button onClick={() => addTopic()}>
+              <div className="topic-modal-overlay">
+                <div className="topic-modal-content" onClick={(e) => e.stopPropagation()}>
+                  <button className="topic-close-button" onClick={() => setAddModal(false)}> X</button>
+                  <h2 className="topic-modal-title">주제 등록하기</h2>
+                  <input className="topic-write-input" id="topicTitleInput" type="text"/>
+                  <div className="topic-write-buttons">
+                    <button className="topic-write-button" onClick={() => addTopic()}>
                       등록하기
                     </button>
                   </div>
@@ -216,25 +262,28 @@ const Topic = () => {
               </div>
           )}
 
-          <button>
-            <img className="chat_image" onClick={() => setChatModal(true)} src={chatImage} alt="채팅창 이미지"/>
-          </button>
-
-          {chatModal && (
-              <div className="chat-overlay">
-                <div className="chat-content">
-                  <button className="chat-close-button" onClick={() => setChatModal(false)}> X</button>
-                </div>
-              </div>
-          )}
+          <div>
+            <button className="chat-button" onClick={toggleChatModal}>
+              <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
+            </button>
+            <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
+              {chatModal && <ChatPage/>}
+            </div>
+          </div>
 
           <div className="process">
-            <div>주제 선정</div>
+            <div className="active" onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
+              주제 선정
+            </div>
             <div onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>
               자료 조사
             </div>
-            <div>발표 자료</div>
-            <div>발표 준비</div>
+            <div onClick={() => goSection('/presentation', `/sub/rooms/${roomId}/presentation`)}>
+              발표 자료
+            </div>
+            <div onClick={() => goSection('/script', `/sub/rooms/${roomId}/scripts`)}>
+              발표 준비
+            </div>
           </div>
         </div>
 
