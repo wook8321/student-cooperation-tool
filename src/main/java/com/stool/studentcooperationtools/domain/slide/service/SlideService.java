@@ -73,6 +73,7 @@ public class SlideService {
         List<Slide> slideList = futures.stream()
                 .map(CompletableFuture::join)
                 .collect(Collectors.toList());
+        slideRepository.deleteByPresentationId(presentationId);
         slideRepository.saveAll(slideList);
         } catch(IOException e) {
             throw new IllegalStateException(e.getMessage(), e.getCause());
