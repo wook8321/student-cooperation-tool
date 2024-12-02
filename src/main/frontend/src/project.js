@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import {Link, useLocation} from 'react-router-dom';
 import axios from "axios";
 import userImage from "./images/user.svg"
 import "./project.css";
@@ -21,6 +21,8 @@ const RoomList = ({setCreateModal}) => {
     const navigate = useNavigate();
     const [userId, setUserId] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const location = useLocation();
+    const {presentationId} = location.state || {};
     //유저 id 들고오기(소켓에서 활용)
     const userFetch = async () => {
         try {
@@ -62,10 +64,6 @@ const RoomList = ({setCreateModal}) => {
                     roomId,
                 },
             });
-            const roomCard = document.getElementById('room' + `${roomId}`);
-            if (roomCard) {
-                roomCard.remove(); // DOM에서 카드 제거
-            }
             fetchRooms(currentPage); // 방 목록 다시 불러오기
         } catch (error) {
             alert("프로젝트를 삭제하지 못했습니다.");
@@ -86,15 +84,17 @@ const RoomList = ({setCreateModal}) => {
             .then((res) =>{
                 const leaderId = res.data.data.leaderId
                 if(leaderId){
+                    const state = {
+                        roomId,
+                        subUrl: `/sub/rooms/${roomId}/topics`,
+                        userId,
+                        leaderId
+                    };
+                    if(presentationId!=null){
+                        state.presentationId = presentationId;
+                    }
                     //비밀 번호가 맞다면, 방을 입장
-                    navigate('/topic', {
-                        state: {
-                            roomId,
-                            subUrl: `/sub/rooms/${roomId}/topics`,
-                            userId,
-                            leaderId
-                        }
-                    });
+                    navigate('/topic', {state});
                     closeEnterModal()
                 }
             })
@@ -207,7 +207,7 @@ const RoomList = ({setCreateModal}) => {
                             </button>
                         </div>
                     </>
-                ) : <h1 style={{textAlign: "center"}} id="notExistH">
+                ) : <h1 style={{textAlign: "center", marginTop: "50px", padding: "20px"}} id="notExistH">
                     <div>
                         <img src={emptyBox} height="200" width="200"/>
                     </div>
@@ -238,6 +238,8 @@ const Project = () => {
   const navigate = useNavigate();
   const [enterRoomTitle, setEnterRoomTitle] = useState("");
   const [userId, setUserId] = useState(null);
+  const location = useLocation();
+  const {presentationId} = location.state || {};
   useEffect(() => {
       const roomCardToDelete = document.querySelector(`li[key="${deleteRoomId}"]`);
       if (roomCardToDelete) {
@@ -335,15 +337,17 @@ const Project = () => {
             .then((res) =>{
                 const leaderId = res.data.data.leaderId
                 if(leaderId){
+                    const state = {
+                        roomId,
+                        subUrl: `/sub/rooms/${roomId}/topics`,
+                        userId,
+                        leaderId
+                    };
+                    if(presentationId!=null){
+                        state.presentationId = presentationId;
+                    }
                     //비밀 번호가 맞다면, 방을 입장
-                    navigate('/topic', {
-                        state: {
-                            roomId,
-                            subUrl: `/sub/rooms/${roomId}/topics`,
-                            userId,
-                            leaderId
-                        }
-                    });
+                    navigate('/topic', {state});
                     closeEnterModal()
                 }
             })
@@ -507,7 +511,6 @@ const Project = () => {
   }
         return (
             <div className="container">
-                <Footer/>
                 <main>
                     <form className="search_box" onSubmit={(e) => e.preventDefault()}>
                         <input id="roomSearchInput" className="project_search_txt" type="text"
@@ -517,7 +520,8 @@ const Project = () => {
                         </button>
                     </form>
                         <RoomList setCreateModal={setCreateModal}/>
-
+                </main>
+                <Footer/>
                         {searchModal && (
                             <div className="add_project_container">
                                 <div className="modal_overlay" onClick={closeSearchModal}>
@@ -611,7 +615,6 @@ const Project = () => {
                                 </div>
                             </div>
                         )}
-                </main>
 
                 {enterModal && (
                     <div className="enter_modal_overlay" onClick={closeEnterModal}>

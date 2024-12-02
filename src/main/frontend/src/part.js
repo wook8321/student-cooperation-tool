@@ -20,7 +20,7 @@ const Part = () => {
     const [partName, setPartName] = useState("")
     const [selectedMemberId, setSelectedMemberId] = useState(null);
     const [participation, setParticipation] = useState({ num: 0, participation: [] });
-    const {stompClient, isConnected, roomId} = useWebSocket(); // WebSocket 연결 관리
+    const {stompClient, isConnected, roomId, userId, leaderId, presentationId} = useWebSocket(); // WebSocket 연결 관리
     const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
     const navigate = useNavigate();
     const [filePreviewModal, setFilePreviewModal] = useState(false)
@@ -597,12 +597,26 @@ const Part = () => {
     // ================================================================================================
 
     const goSection = (path, subUrl) => {
-        alert(path + " " + subUrl)
-        navigate(path, {state: {
-                roomId,
-                subUrl: subUrl
-            }})
+        const state = {
+            roomId,
+            subUrl: subUrl,
+            userId,
+            leaderId,
+        };
+        if (presentationId != null) {
+            state.presentationId = presentationId;
+        }
+        navigate(path, {state})
     }
+
+    //뒤로가기
+    const goBack = () => {
+        const state = {};
+        if (presentationId != null) {
+            state.presentationId = presentationId;
+        }
+        navigate("/project", {state}); // "/project" 경로로 이동
+    };
 
     if (!isConnected) {
         // 연결 중인 상태일 때는 로딩 상태로
@@ -617,6 +631,7 @@ const Part = () => {
     return (
     <>  <div className="part-background">
             <div className="part-main">
+             <button onClick={goBack} className="back_link">🔙</button>
                 {parts.parts.map((part) => (
                     <div className="part-card" key={part.partId}>
                         <div className="part-header">
@@ -626,7 +641,6 @@ const Part = () => {
                                 <Dropdown part={part}/>
                             </div>
                         </div>
-
                         <div className="part-title">{part.partName}</div>
 
                         <div className="file-list-container">
@@ -658,7 +672,6 @@ const Part = () => {
                     +
                 </button>
             </div>
-
         <div>
             <button className="chat-button" onClick={toggleChatModal}>
                 <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
@@ -668,12 +681,13 @@ const Part = () => {
             </div>
         </div>
 
-            {filePreviewModal &&(
+            {filePreviewModal && (
                 <div className="filepreview-modal-overlay">
                     <div className="filepreview-modal-container">
                         <h2>파일 미리보기</h2>
-                        <button className="filepreview-modal-close" onClick={() => setFilePreviewModal(false)}>X</button>
-                        <PreviewFile fileUrl={fileUrl} fileType={fileType} />
+                        <button className="filepreview-modal-close" onClick={() => setFilePreviewModal(false)}>X
+                        </button>
+                        <PreviewFile fileUrl={fileUrl} fileType={fileType}/>
                     </div>
                 </div>
             )}
@@ -690,9 +704,7 @@ const Part = () => {
                                        onChange={(e) => setPartName(e.target.value)}
                                        placeholder="역할 이름을 입력하세요"/>
                             </div>
-
                             <div className="part-title">역할을 맡은 사람</div>
-
                             <div className="participation-list-container">
                                 {participation.num > 0 ?
                                     (participation.participation.map((p) => (
@@ -715,13 +727,18 @@ const Part = () => {
                 </div>
             )}
 
-            <div className="process">
-                <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
-                    자료 조사
-                </div>
-                <div>자료 조사</div>
-                <div>발표 자료</div>
-                <div>발표 준비</div>
+        <div className="process">
+            <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
+                주제 선정
+            </div>
+            <div onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>
+                자료 조사
+            </div>
+            <div onClick={() => goSection('/presentation', `/sub/rooms/${roomId}/presentation`)}>
+                발표 자료
+            </div>
+            <div onClick={() => goSection('/script', `/sub/rooms/${roomId}/scripts`)}>
+                발표 준비
             </div>
         </div>
     </>

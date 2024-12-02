@@ -14,7 +14,7 @@ const PPT = () => {
   const [pptData, setPPTData] = useState(null); // get한 ppt 데이터 저장 공간
   const [editModal, setEditModal] = useState(false); // ppt 수정 모달
   const [chatModal, setChatModal] = useState(false);
-  const {stompClient, isConnected, roomId, userId, leaderId} = useWebSocket();
+  const {stompClient, isConnected, roomId, userId, leaderId, presentationId} = useWebSocket();
   const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
   const navigate = useNavigate();
   const [isValid, setIsValid] = useState(false);
@@ -23,6 +23,7 @@ const PPT = () => {
   const isLeader = (userId === leaderId);
   const [errorMessage, setErrorMessage] = useState('');
   const [newPath, setNewPath] = useState('');
+  const [newPPTId, setNewPPTId] = useState(null);
   // 방의 PPT를 가져오는 함수
   const fetchPPT = () => {
       axios.get(`${domain}/api/v1/rooms/${roomId}/presentation`)
@@ -37,16 +38,30 @@ const PPT = () => {
                 }
             });
   }
+
+  //PPT 생성/등록 후 슬라이드 및 스크립트 생성
+  useEffect(() => {
+      if(newPPTId) {
+          axios.post(`${domain}/api/v1/presentation/${newPPTId}/slides`)
+              .then(()=>{
+                  console.log('success to create slides');}
+              )
+              .catch((error) => {
+                  alert(error.message);
+              })
+      }
+    }, [newPPTId]);
   //=============================================웹소켓========================================================
   const receiveMessage = (message) => {
       //3-1 구독한 url에서 온 메세지를 받았을 때
       const frame = JSON.parse(message.body)
       if (frame.messageType === "PRESENTATION_UPDATE") {
           setIsLoading(false);
-          updatePPTInScreen(frame.data)
+          updatePPTInScreen(frame.data);
+          setNewPPTId(frame.data.presentationId);
       } else if (frame.messageType === "PRESENTATION_CREATE") {
           setIsLoading(false);
-          createPPTInScreen(frame.data)
+          createPPTInScreen(frame.data);
       } else {
           console.log("Not Supported Message Type")
       }
@@ -173,15 +188,45 @@ const PPT = () => {
         window.location.href = pptURL;
     }
   //==============================================================================
-  //뒤로가기
-  const goBack = () => {
-    navigate("/project"); // "/project" 경로로 이동
-  };
+    //뒤로가기
+    const goBack = () => {
+        const state = {};
+        if (presentationId != null) {
+            state.presentationId = presentationId;
+        }
+        navigate("/project", {state}); // "/project" 경로로 이동
+    };
 
   //채팅창 토글로 구현
   const toggleChatModal = () => {
         setChatModal((prevState) => !prevState);
   };
+
+  const handleCreateKeyPress = (e) => {
+    if (e.key === "Enter") {
+        createPPT();
+    }
+  };
+
+  const handleEditKeyPress = (e) => {
+      if (e.key === "Enter") {
+          editPPT();
+      }
+  }
+
+    const goSection = (path, subUrl) => {
+      const state = {
+          roomId,
+          subUrl: subUrl,
+          userId,
+          leaderId,
+      };
+      if(pptData != null) {
+          state.presentationId = pptData.presentationId;
+      }
+      navigate(path, {state})
+
+    }
 
   useEffect(() => {
       fetchPPT();
@@ -189,40 +234,42 @@ const PPT = () => {
 
   return (
       <div className="background">
-          <button onClick={goBack} className="back_link">뒤로 가기</button>
+          <button onClick={goBack} className="back_link">🔙</button>
           <div className="ppt-container">
               {!pptData ? (
                   <div className="no-ppt-container">
-                      <img src={pptImage} className="empty-thumbnail" alt="빈 썸네일" />
+                      <img src={pptImage} className="empty-thumbnail" alt="빈 썸네일"/>
                       <p className="no-ppt-text">
-                          팀장을 통해 새로운 발표자료를 생성해 보세요!<br />
+                          팀장을 통해 새로운 발표자료를 생성해 보세요!<br/>
                           생성된 발표자료는 미리보기 클릭 후 구글 드라이브에서 확인할 수 있습니다.
                       </p>
                       {isLeader && (
-                      <div className="button-group">
-                          <button className="create-ppt-btn" onClick={() => setPPTModal(true)}>새 슬라이드 생성</button>
-                          <button className="edit-ppt-btn" onClick={() => setEditModal(true)}>기존 슬라이드 등록</button>
-                      </div>
-                          )}
+                          <div className="button-group">
+                              <button className="create-ppt-btn" onClick={() => setPPTModal(true)}>새 슬라이드 생성</button>
+                              <button className="edit-ppt-btn" onClick={() => setEditModal(true)}>기존 슬라이드 등록</button>
+                          </div>
+                      )}
                   </div>
               ) : (
                   <div className="ppt-content">
-                          <img
-                              src={'https://drive.google.com/thumbnail?id='+pptData.presentationPath}
-                              alt="PPT 썸네일"
-                              className="main-thumbnail"
-                              onClick={() => {
-                                  const slideUrl = `https://docs.google.com/presentation/d/${pptData.presentationPath}`;
-                                  window.open(slideUrl, "_blank");
-                              }}
-                          />
+                      <img
+                          src={'https://drive.google.com/thumbnail?id=' + pptData.presentationPath}
+                          alt="PPT 썸네일"
+                          className="main-thumbnail"
+                          onClick={() => {
+                              const slideUrl = `https://docs.google.com/presentation/d/${pptData.presentationPath}`;
+                              window.open(slideUrl, "_blank");
+                          }}
+                      />
                       <div className="bookmark-buttons">
                           <button className="download-pdf-btn" onClick={downloadPDF}>PDF로 다운로드</button>
                           <button className="download-ppt-btn" onClick={downloadPPT}>PPT로 다운로드</button>
                           {isLeader && (
                               <>
-                                  <button className="create-ppt-after-btn" onClick={() => setPPTModal(true)}>새 슬라이드 생성</button>
-                                  <button className="edit-ppt-after-btn" onClick={() => setEditModal(true)}>기존 슬라이드 등록</button>
+                                  <button className="create-ppt-after-btn" onClick={() => setPPTModal(true)}>새 슬라이드 생성
+                                  </button>
+                                  <button className="edit-ppt-after-btn" onClick={() => setEditModal(true)}>기존 슬라이드 등록
+                                  </button>
                               </>
                           )}
                       </div>
@@ -230,22 +277,23 @@ const PPT = () => {
               )}
           </div>
 
-              {isLoading && (
-                  <div className="loading-overlay">
-                      <div className="spinner"></div>
-                      <p>Loading...</p>
-                  </div>
-              )}
+          {isLoading && (
+              <div className="loading-overlay">
+                  <div className="spinner"></div>
+                  <p>Loading...</p>
+              </div>
+          )}
 
-              {pptModal && (
-                  <div className="ppt-modal-overlay" onClick={closePPTModal}>
-                  <div className="ppt-modal" onClick={(e)=>e.stopPropagation()}>
+          {pptModal && (
+              <div className="ppt-modal-overlay" onClick={closePPTModal}>
+                  <div className="ppt-modal" onClick={(e) => e.stopPropagation()}>
                       <h2>PPT 생성</h2>
                       <p>생성 할 ppt 제목을 아래에 작성해주세요.</p>
                       <input className="ppt-input"
-                          type="text"
-                          value={newPPTName}
-                          onChange={(e) => setNewPPTName(e.target.value)}
+                             type="text"
+                             value={newPPTName}
+                             onKeyPress={handleCreateKeyPress}
+                             onChange={(e) => setNewPPTName(e.target.value)}
                       />
                       <button className="register-btn" onClick={createPPT}>
                           생성
@@ -254,58 +302,57 @@ const PPT = () => {
                           X
                       </button>
                   </div>
-                  </div>
-              )}
+              </div>
+          )}
 
-              {editModal && (
-                  <div className="ppt-modal-overlay" onClick={closeEditModal}>
-                      <div className="ppt-modal" onClick={(e)=>e.stopPropagation()}>
-                          <h2>PPT 등록</h2>
-                          <p>등록 할 슬라이드 url을 아래에 붙여넣기 해주세요.</p>
-                          <input className="ppt-input"
-                                 type="text"
-                                 value={newPPTName}
-                                 onChange={(e) => setNewPPTName(e.target.value)}
-                          />
-                          {errorMessage && (
-                              <p className="error-message">{errorMessage}</p>
-                          )}
-                          <button className="register-btn" onClick={editPPT}>
-                              등록
-                          </button>
-                          <button className="close-modal-btn" onClick={closeEditModal}>
-                              X
-                          </button>
-                      </div>
-                  </div>
+          {editModal && (
+              <div className="ppt-modal-overlay" onClick={closeEditModal}>
+                  <div className="ppt-modal" onClick={(e) => e.stopPropagation()}>
+                      <h2>PPT 등록</h2>
+                      <p>등록 할 슬라이드 url을 아래에 붙여넣기 해주세요.</p>
+                      <input className="ppt-input"
+                             type="text"
+                             value={newPPTName}
+                             onKeyPress={handleEditKeyPress}
+                             onChange={(e) => setNewPPTName(e.target.value)}
+                      />
+                      {errorMessage && (
+                          <p className="error-message">{errorMessage}</p>
                       )}
-
-
-                      <div className="process-container">
-                          <div className="process-step">
-                              <div className="process-text">주제 선정</div>
-                          </div>
-                          <div className="process-step">
-                              <div className="process-text">자료 조사</div>
-                          </div>
-                          <div className="process-step">
-                              <div className="process-text">발표 자료</div>
-                          </div>
-                          <div className="process-step">
-                              <div className="process-text">발표 준비</div>
-                          </div>
-                      </div>
-
-                      <div>
-                          <button className="chat-button" onClick={toggleChatModal}>
-                              <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
-                          </button>
-                          <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
-                              {chatModal && <ChatPage/>}
-                          </div>
-                      </div>
+                      <button className="register-btn" onClick={editPPT}>
+                          등록
+                      </button>
+                      <button className="close-modal-btn" onClick={closeEditModal}>
+                          X
+                      </button>
                   </div>
-              );
-              };
+              </div>
+          )}
+          <div>
+              <button className="chat-button" onClick={toggleChatModal}>
+                  <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
+              </button>
+              <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
+                  {chatModal && <ChatPage/>}
+              </div>
+          </div>
 
-          export default PPT;
+          <div className="process">
+              <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
+                  주제 선정
+              </div>
+              <div onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>
+                  자료 조사
+              </div>
+              <div onClick={() => goSection('/presentation', `/sub/rooms/${roomId}/presentation`)}>
+                  발표 자료
+              </div>
+              <div onClick={() => goSection('/script', `/sub/rooms/${roomId}/scripts`)}>
+                  발표 준비
+              </div>
+          </div>
+      </div>
+  );
+};
+
+export default PPT;

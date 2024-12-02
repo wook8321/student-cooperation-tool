@@ -14,7 +14,7 @@ export const WebSocketProvider = ({ children }) => {
     const [isConnected, setIsConnected] = useState(false);
     const stompClient = useRef(null);
     const location = useLocation();
-    const { roomId, subUrl, userId, leaderId } = location.state || {};
+    const { roomId, subUrl, userId, leaderId, presentationId } = location.state || {};
     const onStompError = (error) => {
         //2-2 연결 실패의 경우
         alert("방 입장에 실패하였습니다.");
@@ -43,7 +43,7 @@ export const WebSocketProvider = ({ children }) => {
     }, []);
 
     return (
-        <WebSocketContext.Provider value={{ stompClient, isConnected, roomId, userId, leaderId}}>
+        <WebSocketContext.Provider value={{ stompClient, isConnected, roomId, userId, leaderId, presentationId}}>
             {children}
         </WebSocketContext.Provider>
     );

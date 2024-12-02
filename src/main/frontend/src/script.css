@@ -1,0 +1,130 @@
+.slide-view-container {
+  width: 60%;
+  max-width: 1200px;
+  height: 50%;
+  background-color: #fff;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.slide-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.slides-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+}
+
+.slide-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 20px;
+}
+
+.slide-thumbnail {
+  width: 400px;
+  height: 400px;
+  overflow: hidden;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.slide-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* 여백 없애고 이미지 비율 맞추기 */
+}
+
+.slide-script {
+  margin-left : 50px;
+  width: 400px;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+h4 {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+textarea {
+  width: 80%;
+  padding: 10px;
+  margin: 10px 0;
+  height: 400px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  resize: none;
+  box-sizing: border-box;
+}
+
+.save-btn {
+  align-self: flex-end;
+  background-color: #f0e8e1; /* 파스텔톤 */
+  color: #4CAF50; /* 버튼 텍스트 컬러 */
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.save-btn:hover {
+  background-color: #e0d1a1; /* 호버 색상 */
+}
+
+/* 페이지 버튼 스타일 */
+.pagination-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px; /* 버튼들 간의 간격 좁히기 */
+}
+
+.pagination-buttons button {
+  background-color: #f0e8e1; /* 파스텔톤 */
+  color: #4CAF50; /* 버튼 텍스트 컬러 */
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.pagination-buttons button:hover {
+  background-color: #e0d1a1; /* 호버 색상 */
+}
+
+.page-select select {
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+/* 새로고침 버튼 스타일 */
+.refresh-btn {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  background-color: transparent;
+  color: #333;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  transition: background-color 0.3s ease;
+}

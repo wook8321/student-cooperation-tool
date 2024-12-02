@@ -15,7 +15,6 @@ main {
     min-height: 100vh;
     background: linear-gradient(135deg, #f9f9f9, #faf7f7, #f1cac1); /* 그라데이션 추가 */
     padding: 20px;
-    margin-left: 100px;
 }
 
 /* Sidebar 스타일 */
@@ -114,6 +113,7 @@ footer > a > img:hover {
 }
 
 .header-container {
+    margin-left: 100px;
     display: flex; /* 수평 정렬 */
     align-items: center; /* 세로축 가운데 정렬 */
     margin-bottom: 20px; /* 아래쪽 여백 */
