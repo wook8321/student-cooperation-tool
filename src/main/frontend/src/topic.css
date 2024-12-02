@@ -1,9 +1,3 @@
-.background {
-    background: linear-gradient(135deg, #f9f9f9, #faf7f7, #f1cac1); /* 그라데이션 추가 */
-    height: 100vh;
-    padding: 20px;
-}
-
 .add_topic {
     font-size: 24px;
     color: #fff;
@@ -103,12 +97,12 @@
     display: flex;
     align-items: center;
 }
-  
+
 .like-image {
     width: 20px;
     height: 20px;
 }
-  
+
 .like-count {
     font-size: 10px;
     padding-left: 3px;
