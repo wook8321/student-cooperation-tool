@@ -115,7 +115,6 @@ const Topic = () => {
   };
 
   const deleteTopic = (topicId) => {
-    alert(topicId + "번 삭제하기")
     const data = {
       roomId : roomId,
       topicId : topicId
