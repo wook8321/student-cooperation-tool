@@ -224,6 +224,7 @@ const Script = () => {
                               <div className="slide-script">
                                   <h4>슬라이드 {currentPage + 1}</h4>
                                   <textarea
+                                      className="script-textarea"
                                       value={newScripts[slides[currentPage].slideId] || ""}
                                       onChange={(e) =>
                                           handleScriptChange(
