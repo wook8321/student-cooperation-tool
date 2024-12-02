@@ -9,6 +9,7 @@ import chatImage from './images/chat.svg';
 import pptImage from './images/ppt.svg';
 import {domain} from "./domain";
 import mainlogo from "./images/mainlogo.png";
+import backlink from "./images/back.svg";
 
 const PPT = () => {
   const [pptModal, setPPTModal] = useState(false); // ppt 생성 클릭 시 나오는 모달
@@ -236,7 +237,9 @@ const PPT = () => {
   return (
       <div className="background">
           <img src={mainlogo} className="upper-logo"/>
-          <button onClick={goBack} className="back_link">🔙</button>
+          <button onClick={goBack} className="back_link">
+              <img src={backlink}/>
+          </button>
           <div className="ppt-container">
               {!pptData ? (
                   <div className="no-ppt-container">

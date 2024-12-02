@@ -8,6 +8,7 @@ import chatImage from './images/chat.svg';
 import {domain} from "./domain";
 import ChatPage from "./chatroom";
 import mainlogo from "./images/mainlogo.png";
+import backlink from "./images/back.svg"
 
 const Topic = () => {
   const [topics, setTopics] = useState({num: 0, topics: []});
@@ -219,7 +220,9 @@ const Topic = () => {
       <>
         <div className="background">
           <img src={mainlogo} className="upper-logo"/>
-          <button onClick={goBack} className="back_link">🔙</button>
+          <button onClick={goBack} className="back_link">
+            <img src={backlink}/>
+          </button>
           <div className="topics_overlay">
             <div className="card-container" id="topicsDiv">
               {topics.num > 0 ? (

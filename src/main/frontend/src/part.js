@@ -12,6 +12,7 @@ import "./part-add-modal.css"
 import chatImage from "./images/chat.svg";
 import ChatPage from "./chatroom";
 import mainlogo from "./images/mainlogo.png";
+import backlink from "./images/back.svg";
 
 
 //
@@ -633,7 +634,9 @@ const Part = () => {
     <>
         <div className="part-background">
             <img src={mainlogo} className="upper-logo"/>
-            <button onClick={goBack} className="back_link">🔙</button>
+            <button onClick={goBack} className="back_link">
+                <img src={backlink}/>
+            </button>
             <div className="part-main">
                 {parts.parts.map((part) => (
                     <div className="part-card" key={part.partId}>
