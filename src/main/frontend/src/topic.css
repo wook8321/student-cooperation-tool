@@ -10,10 +10,55 @@
 
 .process {
     position: fixed;
+    border: none;
     bottom: 20px;
     width: 100%;
     display: flex;
-    justify-content: space-around
+    justify-content: space-around;
+    background-color: transparent;
+    padding: 10px 0;
+}
+
+.process div {
+    flex: 1;
+    margin: 0 10px;
+    padding: 10px 15px;
+    background-color: #ffffff; /* 기본 버튼 배경: 흰색 */
+    border: 2px solid #b2c9db; /* 기본 테두리: 차분한 블루 */
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    color: #4a4a4a; /* 텍스트 색상: 짙은 회색 */
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s, color 0.3s;
+}
+
+.process div:hover {
+    background-color: #d8e7f0; /* 마우스 오버 시 배경색: 연한 블루 */
+    color: #2d4a60; /* 텍스트 색상: 짙은 블루 */
+    transform: translateY(-2px);
+}
+
+.process div.active {
+    background-color: #a8c6a1; /* 활성화된 단계 배경색: 차분한 그린 */
+    color: #ffffff; /* 텍스트 색상: 흰색 */
+    border: 2px solid #7da57a; /* 활성화된 단계 테두리: 짙은 그린 */
+    box-shadow: 0 0 8px rgba(168, 198, 161, 0.8); /* 약간의 발광 효과 */
+}
+
+.process div:active {
+    transform: translateY(0); /* 클릭 시 눌림 효과 */
+}
+
+/* 반응형 디자인 */
+@media (max-width: 600px) {
+    .process {
+        flex-direction: column;
+        bottom: 10px;
+    }
+    .process div {
+        margin: 5px 0;
+    }
 }
 
 .topics_overlay {

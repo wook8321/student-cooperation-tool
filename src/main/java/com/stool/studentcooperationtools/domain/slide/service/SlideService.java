@@ -49,7 +49,6 @@ public class SlideService {
         try {
             Presentation response = service.presentations().get(presentationPath).execute();
             List<Page> slides = response.getSlides();
-            List<Script> scripts = new ArrayList<>();
             List<CompletableFuture<Slide>> futures = slides.stream()
                     .map(slide -> CompletableFuture.supplyAsync(() -> {
                         String objectId = slide.getObjectId();
@@ -63,7 +62,6 @@ public class SlideService {
                                 .script("")
                                 .presentation(presentation)
                                 .build();
-                        scripts.add(script);
                         return Slide.builder()
                                 .slideUrl(objectId)
                                 .presentation(presentation)
@@ -75,7 +73,6 @@ public class SlideService {
         List<Slide> slideList = futures.stream()
                 .map(CompletableFuture::join)
                 .collect(Collectors.toList());
-        scriptRepository.saveAll(scripts);
         slideRepository.saveAll(slideList);
         } catch(IOException e) {
             throw new IllegalStateException(e.getMessage(), e.getCause());

@@ -508,12 +508,6 @@ h3, h2 {
     padding: 20px;
 }
 
-#notExistH img {
-    width: 150px;  /* 이미지 크기 조절 */
-    height: 150px;
-    margin-bottom: 15px;
-}
-
 #roomsListH {
     display: flex;
     gap: 10px; /* 좌우로 요소 배치 */

@@ -29,7 +29,7 @@ class ScriptWebSocketControllerTest extends WebsocketTestSupport {
         //given
         Long roomId = 1L;
         Long scriptId = 1L;
-        String ScriptUpdateSubUrl = "/sub/rooms/%d/presentation".formatted(roomId);
+        String ScriptUpdateSubUrl = "/sub/rooms/%d/scripts".formatted(roomId);
         ScriptUpdateSocketRequest request = ScriptUpdateSocketRequest.builder()
                 .scriptId(scriptId)
                 .script("s")
@@ -42,7 +42,7 @@ class ScriptWebSocketControllerTest extends WebsocketTestSupport {
         Mockito.when(scriptService.updateScript(Mockito.any(ScriptUpdateSocketRequest.class))).thenReturn(response);
         stompSession.subscribe(ScriptUpdateSubUrl, resultHandler);
         //when
-        stompSession.send("/pub/script/update", request);
+        stompSession.send("/pub/scripts/update", request);
         WebsocketResponse result = resultHandler.get(1);
         //then
         assertThat(stompSession.isConnected()).isTrue();

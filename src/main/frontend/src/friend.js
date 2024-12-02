@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import searchIcon from "./images/search.svg";
 import personHeart from "./images/PersonHearts.svg"
+import friendship from "./images/friendship.svg"
 import {domain} from "./domain";
 import "./friend.css";
 import "./scrollbar.css"
 import "./bar.css"
 import "./juaFont.css"
 import Footer from "./footer";
+import mainlogo from "./images/mainlogo.png";
 
 
 const FriendsList = () => {
@@ -47,7 +49,7 @@ const FriendsList = () => {
                     </ul>
                 ) : <h1 style={{textAlign : "center", width: "1000px"}} id="notExistH">
                     <div>
-                        <img src={personHeart} height="200" width="200"/>
+                        <img src={friendship} height="300" width="300"/>
                     </div>
                     아직 등록된 친구가 없네요. 친구들을 찾아 볼까요?
                 </h1>}
@@ -129,6 +131,7 @@ const Friend = () => {
     return (
         <div className="container">
             <div className="friend-main">
+                <img src={mainlogo} className="under-logo"/>
                 <form className="search_box" onSubmit={(e) => e.preventDefault()}>
                     <input className="friend_search_txt" type="text" placeholder="친구 이름을 입력하세요." value={searchText}
                            onChange={(e) => setSearchText(e.target.value)}/>

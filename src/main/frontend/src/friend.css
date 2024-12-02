@@ -192,12 +192,6 @@
 }
 
 
-#notExistH img {
-    width: 150px;  /* 이미지 크기 조절 */
-    height: 150px;
-    margin-bottom: 15px;
-}
-
 /* 반응형 디자인 */
 @media (max-width: 768px) {
     .friend_list ul {

@@ -7,6 +7,8 @@ import './topic.css';
 import chatImage from './images/chat.svg';
 import {domain} from "./domain";
 import ChatPage from "./chatroom";
+import mainlogo from "./images/mainlogo.png";
+import backlink from "./images/back.svg"
 
 const Topic = () => {
   const [topics, setTopics] = useState({num: 0, topics: []});
@@ -217,7 +219,10 @@ const Topic = () => {
   return (
       <>
         <div className="background">
-          <button onClick={goBack} className="back_link">🔙</button>
+          <img src={mainlogo} className="upper-logo"/>
+          <button onClick={goBack} className="back_link">
+            <img src={backlink}/>
+          </button>
           <div className="topics_overlay">
             <div className="card-container" id="topicsDiv">
               {topics.num > 0 ? (
@@ -246,13 +251,13 @@ const Topic = () => {
           {addModal && (
               <div className="topic-modal-overlay">
                 <div className="topic-modal-content" onClick={(e) => e.stopPropagation()}>
-                  <button className="topic-close-button" onClick={() => setAddModal(false)}> X </button>
+                  <button className="topic-close-button" onClick={() => setAddModal(false)}> X</button>
                   <h2 className="topic-modal-title">주제 등록하기</h2>
                   <input className="topic-write-input" id="topicTitleInput" type="text"/>
                   <div className="topic-write-buttons">
-                      <button className="topic-write-button" onClick={() => addTopic()}>
-                        등록하기
-                      </button>
+                    <button className="topic-write-button" onClick={() => addTopic()}>
+                      등록하기
+                    </button>
                   </div>
                 </div>
               </div>
@@ -268,7 +273,7 @@ const Topic = () => {
           </div>
 
           <div className="process">
-            <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
+            <div className="active" onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
               주제 선정
             </div>
             <div onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>

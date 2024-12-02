@@ -102,8 +102,14 @@ public class RoomService {
         else{
             Member teammate = memberRepository.findById(member.getMemberSeq())
                     .orElseThrow(() -> new IllegalArgumentException("유저 정보가 올바르지 않습니다"));
-            delParticipation(member, room);
-            participationRepository.deleteByMemberIdAndRoomId(teammate.getId(), room.getId());
+            if(participationRepository.existsByMemberIdAndRoomId(teammate.getId(), room.getId())){
+                delParticipation(member, room);
+                participationRepository.deleteByMemberIdAndRoomId(teammate.getId(), room.getId());
+            }
+            else{
+                throw new IllegalArgumentException("참여 정보가 없는 유저입니다");
+            }
+
         }
         return true;
     }

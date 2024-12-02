@@ -8,6 +8,8 @@ import ChatPage from "./chatroom";
 import chatImage from './images/chat.svg';
 import pptImage from './images/ppt.svg';
 import {domain} from "./domain";
+import mainlogo from "./images/mainlogo.png";
+import backlink from "./images/back.svg";
 
 const PPT = () => {
   const [pptModal, setPPTModal] = useState(false); // ppt 생성 클릭 시 나오는 모달
@@ -234,7 +236,10 @@ const PPT = () => {
 
   return (
       <div className="background">
-          <button onClick={goBack} className="back_link">🔙</button>
+          <img src={mainlogo} className="upper-logo"/>
+          <button onClick={goBack} className="back_link">
+              <img src={backlink}/>
+          </button>
           <div className="ppt-container">
               {!pptData ? (
                   <div className="no-ppt-container">
@@ -344,7 +349,7 @@ const PPT = () => {
               <div onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>
                   자료 조사
               </div>
-              <div onClick={() => goSection('/presentation', `/sub/rooms/${roomId}/presentation`)}>
+              <div className="active" onClick={() => goSection('/presentation', `/sub/rooms/${roomId}/presentation`)}>
                   발표 자료
               </div>
               <div onClick={() => goSection('/script', `/sub/rooms/${roomId}/scripts`)}>

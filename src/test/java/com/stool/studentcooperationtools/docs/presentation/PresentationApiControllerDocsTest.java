@@ -4,6 +4,7 @@ import com.stool.studentcooperationtools.docs.RestDocsSupport;
 import com.stool.studentcooperationtools.domain.presentation.controller.PresentationApiController;
 import com.stool.studentcooperationtools.domain.presentation.controller.response.PresentationFindResponse;
 import com.stool.studentcooperationtools.domain.presentation.service.PresentationService;
+import com.stool.studentcooperationtools.security.credential.GoogleCredentialProvider;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -23,10 +24,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class PresentationApiControllerDocsTest extends RestDocsSupport {
 
     private PresentationService presentationService = Mockito.mock(PresentationService.class);
-
+    private GoogleCredentialProvider credentialProvider = Mockito.mock(GoogleCredentialProvider.class);
     @Override
     protected Object initController() {
-        return new PresentationApiController(presentationService);
+        return new PresentationApiController(presentationService, credentialProvider);
     }
 
     @Test

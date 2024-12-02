@@ -11,6 +11,8 @@ import "./filepreview-modal.css"
 import "./part-add-modal.css"
 import chatImage from "./images/chat.svg";
 import ChatPage from "./chatroom";
+import mainlogo from "./images/mainlogo.png";
+import backlink from "./images/back.svg";
 
 
 //
@@ -635,13 +637,17 @@ const Part = () => {
     }
 
     return (
-    <>  <div className="part-background">
+    <>
+        <div className="part-background">
+            <img src={mainlogo} className="upper-logo"/>
+            <button onClick={goBack} className="back_link">
+                <img src={backlink}/>
+            </button>
             <div className="part-main">
-             <button onClick={goBack} className="back_link">🔙</button>
                 {parts.parts.map((part) => (
                     <div className="part-card" key={part.partId}>
                         <div className="part-header">
-                            <img className="part-picture" src={part.profile} alt="프로필" />
+                            <img className="part-picture" src={part.profile} alt="프로필"/>
                             <div className="part-nickname">
                                 {part.nickName}
                                 <Dropdown part={part}/>
@@ -662,7 +668,7 @@ const Part = () => {
                                                 </button> : <></>
                                             }
                                             <button className="preview-button"
-                                                    onClick={() => openFilePreviewModal(file.fileUrl,file.fileType)}>
+                                                    onClick={() => openFilePreviewModal(file.fileUrl, file.fileType)}>
                                                 🔍
                                             </button>
                                             <button className="download-button"
@@ -680,14 +686,14 @@ const Part = () => {
                     +
                 </button>
             </div>
-        <div>
-            <button className="chat-button" onClick={toggleChatModal}>
-                <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
-            </button>
-            <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
-                {chatModal && <ChatPage/>}
+            <div>
+                <button className="chat-button" onClick={toggleChatModal}>
+                    <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
+                </button>
+                <div className={`chat-modal ${chatModal ? 'open' : ''}`}>
+                    {chatModal && <ChatPage/>}
+                </div>
             </div>
-        </div>
 
             {filePreviewModal && (
                 <div className="filepreview-modal-overlay">
@@ -701,10 +707,10 @@ const Part = () => {
             )}
 
             {addModal && (
-                <div style={{ textAlign: "center", justifyContent: "center" }} className="part-add-modal-overlay">
+                <div style={{textAlign: "center", justifyContent: "center"}} className="part-add-modal-overlay">
                     <div className="part-add-modal">
                         <button className="close-btn" onClick={() => closeAddModal()}>x</button>
-                        <span className="modal-title" style={{textAlign : "center"}}>역할 추가</span>
+                        <span className="modal-title" style={{textAlign: "center"}}>역할 추가</span>
                         <div className="part-add-modal-content">
                             <div className="part-header">
                                 <label className="modal_label" htmlFor="partName">역할 이름</label>
@@ -717,7 +723,8 @@ const Part = () => {
                                 {participation.num > 0 ?
                                     (participation.participation.map((p) => (
                                         <div id={"part" + p.memberId} className="participation">
-                                            <img className="part-picture" src={p.profile} alt={`${p.nickname}'s profile`} />
+                                            <img className="part-picture" src={p.profile}
+                                                 alt={`${p.nickname}'s profile`}/>
                                             {p.nickName}
                                             <input type="radio" value={p.memberId}
                                                    checked={selectedMemberId === p.memberId}
@@ -735,21 +742,21 @@ const Part = () => {
                 </div>
             )}
 
-        <div className="process">
-            <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
-                주제 선정
-            </div>
-            <div onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>
-                자료 조사
-            </div>
-            <div onClick={() => goSection('/presentation', `/sub/rooms/${roomId}/presentation`)}>
-                발표 자료
-            </div>
-            <div onClick={() => goSection('/script', `/sub/rooms/${roomId}/scripts`)}>
-                발표 준비
+            <div className="process">
+                <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
+                    주제 선정
+                </div>
+                <div className="active" onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>
+                    자료 조사
+                </div>
+                <div onClick={() => goSection('/presentation', `/sub/rooms/${roomId}/presentation`)}>
+                    발표 자료
+                </div>
+                <div onClick={() => goSection('/script', `/sub/rooms/${roomId}/scripts`)}>
+                    발표 준비
+                </div>
             </div>
         </div>
-    </div>
     </>
     );
 }
