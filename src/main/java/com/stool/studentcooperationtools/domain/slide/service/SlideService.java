@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -49,8 +50,9 @@ public class SlideService {
         try {
             Presentation response = service.presentations().get(presentationPath).execute();
             List<Page> slides = response.getSlides();
-            List<CompletableFuture<Slide>> futures = slides.stream()
-                    .map(slide -> CompletableFuture.supplyAsync(() -> {
+            List<CompletableFuture<Slide>> futures = IntStream.range(0, slides.size())
+                    .mapToObj(index -> CompletableFuture.supplyAsync(() -> {
+                        Page slide = slides.get(index); // 해당 인덱스의 슬라이드 가져오기
                         String objectId = slide.getObjectId();
                         Thumbnail thumbnail = null;
                         try {
@@ -67,6 +69,7 @@ public class SlideService {
                                 .presentation(presentation)
                                 .thumbnail(thumbnail.getContentUrl())
                                 .script(script)
+                                .index(index)
                                 .build();
                     }))
                     .toList();
