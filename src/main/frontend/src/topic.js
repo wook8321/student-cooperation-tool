@@ -264,7 +264,7 @@ const Topic = () => {
           </div>
 
           <div className="process">
-            <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
+            <div className="active" onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
               주제 선정
             </div>
             <div onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>

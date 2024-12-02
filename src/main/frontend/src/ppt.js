@@ -344,7 +344,7 @@ const PPT = () => {
               <div onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>
                   자료 조사
               </div>
-              <div onClick={() => goSection('/presentation', `/sub/rooms/${roomId}/presentation`)}>
+              <div className="active" onClick={() => goSection('/presentation', `/sub/rooms/${roomId}/presentation`)}>
                   발표 자료
               </div>
               <div onClick={() => goSection('/script', `/sub/rooms/${roomId}/scripts`)}>

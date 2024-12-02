@@ -309,7 +309,7 @@ const Script = () => {
               <div onClick={() => goSection('/presentation', `/sub/rooms/${roomId}/presentation`)}>
                   발표 자료
               </div>
-              <div onClick={() => goSection('/script', `/sub/rooms/${roomId}/scripts`)}>
+              <div className="active" onClick={() => goSection('/script', `/sub/rooms/${roomId}/scripts`)}>
                   발표 준비
               </div>
           </div>

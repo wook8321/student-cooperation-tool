@@ -731,7 +731,7 @@ const Part = () => {
             <div onClick={() => goSection('/topic', `/sub/rooms/${roomId}/topics`)}>
                 주제 선정
             </div>
-            <div onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>
+            <div className="active" onClick={() => goSection('/part', `/sub/rooms/${roomId}/parts`)}>
                 자료 조사
             </div>
             <div onClick={() => goSection('/presentation', `/sub/rooms/${roomId}/presentation`)}>
