@@ -44,4 +44,9 @@ public class Slide extends BaseTimeEntity {
         this.slideUrl = slideUrl;
         this.index = index;
     }
+
+
+    public void updateIndex(int index) {
+        this.index = index;
+    }
 }
