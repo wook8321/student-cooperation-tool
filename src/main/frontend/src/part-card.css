@@ -7,13 +7,15 @@
     background: linear-gradient(135deg, #f9f9f9, #faf7f7, #f1cac1); /* 그라데이션 추가 */
 }
 .part-main {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3개의 열을 같은 크기로 설정 */
-    gap: 30px; /* 카드들 간의 간격 */
-    justify-content: space-evenly;
-    align-items: center;
-    box-sizing: border-box;
-}
+     display: grid;
+     grid-template-columns: repeat(3, 1fr); /* 3개의 열 */
+     grid-auto-rows: min-content; /* 행 크기를 콘텐츠에 맞게 조정 */
+     gap: 30px; /* 카드 간의 간격 */
+     justify-content: center; /* 수평 가운데 정렬 */
+     align-content: start; /* 전체 컨텐츠 상단 정렬 */
+     padding-top: 10vh; /* 화면 상단에서부터의 여백 (중간 시작) */
+     box-sizing: border-box;
+ }
 
 /* 파트 카드 */
 .part-card {

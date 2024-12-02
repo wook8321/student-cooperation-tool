@@ -227,9 +227,12 @@ const Topic = () => {
             <div className="card-container" id="topicsDiv">
               {topics.num > 0 ? (
                   topics.topics.map((topic) => (
-                      <div className={`post-it post-it-${topic.topicId % 4}`} id={`topic${topic.topicId}`}
-                           onClick={() => toggleVote(topic.topicId)}>
-                        <button className="delete-btn" onClick={(e) => handleDeleteClick(e, topic.topicId)}>X</button>
+                      <div className={`post-it post-it-${topic.topicId%4}`} id={`topic${topic.topicId}`} onClick={() => toggleVote(topic.topicId)}>
+                        {userId === leaderId || userId === topic.memberId ?
+                            <button className="delete-btn"  onClick={(e) => handleDeleteClick(e,topic.topicId)}>
+                              X
+                            </button> : <></>
+                        }
                         {topic.topic}
                         <ThumbUp thumbsCount={topic.voteNum === undefined ? 0 : topic.voteNum}/>
                       </div>
