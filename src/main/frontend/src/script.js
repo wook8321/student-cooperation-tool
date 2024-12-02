@@ -6,7 +6,8 @@ import {Link, useNavigate} from "react-router-dom";
 import ChatPage from "./chatroom";
 import chatImage from './images/chat.svg';
 import {domain} from "./domain";
-import { useWebSocket } from './WebsocketContext'; // WebSocketProvider의 훅 사용
+import { useWebSocket } from './WebsocketContext';
+import mainlogo from "./images/mainlogo.png"; // WebSocketProvider의 훅 사용
 
 
 const Script = () => {
@@ -197,6 +198,7 @@ const Script = () => {
 
   return (
       <div className="background">
+          <img src={mainlogo} className="upper-logo"/>
           <button onClick={goBack} className="back_link">🔙</button>
           <div className="slide-view-container">
               <div className="slide-content">
