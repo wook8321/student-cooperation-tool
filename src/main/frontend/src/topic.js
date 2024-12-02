@@ -123,6 +123,13 @@ const Topic = () => {
       body: JSON.stringify(data)
     })
   }
+
+  const handleDeleteClick = (e,topicId) => {
+    // 클릭 이벤트 전파를 막아 삭제 버튼만 처리하도록 함
+    e.stopPropagation();
+    deleteTopic(topicId); // 부모 컴포넌트의 삭제 함수 호출
+  };
+
   // ================================================ 토픽 생성 ======================================
 
   const updateTopicInScreen = (topic) => {
@@ -151,7 +158,27 @@ const Topic = () => {
   const toggleChatModal = () => {
     setChatModal((prevState) => !prevState);
   };
-  // ==================================================================================================
+  // ============================================포스트 잇 엄지================================================
+
+  const ThumbUp = ({ thumbsCount }) => {
+    const thumbs = Array.from({ length: thumbsCount }, (_, index) => ({
+      id: index + 1,
+      x: Math.random() * 80 + 10, // 10% ~ 90%
+      y: Math.random() * 80 + 10, // 10% ~ 90%
+    }));
+
+    return (
+          thumbs.map((thumb) => (
+              <span
+                  key={thumb.id}
+                  className="thumbs-up"
+                  style={{ left: `${thumb.x}%`, top: `${thumb.y}%` }}>
+          👍
+        </span>
+          ))
+    );
+  };
+
 
   const goSection = (path, subUrl) => {
     const state = {
@@ -195,37 +222,33 @@ const Topic = () => {
             <div className="card-container" id="topicsDiv">
               {topics.num > 0 ? (
                   topics.topics.map((topic) => (
-                      <div className="card" id={`topic${topic.topicId}`}
-                           onClick={() => toggleVote(topic.topicId)}>
-                        <button className="card-button" onClick={() => deleteTopic(topic.topicId)}>
-                          X
-                        </button>
-                        <div className="card-body">
-                          <h3 className="card-text">{topic.title}</h3>
-                          <span className="card-text">좋아요 : {topic.voteNum === undefined ? 0 : topic.voteNum}</span>
-                        </div>
+                      <div className={`post-it post-it-${topic.topicId%4}`} id={`topic${topic.topicId}`} onClick={() => toggleVote(topic.topicId)}>
+                        <button className="delete-btn"  onClick={(e) => handleDeleteClick(e,topic.topicId)}>X</button>
+                        {topic.topic}
+                        <ThumbUp thumbsCount={topic.voteNum === undefined ? 0 : topic.voteNum}/>
                       </div>
                   ))
               ) : (
                   <h2 id="notExsistTopicH">해당 방의 주제가 없습니다.</h2>
               )}
-            </div>
-            <div>
-              <button onClick={() => setAddModal(true)} className="add_topic">
-                주제 추가
-              </button>
+              <div>
+                <button onClick={() => setAddModal(true)} className="add_topic">
+                  +
+                </button>
+              </div>
             </div>
           </div>
 
           {addModal && (
-              <div className="modal">
-                <div className="modal_overlay">
-                  <div className="modal_content">
-                    <label className="modal_label">주제 추가</label>
-                    <input className="modal_input" id="topicTitleInput" type="text"/>
-                    <button onClick={() => addTopic()}>
-                      등록하기
-                    </button>
+              <div className="topic-modal-overlay">
+                <div className="topic-modal-content" onClick={(e) => e.stopPropagation()}>
+                  <button className="topic-close-button" onClick={() => setAddModal(false)}> X </button>
+                  <h2 className="topic-modal-title">주제 등록하기</h2>
+                  <input className="topic-write-input" id="topicTitleInput" type="text"/>
+                  <div className="topic-write-buttons">
+                      <button className="topic-write-button" onClick={() => addTopic()}>
+                        등록하기
+                      </button>
                   </div>
                 </div>
               </div>

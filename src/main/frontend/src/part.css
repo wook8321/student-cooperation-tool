@@ -2,7 +2,6 @@
     align-items: center;
     background: linear-gradient(135deg, #f9f9f9, #faf7f7, #f1cac1); /* 그라데이션 추가 */
 }
-
 .add_modal {
     display: flex;
     justify-content: center;
@@ -12,13 +11,18 @@
 }
 
 .role-add-btn {
-    padding: 10px 20px;
-    font-size: 18px;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
     background-color: #4caf50;
+    padding : 10px;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 50%;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .role-add-btn:hover {
@@ -54,7 +58,7 @@
     text-align: center;
 }
 
-input {
+.input {
     width: 100%;
     padding: 8px;
     margin: 10px 0;

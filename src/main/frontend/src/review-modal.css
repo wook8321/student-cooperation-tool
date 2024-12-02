@@ -21,6 +21,7 @@
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: center;
+    position: relative; /* X 버튼을 모달 내부에 배치하기 위한 기준 */
 }
 
 /* Modal Title */
@@ -97,16 +98,18 @@
     margin-top: 5px;
 }
 
-/* Close Button */
+/* X 버튼 (모달 상단 오른쪽에 위치) */
 .review-close-button {
-    margin-top: 20px;
+    position: absolute; /* 모달의 상위 요소를 기준으로 절대 위치 지정 */
+    top: 10px;  /* 상단 여백 */
+    right: 10px; /* 오른쪽 여백 */
     padding: 10px 20px;
     background: #007bff;
     color: #fff;
     border: none;
-    justify-content: end;
     border-radius: 8px;
     cursor: pointer;
+    z-index: 1; /* 다른 요소들 위로 올리기 */
 }
 
 .review-close-button:hover {
