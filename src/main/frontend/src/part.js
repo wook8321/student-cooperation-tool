@@ -476,14 +476,18 @@ const Part = () => {
                 {isOpen && (
                     <ul className="dropdown-menu">
                         <li>
-                            <button onClick={() => deletePart(part.partId)} className="dropdown-item">
-                                역할 삭제하기
-                            </button>
+                            {userId === leaderId?
+                                <button onClick={() => deletePart(part.partId)} className="dropdown-item">
+                                    역할 삭제하기
+                                </button> : <></>
+                            }
                         </li>
                         <li>
-                            <button className="dropdown-item" onClick={() => openUpdateModal()}>
-                                역할 수정하기
-                            </button>
+                            {userId === leaderId || userId === part.memberId ?
+                                <button className="dropdown-item" onClick={() => openUpdateModal()}>
+                                    역할 수정하기
+                                </button> : <></>
+                            }
                         </li>
                         <li>
                             <button className="dropdown-item" onClick={() => openReviewModal()}>
@@ -491,9 +495,11 @@ const Part = () => {
                             </button>
                         </li>
                         <li>
-                            <button className="dropdown-item" onClick={() => setFileUploadModal(true)}>
-                                파일 올리기
-                            </button>
+                            {userId === leaderId || userId === part.memberId ?
+                                <button className="dropdown-item" onClick={() => setFileUploadModal(true)}>
+                                    파일 올리기
+                                </button> : <></>
+                            }
                         </li>
                     </ul>
                 )}
@@ -506,7 +512,7 @@ const Part = () => {
                             <input id="file-upload" className="file-input" type="file"
                                    onChange={(e) => setUploadingFile(e.target.files[0])}/>
                             <div className="review-write-buttons">
-                                <button className="review-write-button" onClick={() => uploadFile()}>파일 업로드</button>
+                                <button className="review-write-button" onClick={() => uploadFile()}>파일 업로드</button> : <></>
                             </div>
                         </div>
                     </div>
@@ -649,10 +655,12 @@ const Part = () => {
                                     <div className="file-item" key={file.fileId}>
                                         {file.originalName}
                                         <div className="file-buttons">
-                                            <button className="preview-button"
-                                                    onClick={() => deleteFile(file.fileName, file.fileId,part.partId)}>
-                                                X
-                                            </button>
+                                            {userId === leaderId || userId === part.memberId ?
+                                                <button className="preview-button"
+                                                        onClick={() => deleteFile(file.fileName, file.fileId,part.partId)}>
+                                                    X
+                                                </button> : <></>
+                                            }
                                             <button className="preview-button"
                                                     onClick={() => openFilePreviewModal(file.fileUrl,file.fileType)}>
                                                 🔍
