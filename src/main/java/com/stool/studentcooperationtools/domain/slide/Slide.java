@@ -32,21 +32,21 @@ public class Slide extends BaseTimeEntity {
     private Script script;
 
     @Column
-    private int index;
+    private Integer slide_idx;
 
     @Builder
     private Slide(
             final String thumbnail, final Presentation presentation,
-            final Script script,final String slideUrl, final int index) {
+            final Script script,final String slideUrl, final int slide_index) {
         this.thumbnail = thumbnail;
         this.presentation = presentation;
         this.script = script;
         this.slideUrl = slideUrl;
-        this.index = index;
+        this.slide_idx = slide_index;
     }
 
 
     public void updateIndex(int index) {
-        this.index = index;
+        this.slide_idx = index;
     }
 }

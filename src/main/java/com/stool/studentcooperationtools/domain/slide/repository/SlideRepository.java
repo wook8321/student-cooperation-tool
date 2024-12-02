@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface SlideRepository extends JpaRepository<Slide, Long> {
 
-    @Query(value = "select s from Slide s join fetch s.script where s.presentation.id = :presentationId order by s.index")
+    @Query(value = "select s from Slide s join fetch s.script where s.presentation.id = :presentationId order by s.slide_idx")
     List<Slide> findSlidesAndScriptsByPresentationId(@Param("presentationId") Long presentationId);
 
     @Modifying

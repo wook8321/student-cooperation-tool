@@ -70,7 +70,7 @@ public class SlideService {
                                 .presentation(presentation)
                                 .thumbnail(thumbnail.getContentUrl())
                                 .script(script)
-                                .index(index)
+                                .slide_index(index)
                                 .build();
                     }))
                     .toList();
@@ -117,7 +117,7 @@ public class SlideService {
                             .presentation(presentation)
                             .slideUrl(objectId)
                             .thumbnail(thumbnail.getContentUrl())
-                            .index(index)
+                            .slide_index(index)
                             .build();
                 })
                 .toList();
