@@ -104,8 +104,8 @@
 
 .chat-modal {
     position: fixed;
-    bottom: 120px;
-    left: 70px;
+    bottom: 125px;
+    left: 75px;
     width: 350px;
     height: 400px;
     border-radius: 10px;
