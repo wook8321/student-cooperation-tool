@@ -31,13 +31,22 @@ public class Slide extends BaseTimeEntity {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Script script;
 
+    @Column
+    private Integer slide_idx;
+
     @Builder
     private Slide(
             final String thumbnail, final Presentation presentation,
-            final Script script,final String slideUrl) {
+            final Script script,final String slideUrl, final int slide_index) {
         this.thumbnail = thumbnail;
         this.presentation = presentation;
         this.script = script;
         this.slideUrl = slideUrl;
+        this.slide_idx = slide_index;
+    }
+
+
+    public void updateIndex(int index) {
+        this.slide_idx = index;
     }
 }
