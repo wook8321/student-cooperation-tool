@@ -91,13 +91,19 @@ public class RoomService {
         Room room = roomRepository.findRoomWithPLock(request.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("방 id 오류"));
         if(Objects.equals(member.getMemberSeq(), room.getLeader().getId())){
-            presentationService.deletePresentation(request.getRoomId());
-            chatRepository.deleteByRoomId(room.getId());
-            partRepository.deleteByRoomId(room.getId());
-            topicRepository.deleteByRoomId(room.getId());
-            presentationRepository.deleteByRoomId(room.getId());
-            participationRepository.deleteByRoomId(room.getId());
-            roomRepository.deleteById(room.getId());
+            try {
+                presentationService.deletePresentation(request.getRoomId());
+            } catch(IllegalStateException e){
+                throw new IllegalStateException(e.getMessage(), e.getCause());
+            }
+            finally {
+                chatRepository.deleteByRoomId(room.getId());
+                partRepository.deleteByRoomId(room.getId());
+                topicRepository.deleteByRoomId(room.getId());
+                presentationRepository.deleteByRoomId(room.getId());
+                participationRepository.deleteByRoomId(room.getId());
+                roomRepository.deleteById(room.getId());
+            }
         }
         else{
             Member teammate = memberRepository.findById(member.getMemberSeq())
