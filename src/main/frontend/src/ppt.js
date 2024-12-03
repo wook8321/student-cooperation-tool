@@ -25,7 +25,7 @@ const PPT = () => {
     const isLeader = (userId === leaderId);
     const [errorMessage, setErrorMessage] = useState('');
     const [newPath, setNewPath] = useState('');
-    const [newPPTId, setNewPPTId] = useState(null);
+    const [newPPT, setNewPPT] = useState(null);
     const [mainThumbnail, setMainThumbnail] = useState(null);
     const [createResult, setCreateResult] = useState(false);
     // 방의 PPT를 가져오는 함수
@@ -61,7 +61,7 @@ const PPT = () => {
 
     useEffect(() => {
         if(createResult){
-            axios.get(`${domain}/api/v1/presentation/${newPPTId}/first-page`)
+            axios.get(`${domain}/api/v1/presentation/${newPPT.presentationId}/first-page`)
                 .then((res)=>{
                     setMainThumbnail(res.data.data);
                 })
@@ -75,8 +75,8 @@ const PPT = () => {
 
     //PPT 생성/등록 후 슬라이드 및 스크립트 생성
     useEffect(() => {
-        if(newPPTId) {
-            axios.post(`${domain}/api/v1/presentation/${newPPTId}/slides`)
+        if(newPPT) {
+            axios.post(`${domain}/api/v1/presentation/${newPPT.presentationId}/slides`)
                 .then(()=>{
                     console.log('success to create slides');
                     setCreateResult(true);
@@ -86,17 +86,18 @@ const PPT = () => {
                     alert(error.message);
                 })
         }
-    }, [newPPTId]);
+    }, [newPPT]);
     //=============================================웹소켓========================================================
     const receiveMessage = (message) => {
         //3-1 구독한 url에서 온 메세지를 받았을 때
         const frame = JSON.parse(message.body)
         if (frame.messageType === "PRESENTATION_UPDATE") {
             updatePPTInScreen(frame.data);
-            setNewPPTId(frame.data.presentationId);
+            setNewPPT(frame.data);
+            console.log('newId set : ', frame.data.presentationId);
         } else if (frame.messageType === "PRESENTATION_CREATE") {
             createPPTInScreen(frame.data);
-            setNewPPTId(frame.data.presentationId);
+            setNewPPT(frame.data);
         } else {
             console.log("Not Supported Message Type")
         }
@@ -169,8 +170,10 @@ const PPT = () => {
     }
 
     const checkValidPPT = (newPath) => {
+        console.log('newPath valid test : ', newPath)
         axios.get(`${domain}/api/v1/checkValidPPT/${newPath}`)
             .then(()=>{
+                console.log('valid test passed');
                 setNewPath(newPath);
                 setIsValid(true);
             })
@@ -182,6 +185,7 @@ const PPT = () => {
     const editPPT = () => {
         setIsLoading(true);
         const newPath = newPPTName.split('/d/')[1]?.split('/')[0];
+        console.log('newPath : ', newPath);
         if(newPath) {
             checkValidPPT(newPath);
         }
@@ -193,6 +197,7 @@ const PPT = () => {
 
     useEffect(() => {
         if(isValid) {
+            console.log('newPath: ', newPath);
             const payload = {
                 roomId,
                 presentationPath: newPath,
@@ -201,8 +206,10 @@ const PPT = () => {
                 destination: "/pub/presentation/update",
                 body: JSON.stringify(payload),
             });
+            console.log('published');
             closeEditModal();
         }
+        setIsValid(false);
     }, [isValid]);
 
     const closeEditModal = () => {
