@@ -77,7 +77,6 @@ export const WebSocketProvider = ({ children }) => {
             receiveMessage,
             receiveError
         )
-        alert("웹소켓 구독 완료!")
         const data = {
             roomId : roomId
         }

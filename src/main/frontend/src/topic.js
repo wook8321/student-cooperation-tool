@@ -42,9 +42,6 @@ const Topic = () => {
       decreaseTopicInScreen(frame.data)
     } else if(frame.messageType === "VOTE_UPDATE"){
       updateVoteNumInScreen(frame.data)
-    // } else if(frame.messageType === "ROOM_ENTER" || frame.messageType === "ROOM_EXIT"){
-    //   //온라인 유저 등록
-    //   updateOnline(frame.data)
     } else {
       console.log("Not Supported Message Type")
     }
@@ -175,14 +172,14 @@ const Topic = () => {
     }));
 
     return (
-          thumbs.map((thumb) => (
-              <span
-                  key={thumb.id}
-                  className="thumbs-up"
-                  style={{ left: `${thumb.x}%`, top: `${thumb.y}%` }}>
+        thumbs.map((thumb) => (
+            <span
+                key={thumb.id}
+                className="thumbs-up"
+                style={{ left: `${thumb.x}%`, top: `${thumb.y}%` }}>
           👍
         </span>
-          ))
+        ))
     );
   };
 
