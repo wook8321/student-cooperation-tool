@@ -28,7 +28,7 @@ public class Slide extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Presentation presentation;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private Script script;
 
     @Column
