@@ -23,13 +23,6 @@ public class SlideApiController {
         return ApiResponse.of(HttpStatus.OK,result);
     }
 
-    @PostMapping("/api/v1/presentation/{presentationId}/slides")
-    public ApiResponse<Boolean> updateSlides(@PathVariable("presentationId") Long presentationId, SessionMember member) {
-        Credential credential = credentialProvider.getCredential();
-        boolean result = slideService.updateSlides(presentationId, credential);
-        return ApiResponse.of(HttpStatus.OK,result);
-    }
-
     @PostMapping("/api/v1/presentation/{presentationId}/slides-compare")
     public ApiResponse<Boolean> updateNewSlides(@PathVariable("presentationId") Long presentationId, SessionMember member) {
         Credential credential = credentialProvider.getCredential();

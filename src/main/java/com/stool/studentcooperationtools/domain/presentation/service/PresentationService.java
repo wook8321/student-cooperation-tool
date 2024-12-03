@@ -15,6 +15,7 @@ import com.stool.studentcooperationtools.domain.presentation.repository.Presenta
 import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.domain.slide.SlidesFactory;
+import com.stool.studentcooperationtools.domain.slide.service.SlideService;
 import com.stool.studentcooperationtools.security.credential.GoogleCredentialProvider;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.presentation.request.PresentationCreateSocketRequest;
@@ -40,6 +41,7 @@ public class PresentationService {
     private final RoomRepository roomRepository;
     private final SlidesFactory slidesFactory;
     private final GoogleCredentialProvider googleCredentialProvider;
+    private final SlideService slideService;
     @Value("${google.slides.folder-path}")
     private String folderPath;
 
@@ -56,6 +58,7 @@ public class PresentationService {
     public PresentationUpdateSocketResponse updatePresentation(final PresentationUpdateSocketRequest request, SessionMember member) {
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(()->new IllegalArgumentException("해당 방은 존재하지 않습니다"));
+        Credential credential = googleCredentialProvider.getCredential();
         if(!room.getLeader().getId().equals(member.getMemberSeq())){
             throw new IllegalArgumentException("발표자료 변경 권한이 없습니다");
         }
@@ -69,6 +72,7 @@ public class PresentationService {
                     return newPpt;
                 });
         updatingPpt.updatePath(request.getPresentationPath());
+        slideService.updateSlides(updatingPpt.getId(),credential);
         return PresentationUpdateSocketResponse.of(updatingPpt);
     }
 
@@ -78,6 +82,7 @@ public class PresentationService {
                                                                SessionMember member) {
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(()->new IllegalArgumentException("해당 방은 존재하지 않습니다"));
+        Credential credential = googleCredentialProvider.getCredential();
         if(!room.getLeader().getId().equals(member.getMemberSeq())){
             throw new IllegalArgumentException("발표자료 변경 권한이 없습니다");
         }
@@ -87,7 +92,6 @@ public class PresentationService {
         fileMetadata.setName(request.getPresentationName());
         fileMetadata.setMimeType("application/vnd.google-apps.presentation");
         fileMetadata.setParents(Collections.singletonList(folderPath));
-
         // Drive에서 프레젠테이션 파일을 해당 폴더에 저장
         try {
             File file = dservice.files().create(fileMetadata)
@@ -114,6 +118,7 @@ public class PresentationService {
             Presentation presentation = presentationRepository.findByRoomId(room.getId())
                     .orElseThrow(() -> new IllegalArgumentException("발표자료를 들고 오던 중 에러 발생"));
             presentation.updatePath(fileId);
+            slideService.updateSlides(presentation.getId(),credential);
             return PresentationUpdateSocketResponse.of(presentation);
         }
         else {
@@ -122,6 +127,7 @@ public class PresentationService {
                     .presentationPath(fileId)
                     .build();
             presentationRepository.save(presentation);
+            slideService.updateSlides(presentation.getId(),credential);
             return PresentationUpdateSocketResponse.of(presentation);
         }
     }
