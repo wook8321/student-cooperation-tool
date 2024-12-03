@@ -10,13 +10,14 @@ import pptImage from './images/ppt.svg';
 import {domain} from "./domain";
 import mainlogo from "./images/mainlogo.png";
 import backlink from "./images/back.svg";
+import Online from "./online";
 
 const PPT = () => {
     const [pptModal, setPPTModal] = useState(false); // ppt 생성 클릭 시 나오는 모달
     const [pptData, setPPTData] = useState(null); // get한 ppt 데이터 저장 공간
     const [editModal, setEditModal] = useState(false); // ppt 수정 모달
     const [chatModal, setChatModal] = useState(false);
-    const {stompClient, isConnected, roomId, userId, leaderId, presentationId} = useWebSocket();
+    const {stompClient, isConnected, roomId, userId, leaderId, presentationId, online} = useWebSocket();
     const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
     const navigate = useNavigate();
     const [isValid, setIsValid] = useState(false);
@@ -237,8 +238,10 @@ const PPT = () => {
         fetchPPT();
     }, []);
 
+
     return (
         <div className="background">
+            <Online online={online}/>
             <img src={mainlogo} className="upper-logo"/>
             <button onClick={goBack} className="back_link">
                 <img src={backlink}/>

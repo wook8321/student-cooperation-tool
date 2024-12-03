@@ -4,17 +4,19 @@ import axios from "axios";
 import { useWebSocket } from './WebsocketContext'; // WebSocketProvider의 훅 사용
 import { Link } from 'react-router-dom';
 import './topic.css';
+import "./online.css"
 import chatImage from './images/chat.svg';
 import {domain} from "./domain";
 import ChatPage from "./chatroom";
 import mainlogo from "./images/mainlogo.png";
 import backlink from "./images/back.svg"
+import Online from "./online";
 
 const Topic = () => {
   const [topics, setTopics] = useState({num: 0, topics: []});
   const [addModal, setAddModal] = useState(false);
   const [chatModal, setChatModal] = useState(false);
-  const {stompClient, isConnected, roomId, userId, leaderId, presentationId} = useWebSocket(); // WebSocket 연결 관리
+  const {stompClient, isConnected, roomId, userId, leaderId, presentationId, online} = useWebSocket(); // WebSocket 연결 관리
   const navigate = useNavigate();
   const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
 
@@ -28,6 +30,7 @@ const Topic = () => {
             alert('주제를 불러오는데 실패 했습니다.');
           });
   }
+
   //=============================================웹소켓========================================================
   const receiveMessage = (message) => {
     //3-1 구독한 url에서 온 메세지를 받았을 때
@@ -115,7 +118,6 @@ const Topic = () => {
   };
 
   const deleteTopic = (topicId) => {
-    alert(topicId + "번 삭제하기")
     const data = {
       roomId : roomId,
       topicId : topicId
@@ -170,14 +172,14 @@ const Topic = () => {
     }));
 
     return (
-          thumbs.map((thumb) => (
-              <span
-                  key={thumb.id}
-                  className="thumbs-up"
-                  style={{ left: `${thumb.x}%`, top: `${thumb.y}%` }}>
+        thumbs.map((thumb) => (
+            <span
+                key={thumb.id}
+                className="thumbs-up"
+                style={{ left: `${thumb.x}%`, top: `${thumb.y}%` }}>
           👍
         </span>
-          ))
+        ))
     );
   };
 
@@ -219,6 +221,8 @@ const Topic = () => {
   return (
       <>
         <div className="background">
+          {/*온라인 중인 유저를 보는 컴포넌트*/}
+          <Online online={online}/>
           <img src={mainlogo} className="upper-logo"/>
           <button onClick={goBack} className="back_link">
             <img src={backlink}/>
@@ -227,7 +231,7 @@ const Topic = () => {
             <div className="card-container" id="topicsDiv">
               {topics.num > 0 ? (
                   topics.topics.map((topic) => (
-                      <div className={`post-it post-it-${topic.topicId%4}`} id={`topic${topic.topicId}`} onClick={() => toggleVote(topic.topicId)}>
+                      <div className={`post-it post-it-${topic.topicId % 4}`} id={`topic${topic.topicId}`} onClick={() => toggleVote(topic.topicId)}>
                         {userId === leaderId || userId === topic.memberId ?
                             <button className="delete-btn"  onClick={(e) => handleDeleteClick(e,topic.topicId)}>
                               X

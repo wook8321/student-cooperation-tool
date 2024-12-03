@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum WebsocketMessageType {
 
+    ROOM_ENTER("room_enter"),
+    ROOM_EXIT("room_exit"),
     TOPIC_ADD("topic_add"),
     TOPIC_DELETE("topic_delete"),
     VOTE_UPDATE("vote_update"),

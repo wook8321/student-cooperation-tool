@@ -118,8 +118,10 @@ const RoomList = ({setCreateModal}) => {
                 <div class="enter_modal_overlay" id="passwordModalDiv">
                     <div class="enter_modal_content" style="text-align: center;" id="enterModalDiv">
                         <button class="close_button" id="closeModalButton">X</button>
-                        <div id="passwordInvalidDiv"></div>
-                        <label class="enter_modal_label">${roomTitle}</label>
+                        <label class="enter_modal_label">
+                            방 제목 : ${roomTitle}
+                        </label>
+                        <div id="passwordInvalidDiv" style="color: #1a1d20">비밀번호를 입력해주세요.</div>
                         <input style={{fontFamily: 'Arial, sans-serif'}} class="enter_modal_input" id="roomPasswordInput" type="password"/>
                         <button class="enter_button" id="verifyRoomButton">입장</button>
                     </div>
@@ -528,6 +530,9 @@ const Project = () => {
                                                                     <div
                                                                         className={`image-cap ${randomCapClass}`}>{room.title}</div>
                                                                     <div className="card-body">
+                                                                        <span style={{fontSize: "small", justifyContent: "end", color: "white"}}>
+                                                                            참가자 : {room.participationNum}
+                                                                        </span>
                                                                         <h3 className="card-title">{room.topic}</h3>
                                                                         <button className="card-button"
                                                                                 onClick={() => enterRoom(room.roomId, room.title)}>
@@ -606,8 +611,10 @@ const Project = () => {
                             <button className="close_button" onClick={() => closeEnterModal()}>
                       X
                   </button>
-                  <div id="passwordInvalidDiv"></div>
-                  <label className="enter_modal_label">{enterRoomTitle}</label>
+                  <label className="enter_modal_label">
+                      제목 : {enterRoomTitle}
+                  </label>
+                  <div id="passwordInvalidDiv" style={{color : "gray"}}>비밀번호를 입력해주세요.</div>
                   <input style={{fontFamily: 'Arial, sans-serif'}} className="enter_modal_input" id="roomPasswordInput" type="password"/>
                   <button className="enter_button" onClick={() => verifyPasswordAndEnterRoom(enterRoomId)}> 입장 </button>
               </div>

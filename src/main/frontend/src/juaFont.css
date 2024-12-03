@@ -4,6 +4,12 @@
     font-weight: 400;
     font-style: normal;
 }
+/* password input에 대한 스타일 추가 */
+input[type="password"] {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-weight: 400; /* 폰트 두께 */
+    color: #000; /* 텍스트 색상을 검정색으로 설정 */
+}
 @font-face {
     font-family: "Jua";
     src: url("fonts/BMJUA_ttf.ttf");

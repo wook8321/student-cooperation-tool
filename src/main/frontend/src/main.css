@@ -104,6 +104,18 @@ main {
     animation-delay: 1s; /* 설명이 타이틀 이후 1초 뒤에 나타나게 설정 */
 }
 
+/* 메인 설명 텍스트 애니메이션 */
+.main-loginUserNickName {
+    font-size: 1.2rem;
+    color: #555;
+    text-align: center;
+    line-height: 1.6;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeIn 1s ease forwards;
+    animation-delay: 1.2s; /* 설명이 타이틀 이후 1초 뒤에 나타나게 설정 */
+}
+
 
 /* 그라데이션 버튼 스타일 */
 .gradient-button {

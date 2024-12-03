@@ -18,6 +18,13 @@ public class SimpleMessageSendingUtils {
     private final SimpMessageSendingOperations simpMessageSendingOperations;
 
     /*
+        프로젝트 방에 입장한 유저들이 구독하는 url을 생성하는 메소드이다.
+    */
+    public String creatRoomEnterSubUrl(final Long roomId) {
+        return String.format(ROOM_PARTICIPATION_URL_FORMAT,roomId);
+    }
+
+    /*
     주제 선정단계의 sub url을 생성하는 메소드이다
      */
     public String createTopicDecisionSubUrl(final Long roomId){

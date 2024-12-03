@@ -13,6 +13,7 @@ import chatImage from "./images/chat.svg";
 import ChatPage from "./chatroom";
 import mainlogo from "./images/mainlogo.png";
 import backlink from "./images/back.svg";
+import Online from "./online";
 
 
 //
@@ -22,7 +23,7 @@ const Part = () => {
     const [partName, setPartName] = useState("")
     const [selectedMemberId, setSelectedMemberId] = useState(null);
     const [participation, setParticipation] = useState({ num: 0, participation: [] });
-    const {stompClient, isConnected, roomId, userId, leaderId, presentationId} = useWebSocket(); // WebSocket 연결 관리
+    const {stompClient, isConnected, roomId, userId, leaderId, presentationId, online} = useWebSocket(); // WebSocket 연결 관리
     const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
     const navigate = useNavigate();
     const [filePreviewModal, setFilePreviewModal] = useState(false)
@@ -82,14 +83,12 @@ const Part = () => {
 
     useEffect(() => {
         //1. broker endPoint에 연결, WebsocketConfig에 설정한 EndPoint를 말함
-        alert("part" + roomId)
         if (stompClient.current) {
             stompClient.current.activate(); // 웹소켓 활성화
         }
 
         return () => {
             if (stompClient.current) {
-                alert(`/sub/rooms/${roomId}/part, 구독 취소`)
                 subscriptions.current.unsubscribe(); // 언마운트 시 웹소켓 비활성화
             }
         };
@@ -117,7 +116,6 @@ const Part = () => {
     }
     // ========================================== 역할 추가 ============================================
     const addPartInScreen = (part) => {
-        alert("파트 추가!")
         setParts((preParts) => ({
             ...preParts,
             num: preParts.num + 1,
@@ -164,7 +162,6 @@ const Part = () => {
     // ========================================== 파일 다운로드 ============================================
 
     const downloadFile = (fileName,fileOriginalName) => {
-        alert("다운로드 = " + fileName + "s3에 저장된 이름 = " + fileOriginalName)
         axios
             .get(`/api/v1/files/${fileName}?roomId=${roomId}&fileOriginalName=${fileOriginalName}`,{
                 responseType: 'blob' // 없다면 다운로드하지 않음
@@ -201,7 +198,6 @@ const Part = () => {
     };
 
     const deleteFile = (fileName,fileId,partId) => {
-        alert("삭제 = " + fileName + "fileId = " + fileId)
         const data = {
             roomId : roomId,
             fileId : fileId,
@@ -326,7 +322,6 @@ const Part = () => {
 
         //2. 역할 수정
         const openUpdateModal = () => {
-            alert("수정 모달")
             setIsOpen(false)
             //방에 유저들을 조회
             axios
@@ -639,6 +634,8 @@ const Part = () => {
     return (
     <>
         <div className="part-background">
+            {/*온라인 상태인 유저 보기창*/}
+            <Online online={online}/>
             <img src={mainlogo} className="upper-logo"/>
             <button onClick={goBack} className="back_link">
                 <img src={backlink}/>

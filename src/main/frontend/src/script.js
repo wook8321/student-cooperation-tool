@@ -8,13 +8,16 @@ import chatImage from './images/chat.svg';
 import {domain} from "./domain";
 import { useWebSocket } from './WebsocketContext';
 import mainlogo from "./images/mainlogo.png";
-import backlink from "./images/back.svg"; // WebSocketProvider의 훅 사용
+import backlink from "./images/back.svg";
+import Online from "./online"; // WebSocketProvider의 훅 사용
 
 
 const Script = () => {
   const [slides, setSlides] = useState([]);
-  const [chatModal, setChatModal] = useState(false);
-  const {stompClient, isConnected, roomId, userId, leaderId, presentationId} = useWebSocket();
+  const [newScript, setNewScript] = useState(""); // 새로 입력된 스크립트
+  const [chatModal, setChatModal] = useState(false); 
+  const [error, setError] = useState(null);
+  const {stompClient, isConnected, roomId, userId, leaderId, presentationId, online} = useWebSocket();
   const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
   const navigate = useNavigate();
   const [pptPath, setPptPath] = useState('');
@@ -191,6 +194,7 @@ const Script = () => {
 
   return (
       <div className="background">
+          <Online online={online}/>
           <img src={mainlogo} className="upper-logo"/>
           <button onClick={goBack} className="back_link">
               <img src={backlink}/>
