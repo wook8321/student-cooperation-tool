@@ -118,6 +118,16 @@
 
 .bookmark-buttons {
   position: absolute;
+  top: 30%;
+  right: -130px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bookmark-buttons-leader {
+  position: absolute;
   top: 50%;
   right: -140px;
   transform: translateY(-50%);

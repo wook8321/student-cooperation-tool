@@ -269,24 +269,28 @@ const PPT = () => {
                                 window.open(slideUrl, "_blank");
                             }}
                         />
-                        <div className="bookmark-buttons">
-                            <button className="download-pdf-btn" onClick={downloadPDF}>PDF로 다운로드</button>
-                            <button className="download-ppt-btn" onClick={downloadPPT}>PPT로 다운로드</button>
+                            {!isLeader &&
+                            <div className="bookmark-buttons">
+                                <button className="download-pdf-btn" onClick={downloadPDF}>PDF로 다운로드</button>
+                                <button className="download-ppt-btn" onClick={downloadPPT}>PPT로 다운로드</button>
+                            </div>
+                            }
                             {isLeader && (
-                                <>
+                                <div className="bookmark-buttons-leader">
+                                    <button className="download-pdf-btn" onClick={downloadPDF}>PDF로 다운로드</button>
+                                    <button className="download-ppt-btn" onClick={downloadPPT}>PPT로 다운로드</button>
                                     <button className="create-ppt-after-btn" onClick={() => setPPTModal(true)}>새 슬라이드 생성
                                     </button>
                                     <button className="edit-ppt-after-btn" onClick={() => setEditModal(true)}>기존 슬라이드 등록
                                     </button>
-                                </>
+                                </div>
                             )}
-                        </div>
                     </div>
-                )}
+                    )}
             </div>
 
             {isLoading && (
-                <div className="loading-overlay">
+            <div className="loading-overlay">
                     <div className="spinner"></div>
                     <p>Loading...</p>
                 </div>
