@@ -1,8 +1,10 @@
 package com.stool.studentcooperationtools.domain.slide;
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.slides.v1.Slides;
@@ -39,6 +41,15 @@ public class SlidesFactory {
         return new Drive.Builder(new NetHttpTransport(),
                 GsonFactory.getDefaultInstance(),
                 credentialsAdapter)
+                .setApplicationName("Google Drive API")
+                .build();
+    }
+
+    public Drive createDriveServicePerUser(Credential credential) {
+        return new Drive.Builder(
+                new NetHttpTransport(),
+                GsonFactory.getDefaultInstance(),
+                credential)
                 .setApplicationName("Google Drive API")
                 .build();
     }
