@@ -18,7 +18,6 @@ const FriendsList = () => {
         axios
             .get(domain + "/api/v1/friends")
             .then((res) => {
-                console.log(res.data);
                 setFriends(res.data.data);
             })
             .catch(() => {
@@ -65,7 +64,6 @@ const Friend = () => {
         axios
             .get(domain + `/api/v1/friends/search?relation=false&name=${searchText}`)
             .then((res) => {
-                console.log(res.data.data);
                 setFriendData(res.data.data);
                 setModalOpen(true);
             })
@@ -81,7 +79,6 @@ const Friend = () => {
                 email
             },  { "Content-Type": "application/json"},)
             .then((res) => {
-                console.log("Friend added:", res.data);
                 createFriendDiv(email,profile, nickname);
 
                 setFriendData((prevData) => ({

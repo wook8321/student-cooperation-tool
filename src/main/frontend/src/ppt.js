@@ -78,7 +78,6 @@ const PPT = () => {
         if(newPPT) {
             axios.post(`${domain}/api/v1/presentation/${newPPT.presentationId}/slides`)
                 .then(()=>{
-                    console.log('success to create slides');
                     setCreateResult(true);
                 }
                 )
@@ -94,7 +93,6 @@ const PPT = () => {
         if (frame.messageType === "PRESENTATION_UPDATE") {
             updatePPTInScreen(frame.data);
             setNewPPT(frame.data);
-            console.log('newId set : ', frame.data.presentationId);
         } else if (frame.messageType === "PRESENTATION_CREATE") {
             createPPTInScreen(frame.data);
             setNewPPT(frame.data);
@@ -170,10 +168,8 @@ const PPT = () => {
     }
 
     const checkValidPPT = (newPath) => {
-        console.log('newPath valid test : ', newPath)
         axios.get(`${domain}/api/v1/checkValidPPT/${newPath}`)
             .then(()=>{
-                console.log('valid test passed');
                 setNewPath(newPath);
                 setIsValid(true);
             })
@@ -185,7 +181,6 @@ const PPT = () => {
     const editPPT = () => {
         setIsLoading(true);
         const newPath = newPPTName.split('/d/')[1]?.split('/')[0];
-        console.log('newPath : ', newPath);
         if(newPath) {
             checkValidPPT(newPath);
         }
@@ -197,7 +192,6 @@ const PPT = () => {
 
     useEffect(() => {
         if(isValid) {
-            console.log('newPath: ', newPath);
             const payload = {
                 roomId,
                 presentationPath: newPath,

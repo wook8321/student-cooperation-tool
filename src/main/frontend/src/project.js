@@ -40,7 +40,6 @@ const RoomList = ({setCreateModal}) => {
         axios
             .get(domain + `/api/v1/rooms?page=${page}`)
             .then((res) => {
-                console.log(res.data);
                 setRooms(res.data.data);
                 setCurrentPage(page); // 현재 페이지 업데이트
             })
@@ -271,13 +270,11 @@ const Project = () => {
       axios.get(`${domain}/api/v1/friends/search?relation=true&name=${searchFriend}`)
           .then((res) => {
               const allResults = res.data.data.members; // 검색 결과
-              console.log(allResults);
               const filteredResults = participant.num > 0
                   ? allResults.filter((result) =>
                       !participant.members.some((member) => member.id === result.id)
                   )
                   : allResults;
-              console.log(filteredResults);
               setResult({num: filteredResults.length, members: filteredResults});
           })
           .catch((reason) => {
@@ -456,13 +453,11 @@ const Project = () => {
     axios.get(`${domain}/api/v1/friends`)
         .then((res) => {
             const allResults = res.data.data.members; // 검색 결과
-            console.log(allResults);
             const filteredResults = participant.num > 0
                 ? allResults.filter((result) =>
                     !participant.members.some((member) => member.id === result.id)
                 )
                 : allResults;
-            console.log(filteredResults);
             setResult({num: filteredResults.length, members: filteredResults})
           setFriendModal(true);
         })
