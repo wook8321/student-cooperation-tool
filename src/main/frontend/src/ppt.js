@@ -48,9 +48,6 @@ const PPT = () => {
             .then((res)=>{
                 setMainThumbnail(res.data.data);
             })
-            .catch((e)=>{
-                console.log(e.message);
-            })
     }
 
     useEffect(() => {
@@ -200,7 +197,6 @@ const PPT = () => {
                 destination: "/pub/presentation/update",
                 body: JSON.stringify(payload),
             });
-            console.log('published');
             closeEditModal();
         }
         setIsValid(false);

@@ -292,20 +292,6 @@ const Project = () => {
         }
     };
     const clearResults = () => setResult({num: 0, members: []});
-    const handleDeleteRoom = (roomId) => {
-        axios
-            .delete(`${domain}/api/v1/rooms`, {
-                data: {
-                    roomId,
-                },
-            })
-            .then(() => {
-                    setDeleteRoomId(roomId);
-            })
-            .catch(() => {
-                console.log("Failed to delete room");
-            });
-    };
 
     const handleSearch = ({page}) => {
         const searchTitle = document.getElementById("roomSearchInput").value;

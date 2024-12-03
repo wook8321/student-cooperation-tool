@@ -46,7 +46,6 @@ const Script = () => {
         const frame = JSON.parse(message.body)
         if (frame.messageType === "SCRIPT_UPDATE") {
             updateScriptInScreen(frame.data)
-            console.log("message received");
         } else {
             console.log("Not Supported Message Type")
         }
@@ -107,7 +106,6 @@ const Script = () => {
   };
 
   const updateScriptInScreen = (frame) => {
-      console.log('frame : ',frame);
       setSlides(prevSlides =>
           prevSlides.map(slide =>
               slide.scriptId === frame.scriptId
