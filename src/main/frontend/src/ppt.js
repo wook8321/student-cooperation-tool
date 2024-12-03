@@ -56,43 +56,16 @@ const PPT = () => {
         }
     }, [pptData]);
 
-    useEffect(() => {
-        if(createResult){
-            axios.get(`${domain}/api/v1/presentation/${newPPT.presentationId}/first-page`)
-                .then((res)=>{
-                    setMainThumbnail(res.data.data);
-                })
-                .catch((e)=>{
-                    console.log(e.message);
-                })
-        }
-        setCreateResult(false);
-        setIsLoading(false);
-    }, [createResult]);
-
-    //PPT 생성/등록 후 슬라이드 및 스크립트 생성
-    useEffect(() => {
-        if(newPPT) {
-            axios.post(`${domain}/api/v1/presentation/${newPPT.presentationId}/slides`)
-                .then(()=>{
-                    setCreateResult(true);
-                }
-                )
-                .catch((error) => {
-                    alert(error.message);
-                })
-        }
-    }, [newPPT]);
     //=============================================웹소켓========================================================
     const receiveMessage = (message) => {
         //3-1 구독한 url에서 온 메세지를 받았을 때
         const frame = JSON.parse(message.body)
         if (frame.messageType === "PRESENTATION_UPDATE") {
+            setIsLoading(false);
             updatePPTInScreen(frame.data);
-            setNewPPT(frame.data);
         } else if (frame.messageType === "PRESENTATION_CREATE") {
+            setIsLoading(false);
             createPPTInScreen(frame.data);
-            setNewPPT(frame.data);
         } else {
             console.log("Not Supported Message Type")
         }
