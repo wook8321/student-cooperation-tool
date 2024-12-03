@@ -82,12 +82,6 @@ class PresentationServiceMockTest {
     Drive.Permissions.Create permissionsCreate;
 
     @Mock
-    Drive.Permissions.List permissionsList;
-
-    @Mock
-    PermissionList permissionList;
-
-    @Mock
     List<Permission> listOfPermission;
 
     @Mock
@@ -124,9 +118,6 @@ class PresentationServiceMockTest {
         when(driveService.permissions()).thenReturn(permissions);
         when(permissions.create(anyString(), any(Permission.class))).thenReturn(permissionsCreate);
         when(permissionsCreate.execute()).thenReturn(mock(Permission.class));
-        when(permissions.list(anyString())).thenReturn(permissionsList);
-        when(permissionsList.execute()).thenReturn(permissionList);
-        when(permissionList.getPermissions()).thenReturn(listOfPermission);
         when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
         when(room.getLeader()).thenReturn(mock(Member.class));
         when(room.getLeader().getId()).thenReturn(memberId);

@@ -42,8 +42,6 @@ public class PresentationService {
     private final SlidesFactory slidesFactory;
     private final GoogleCredentialProvider googleCredentialProvider;
     private final SlideService slideService;
-    @Value("${google.slides.folder-path}")
-    private String folderPath;
 
     public PresentationFindResponse findPresentation(final Long roomId) {
         Presentation presentation = presentationRepository.findByRoomId(roomId)
@@ -90,7 +88,6 @@ public class PresentationService {
         File fileMetadata = new File();
         fileMetadata.setName(request.getPresentationName());
         fileMetadata.setMimeType("application/vnd.google-apps.presentation");
-        fileMetadata.setParents(Collections.singletonList(folderPath));
         // Drive에서 프레젠테이션 파일을 해당 폴더에 저장
         try {
             File file = dservice.files().create(fileMetadata)
@@ -101,14 +98,6 @@ public class PresentationService {
                     .setType("anyone")
                     .setRole("writer");
             dservice.permissions().create(fileId, permission).execute();
-            PermissionList permissions = dservice.permissions().list(fileId).execute();
-            if (!permissions.isEmpty()) {
-                for (Permission p : permissions.getPermissions()) {
-                    if ("user".equals(p.getType()) && "writer".equals(p.getRole())) {
-                        dservice.permissions().delete(fileId, p.getId()).execute();
-                    }
-                }
-            }
         }
         catch (IOException e) {
             throw new VerifyException(e.getMessage(),e.getCause());
