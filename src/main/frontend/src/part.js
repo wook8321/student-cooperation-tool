@@ -13,6 +13,7 @@ import chatImage from "./images/chat.svg";
 import ChatPage from "./chatroom";
 import mainlogo from "./images/mainlogo.png";
 import backlink from "./images/back.svg";
+import Online from "./online";
 
 
 //
@@ -22,7 +23,7 @@ const Part = () => {
     const [partName, setPartName] = useState("")
     const [selectedMemberId, setSelectedMemberId] = useState(null);
     const [participation, setParticipation] = useState({ num: 0, participation: [] });
-    const {stompClient, isConnected, roomId, userId, leaderId, presentationId} = useWebSocket(); // WebSocket 연결 관리
+    const {stompClient, isConnected, roomId, userId, leaderId, presentationId, online} = useWebSocket(); // WebSocket 연결 관리
     const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
     const navigate = useNavigate();
     const [filePreviewModal, setFilePreviewModal] = useState(false)
@@ -633,6 +634,8 @@ const Part = () => {
     return (
     <>
         <div className="part-background">
+            {/*온라인 상태인 유저 보기창*/}
+            <Online online={online}/>
             <img src={mainlogo} className="upper-logo"/>
             <button onClick={goBack} className="back_link">
                 <img src={backlink}/>

@@ -16,13 +16,9 @@ const Topic = () => {
   const [topics, setTopics] = useState({num: 0, topics: []});
   const [addModal, setAddModal] = useState(false);
   const [chatModal, setChatModal] = useState(false);
-  const {stompClient, isConnected, roomId, userId, leaderId, presentationId} = useWebSocket(); // WebSocket 연결 관리
+  const {stompClient, isConnected, roomId, userId, leaderId, presentationId, online} = useWebSocket(); // WebSocket 연결 관리
   const navigate = useNavigate();
   const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
-
-  // 온라인 상태 state
-  const [online, setOnline] = useState({num : 0, online : []})
-  const onlineSubscribe = useRef([]); // 온라인 상태 주소 구독 객체
 
   // 방의 주제를 가져오는 함수
   const TopicsList = () => {
@@ -33,49 +29,6 @@ const Topic = () => {
           .catch(() => {
             alert('주제를 불러오는데 실패 했습니다.');
           });
-  }
-  //=============================================온라인 기능========================================================
-
-  const updateOnline = (online) => {
-    //온라인 유저 추가
-    console.log(online)
-    console.log(online.online)
-    console.log(online.onlineNum)
-    setOnline((prevOnline) => ({
-      ...prevOnline,
-      num: online.onlineNum, // 주제 개수 증가
-      online: online.online
-    }));
-  }
-
-  const onOnline = () =>{
-    //온라인 주소 구독 및 온라인 상태 메세지 전송
-    const data = {
-      roomId : roomId
-    }
-    onlineSubscribe.current = stompClient.current.subscribe(
-        `/sub/rooms/${roomId}/online`,
-        receiveMessage,
-        receiveError
-    )
-    stompClient.current.publish({
-      destination : `/pub/room/enter`,
-      body : JSON.stringify(data)
-    })
-  }
-
-  const offOnline = () => {
-    // 유저가 방을 나갈 경우 Online을 구독을 끊고, offline는 메세지를 다른 유저에게 보냄
-    const data = {
-      roomId : roomId
-    }
-
-    stompClient.current.publish({
-      destination : `/pub/room/exit`,
-      body : JSON.stringify(data)
-    })
-
-    onlineSubscribe.current.unsubscribe(); //온라인 상태 구독 취소
   }
 
   //=============================================웹소켓========================================================
@@ -89,9 +42,9 @@ const Topic = () => {
       decreaseTopicInScreen(frame.data)
     } else if(frame.messageType === "VOTE_UPDATE"){
       updateVoteNumInScreen(frame.data)
-    } else if(frame.messageType === "ROOM_ENTER" || frame.messageType === "ROOM_EXIT"){
-      //온라인 유저 등록
-      updateOnline(frame.data)
+    // } else if(frame.messageType === "ROOM_ENTER" || frame.messageType === "ROOM_EXIT"){
+    //   //온라인 유저 등록
+    //   updateOnline(frame.data)
     } else {
       console.log("Not Supported Message Type")
     }
@@ -104,8 +57,6 @@ const Topic = () => {
     window.location.href = "/";
   }
 
-
-
   const onConnect = () => {
     //2-1 연결 성공의 경우
     TopicsList()
@@ -114,8 +65,6 @@ const Topic = () => {
         receiveMessage,
         receiveError
     );
-    //온라인 상태 구독
-    onOnline()
   }
 
   useEffect(() => {
@@ -126,8 +75,6 @@ const Topic = () => {
 
     return () => {
       if (stompClient.current) {
-        //유저가 방에서 나가서 온라인 => 오프라인 상태로 만듬(구독 취소)
-        offOnline();
         subscriptions.current.unsubscribe();
       }
     };
