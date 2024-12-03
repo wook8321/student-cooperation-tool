@@ -78,16 +78,15 @@ public class PresentationService {
 
     @Transactional
     public PresentationUpdateSocketResponse createPresentation(PresentationCreateSocketRequest request,
-                                                               HttpCredentialsAdapter credentialsAdapter,
+                                                               Credential credential,
                                                                SessionMember member) {
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(()->new IllegalArgumentException("해당 방은 존재하지 않습니다"));
-        Credential credential = googleCredentialProvider.getCredential();
         if(!room.getLeader().getId().equals(member.getMemberSeq())){
             throw new IllegalArgumentException("발표자료 변경 권한이 없습니다");
         }
         String fileId;
-        Drive dservice = slidesFactory.createDriveService(credentialsAdapter);
+        Drive dservice = slidesFactory.createDriveServicePerUser(credential);
         File fileMetadata = new File();
         fileMetadata.setName(request.getPresentationName());
         fileMetadata.setMimeType("application/vnd.google-apps.presentation");
@@ -132,11 +131,11 @@ public class PresentationService {
         }
     }
 
-    public ByteArrayOutputStream exportPdf(HttpCredentialsAdapter credentialsAdapter, Long presentationId) {
+    public ByteArrayOutputStream exportPdf(Credential credential, Long presentationId) {
         Presentation presentation = presentationRepository.findById(presentationId)
                 .orElseThrow(()->new IllegalArgumentException("해당하는 발표자료가 없습니다"));
         String fileId = presentation.getPresentationPath();
-        Drive driveService = slidesFactory.createDriveService(credentialsAdapter);
+        Drive driveService = slidesFactory.createDriveServicePerUser(credential);
         OutputStream outputStream = new ByteArrayOutputStream();
         try {
             driveService.files().export(fileId, "application/pdf")
@@ -148,11 +147,11 @@ public class PresentationService {
         }
     }
 
-    public ByteArrayOutputStream exportPpt(HttpCredentialsAdapter credentialsAdapter, Long presentationId) {
+    public ByteArrayOutputStream exportPpt(Credential credential, Long presentationId) {
         Presentation presentation = presentationRepository.findById(presentationId)
                 .orElseThrow(()->new IllegalArgumentException("해당하는 발표자료가 없습니다"));
         String fileId = presentation.getPresentationPath();
-        Drive driveService = slidesFactory.createDriveService(credentialsAdapter);
+        Drive driveService = slidesFactory.createDriveServicePerUser(credential);
         OutputStream outputStream = new ByteArrayOutputStream();
         try {
             driveService.files().export(fileId, "application/vnd.openxmlformats-officedocument.presentationml.presentation")

@@ -33,11 +33,12 @@ public class PresentationApiController {
     }
 
     @GetMapping("/api/v1/presentation/{presentationId}/exportPdf")
-    public void exportToPdf(@PathVariable("presentationId") Long presentationId, HttpCredentialsAdapter credentialsAdapter,
+    public void exportToPdf(@PathVariable("presentationId") Long presentationId,
                             HttpServletResponse response){
         // ByteArrayOutputStream의 데이터를 응답으로 전송
         //ByteArrayOutputStream 사용 후 닫기
-        try (ByteArrayOutputStream pdfStream = presentationService.exportPdf(credentialsAdapter, presentationId)) {
+        Credential credential = credentialProvider.getCredential();
+        try (ByteArrayOutputStream pdfStream = presentationService.exportPdf(credential, presentationId)) {
             response.setContentType("application/pdf");
             response.setHeader("Content-Disposition", "attachment; filename=\"exported.pdf\"");
             response.getOutputStream().write(pdfStream.toByteArray());
@@ -49,9 +50,10 @@ public class PresentationApiController {
 
 
     @GetMapping("/api/v1/presentation/{presentationId}/exportPptx")
-    public void exportToPptx(@PathVariable("presentationId") Long presentationId, HttpCredentialsAdapter credentialsAdapter,
+    public void exportToPptx(@PathVariable("presentationId") Long presentationId,
                              HttpServletResponse response) {
-        try(ByteArrayOutputStream pdfStream = presentationService.exportPpt(credentialsAdapter, presentationId)){
+        Credential credential = credentialProvider.getCredential();
+        try(ByteArrayOutputStream pdfStream = presentationService.exportPpt(credential, presentationId)){
             response.setContentType("application/vnd.openxmlformats-officedocument.presentationml.presentation");
             response.setHeader("Content-Disposition", "attachment; filename=\"exported.pptx\"");
             // ByteArrayOutputStream의 데이터를 응답으로 전송
