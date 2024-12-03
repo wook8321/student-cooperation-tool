@@ -120,7 +120,7 @@ const RoomList = ({setCreateModal}) => {
                         <button class="close_button" id="closeModalButton">X</button>
                         <div id="passwordInvalidDiv"></div>
                         <label class="enter_modal_label">${roomTitle}</label>
-                        <input class="enter_modal_input" id="roomPasswordInput" type="password"/>
+                        <input style={{fontFamily: 'Arial, sans-serif'}} class="enter_modal_input" id="roomPasswordInput" type="password"/>
                         <button class="enter_button" id="verifyRoomButton">입장</button>
                     </div>
                 </div>
@@ -583,7 +583,7 @@ const Project = () => {
 
                                         <div className="modal_section">
                                             <label className="modal_label">비밀번호</label>
-                                            <input className="modal_input" id="createRoomPassword" type="password"
+                                            <input style={{fontFamily: 'Arial, sans-serif'}} className="modal_input" id="createRoomPassword" type="password"
                                             />
                                         </div>
                                     </div>
@@ -608,7 +608,7 @@ const Project = () => {
                   </button>
                   <div id="passwordInvalidDiv"></div>
                   <label className="enter_modal_label">{enterRoomTitle}</label>
-                  <input className="enter_modal_input" id="roomPasswordInput" type="password"/>
+                  <input style={{fontFamily: 'Arial, sans-serif'}} className="enter_modal_input" id="roomPasswordInput" type="password"/>
                   <button className="enter_button" onClick={() => verifyPasswordAndEnterRoom(enterRoomId)}> 입장 </button>
               </div>
           </div>
