@@ -26,7 +26,7 @@ const PPT = () => {
     const isLeader = (userId === leaderId);
     const [errorMessage, setErrorMessage] = useState('');
     const [newPath, setNewPath] = useState('');
-    const [newPPTId, setNewPPTId] = useState(null);
+    const [newPPT, setNewPPT] = useState(null);
     const [mainThumbnail, setMainThumbnail] = useState(null);
     const [createResult, setCreateResult] = useState(false);
     // 방의 PPT를 가져오는 함수
@@ -49,9 +49,6 @@ const PPT = () => {
             .then((res)=>{
                 setMainThumbnail(res.data.data);
             })
-            .catch((e)=>{
-                console.log(e.message);
-            })
     }
 
     useEffect(() => {
@@ -60,44 +57,16 @@ const PPT = () => {
         }
     }, [pptData]);
 
-    useEffect(() => {
-        if(createResult){
-            axios.get(`${domain}/api/v1/presentation/${newPPTId}/first-page`)
-                .then((res)=>{
-                    setMainThumbnail(res.data.data);
-                })
-                .catch((e)=>{
-                    console.log(e.message);
-                })
-        }
-        setCreateResult(false);
-        setIsLoading(false);
-    }, [createResult]);
-
-    //PPT 생성/등록 후 슬라이드 및 스크립트 생성
-    useEffect(() => {
-        if(newPPTId) {
-            axios.post(`${domain}/api/v1/presentation/${newPPTId}/slides`)
-                .then(()=>{
-                    console.log('success to create slides');
-                    setCreateResult(true);
-                }
-                )
-                .catch((error) => {
-                    alert(error.message);
-                })
-        }
-    }, [newPPTId]);
     //=============================================웹소켓========================================================
     const receiveMessage = (message) => {
         //3-1 구독한 url에서 온 메세지를 받았을 때
         const frame = JSON.parse(message.body)
         if (frame.messageType === "PRESENTATION_UPDATE") {
+            setIsLoading(false);
             updatePPTInScreen(frame.data);
-            setNewPPTId(frame.data.presentationId);
         } else if (frame.messageType === "PRESENTATION_CREATE") {
+            setIsLoading(false);
             createPPTInScreen(frame.data);
-            setNewPPTId(frame.data.presentationId);
         } else {
             console.log("Not Supported Message Type")
         }
@@ -204,6 +173,7 @@ const PPT = () => {
             });
             closeEditModal();
         }
+        setIsValid(false);
     }, [isValid]);
 
     const closeEditModal = () => {
@@ -302,24 +272,28 @@ const PPT = () => {
                                 window.open(slideUrl, "_blank");
                             }}
                         />
-                        <div className="bookmark-buttons">
-                            <button className="download-pdf-btn" onClick={downloadPDF}>PDF로 다운로드</button>
-                            <button className="download-ppt-btn" onClick={downloadPPT}>PPT로 다운로드</button>
+                            {!isLeader &&
+                            <div className="bookmark-buttons">
+                                <button className="download-pdf-btn" onClick={downloadPDF}>PDF로 다운로드</button>
+                                <button className="download-ppt-btn" onClick={downloadPPT}>PPT로 다운로드</button>
+                            </div>
+                            }
                             {isLeader && (
-                                <>
+                                <div className="bookmark-buttons-leader">
+                                    <button className="download-pdf-btn" onClick={downloadPDF}>PDF로 다운로드</button>
+                                    <button className="download-ppt-btn" onClick={downloadPPT}>PPT로 다운로드</button>
                                     <button className="create-ppt-after-btn" onClick={() => setPPTModal(true)}>새 슬라이드 생성
                                     </button>
                                     <button className="edit-ppt-after-btn" onClick={() => setEditModal(true)}>기존 슬라이드 등록
                                     </button>
-                                </>
+                                </div>
                             )}
-                        </div>
                     </div>
-                )}
+                    )}
             </div>
 
             {isLoading && (
-                <div className="loading-overlay">
+            <div className="loading-overlay">
                     <div className="spinner"></div>
                     <p>Loading...</p>
                 </div>

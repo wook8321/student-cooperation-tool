@@ -40,7 +40,6 @@ const RoomList = ({setCreateModal}) => {
         axios
             .get(domain + `/api/v1/rooms?page=${page}`)
             .then((res) => {
-                console.log(res.data);
                 setRooms(res.data.data);
                 setCurrentPage(page); // 현재 페이지 업데이트
             })
@@ -123,7 +122,7 @@ const RoomList = ({setCreateModal}) => {
                             방 제목 : ${roomTitle}
                         </label>
                         <div id="passwordInvalidDiv" style="color: #1a1d20">비밀번호를 입력해주세요.</div>
-                        <input class="enter_modal_input" id="roomPasswordInput" type="password"/>
+                        <input style={{fontFamily: 'Arial, sans-serif'}} class="enter_modal_input" id="roomPasswordInput" type="password"/>
                         <button class="enter_button" id="verifyRoomButton">입장</button>
                     </div>
                 </div>
@@ -273,13 +272,11 @@ const Project = () => {
       axios.get(`${domain}/api/v1/friends/search?relation=true&name=${searchFriend}`)
           .then((res) => {
               const allResults = res.data.data.members; // 검색 결과
-              console.log(allResults);
               const filteredResults = participant.num > 0
                   ? allResults.filter((result) =>
                       !participant.members.some((member) => member.id === result.id)
                   )
                   : allResults;
-              console.log(filteredResults);
               setResult({num: filteredResults.length, members: filteredResults});
           })
           .catch((reason) => {
@@ -297,20 +294,6 @@ const Project = () => {
         }
     };
     const clearResults = () => setResult({num: 0, members: []});
-    const handleDeleteRoom = (roomId) => {
-        axios
-            .delete(`${domain}/api/v1/rooms`, {
-                data: {
-                    roomId,
-                },
-            })
-            .then(() => {
-                    setDeleteRoomId(roomId);
-            })
-            .catch(() => {
-                console.log("Failed to delete room");
-            });
-    };
 
     const handleSearch = ({page}) => {
         const searchTitle = document.getElementById("roomSearchInput").value;
@@ -458,13 +441,11 @@ const Project = () => {
     axios.get(`${domain}/api/v1/friends`)
         .then((res) => {
             const allResults = res.data.data.members; // 검색 결과
-            console.log(allResults);
             const filteredResults = participant.num > 0
                 ? allResults.filter((result) =>
                     !participant.members.some((member) => member.id === result.id)
                 )
                 : allResults;
-            console.log(filteredResults);
             setResult({num: filteredResults.length, members: filteredResults})
           setFriendModal(true);
         })
@@ -607,7 +588,7 @@ const Project = () => {
 
                                         <div className="modal_section">
                                             <label className="modal_label">비밀번호</label>
-                                            <input className="modal_input" id="createRoomPassword" type="password"
+                                            <input style={{fontFamily: 'Arial, sans-serif'}} className="modal_input" id="createRoomPassword" type="password"
                                             />
                                         </div>
                                     </div>
@@ -634,7 +615,7 @@ const Project = () => {
                       제목 : {enterRoomTitle}
                   </label>
                   <div id="passwordInvalidDiv" style={{color : "gray"}}>비밀번호를 입력해주세요.</div>
-                  <input className="enter_modal_input" id="roomPasswordInput" type="password"/>
+                  <input style={{fontFamily: 'Arial, sans-serif'}} className="enter_modal_input" id="roomPasswordInput" type="password"/>
                   <button className="enter_button" onClick={() => verifyPasswordAndEnterRoom(enterRoomId)}> 입장 </button>
               </div>
           </div>
