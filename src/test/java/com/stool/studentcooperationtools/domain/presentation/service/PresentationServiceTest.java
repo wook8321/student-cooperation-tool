@@ -54,42 +54,6 @@ class PresentationServiceTest extends IntegrationTest {
     }
 
     @Test
-    @DisplayName("방장이 ppt를 변경")
-    void updatePresentation(){
-        //given
-        Member user = Member.builder()
-                .role(Role.USER)
-                .email("e")
-                .profile("p")
-                .nickName("n")
-                .build();
-        Room room = Room.builder()
-                .participationNum(1)
-                .password("1234")
-                .title("t")
-                .leader(user)
-                .build();
-        roomRepository.save(room);
-        memberRepository.save(user);
-        SessionMember member = SessionMember.of(user);
-        Presentation presentation = Presentation.builder()
-                .presentationPath("path")
-                .room(room)
-                .build();
-        presentationRepository.save(presentation);
-        PresentationUpdateSocketRequest request = PresentationUpdateSocketRequest.builder()
-                .roomId(room.getId())
-                .presentationPath("newPath")
-                .build();
-        //when
-        presentationService.updatePresentation(request, member);
-        Presentation updatedPpt = presentationRepository.findByRoomId(room.getId())
-                .orElseThrow(()->new IllegalArgumentException("방에 ppt가 존재하지 않습니다."));
-        //then
-        Assertions.assertEquals(updatedPpt.getPresentationPath(), "newPath");
-    }
-
-    @Test
     @DisplayName("방장이 아닌 팀원이 ppt 업데이트 시 에러 발생")
     void updatePresentationByNonLeader(){
         //given

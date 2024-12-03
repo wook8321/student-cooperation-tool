@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.domain.presentation.service;
 
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
@@ -15,8 +16,11 @@ import com.stool.studentcooperationtools.domain.presentation.repository.Presenta
 import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.domain.slide.SlidesFactory;
+import com.stool.studentcooperationtools.domain.slide.service.SlideService;
+import com.stool.studentcooperationtools.security.credential.GoogleCredentialProvider;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.presentation.request.PresentationCreateSocketRequest;
+import com.stool.studentcooperationtools.websocket.controller.presentation.request.PresentationUpdateSocketRequest;
 import com.stool.studentcooperationtools.websocket.controller.presentation.response.PresentationUpdateSocketResponse;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -54,6 +58,12 @@ class PresentationServiceMockTest {
     HttpCredentialsAdapter credentialsAdapter;
 
     @Mock
+    Credential credential;
+
+    @Mock
+    MemberRepository memberRepository;
+
+    @Mock
     RoomRepository roomRepository;
 
     @Mock
@@ -81,10 +91,16 @@ class PresentationServiceMockTest {
     List<Permission> listOfPermission;
 
     @Mock
+    GoogleCredentialProvider credentialProvider;
+
+    @Mock
     Room room;
 
     @Mock
     SessionMember member;
+
+    @Mock
+    SlideService slideService;
 
     @Test
     @DisplayName("발표자료를 설정한 제목으로 생성")
@@ -100,7 +116,7 @@ class PresentationServiceMockTest {
                 .presentationName("new")
                 .roomId(1L)
                 .build();
-        when(slidesFactory.createDriveService(credentialsAdapter)).thenReturn(driveService);
+        when(slidesFactory.createDriveServicePerUser(credential)).thenReturn(driveService);
         when(driveService.files()).thenReturn(files);
         when(files.create(any(File.class))).thenReturn(filesCreate);
         when(filesCreate.setFields(anyString())).thenReturn(filesCreate);
@@ -117,7 +133,7 @@ class PresentationServiceMockTest {
         when(member.getMemberSeq()).thenReturn(memberId);
         //when
         PresentationUpdateSocketResponse response = presentationService.createPresentation(request,
-                credentialsAdapter, member);
+                 credential, member);
         //then
         assertNotNull(response);
         assertEquals(response.getPresentationPath(), "abc");
