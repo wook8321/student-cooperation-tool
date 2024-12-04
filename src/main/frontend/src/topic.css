@@ -358,3 +358,11 @@
 .topic-write-button:hover {
     background: #4fb1c0;
 }
+
+
+#notExistTopicH {
+    margin-top: 50px;
+    text-align: center;
+    padding: 20px;
+}
+
