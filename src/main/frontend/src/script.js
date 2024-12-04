@@ -23,13 +23,15 @@ const Script = () => {
   const [pptPath, setPptPath] = useState('');
   const [newScripts, setNewScripts] = useState({});
   const [currentPage, setCurrentPage] = useState(0);
-
+  const [test, setTest] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
     // 발표자료의 슬라이드를 가져오는 함수
     const fetchSlides = () => {
         axios.get(`${domain}/api/v1/presentation/${presentationId}/slides`)
             .then((res) => {
                 setSlides(res.data.data.slides);
+                setIsLoading(false);
             })
             .catch((e) => {
                 alert("슬라이드를 가져오는 데 실패하였습니다!")
@@ -47,7 +49,6 @@ const Script = () => {
         const frame = JSON.parse(message.body)
         if (frame.messageType === "SCRIPT_UPDATE") {
             updateScriptInScreen(frame.data)
-            console.log("message received");
         } else {
             console.log("Not Supported Message Type")
         }
@@ -65,7 +66,7 @@ const Script = () => {
             fetchSlides();
         }
         subscriptions.current = stompClient.current.subscribe(
-            `/sub/room/${roomId}/scripts`,
+            `/sub/rooms/${roomId}/scripts`,
             receiveMessage,
             receiveError
         );
@@ -101,14 +102,16 @@ const Script = () => {
           destination: '/pub/scripts/update',
           body: JSON.stringify(data)
       });
-      setNewScripts((prevScripts) => ({
-          ...prevScripts,
-          [scriptId]: "", // 저장 후 해당 슬라이드 입력값 초기화
-      }));
+      setSlides((prevSlides) =>
+          prevSlides.map((slide) =>
+              slide.scriptId === scriptId
+                  ? { ...slide, script } // 업데이트된 스크립트 반영
+                  : slide
+          )
+      );
   };
 
   const updateScriptInScreen = (frame) => {
-      console.log('frame : ',frame);
       setSlides(prevSlides =>
           prevSlides.map(slide =>
               slide.scriptId === frame.scriptId
@@ -116,7 +119,9 @@ const Script = () => {
                   : slide
           )
       );
+
   }
+
 
     const handleScriptChange = (slideId, value) => {
         setNewScripts((prevScripts) => ({
@@ -126,6 +131,7 @@ const Script = () => {
   };
   //========================================슬라이드 새로고침======================================
     const refreshSlides = () => {
+        setIsLoading(true);
         axios.post(`${domain}/api/v1/presentation/${presentationId}/slides-compare`)
             .then(()=>{
                 fetchSlides();
@@ -220,7 +226,8 @@ const Script = () => {
                                   <h4>슬라이드 {currentPage + 1}</h4>
                                   <textarea
                                       className="script-textarea"
-                                      value={newScripts[slides[currentPage].slideId] || ""}
+                                      value={newScripts[slides[currentPage].slideId] ??
+                                          slides[currentPage].script ?? ""}
                                       onChange={(e) =>
                                           handleScriptChange(
                                               slides[currentPage].slideId,
@@ -228,7 +235,7 @@ const Script = () => {
                                           )
                                       }
                                       placeholder={
-                                          slides[currentPage].script || "스크립트를 입력하세요"
+                                         "스크립트를 입력하세요"
                                       }
                                       rows="5"
                                   />
@@ -308,6 +315,12 @@ const Script = () => {
                   발표 준비
               </div>
           </div>
+          {isLoading && (
+              <div className="loading-overlay">
+                  <div className="spinner"></div>
+                  <p>Loading...</p>
+              </div>
+          )}
       </div>
   );
 };

@@ -15,6 +15,7 @@ import com.stool.studentcooperationtools.domain.presentation.repository.Presenta
 import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
 import com.stool.studentcooperationtools.domain.slide.SlidesFactory;
+import com.stool.studentcooperationtools.domain.slide.service.SlideService;
 import com.stool.studentcooperationtools.security.credential.GoogleCredentialProvider;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import com.stool.studentcooperationtools.websocket.controller.presentation.request.PresentationCreateSocketRequest;
@@ -40,8 +41,7 @@ public class PresentationService {
     private final RoomRepository roomRepository;
     private final SlidesFactory slidesFactory;
     private final GoogleCredentialProvider googleCredentialProvider;
-    @Value("${google.slides.folder-path}")
-    private String folderPath;
+    private final SlideService slideService;
 
     public PresentationFindResponse findPresentation(final Long roomId) {
         Presentation presentation = presentationRepository.findByRoomId(roomId)
@@ -56,6 +56,7 @@ public class PresentationService {
     public PresentationUpdateSocketResponse updatePresentation(final PresentationUpdateSocketRequest request, SessionMember member) {
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(()->new IllegalArgumentException("해당 방은 존재하지 않습니다"));
+        Credential credential = googleCredentialProvider.getCredential();
         if(!room.getLeader().getId().equals(member.getMemberSeq())){
             throw new IllegalArgumentException("발표자료 변경 권한이 없습니다");
         }
@@ -69,12 +70,13 @@ public class PresentationService {
                     return newPpt;
                 });
         updatingPpt.updatePath(request.getPresentationPath());
+        slideService.updateSlides(updatingPpt.getId(),credential);
         return PresentationUpdateSocketResponse.of(updatingPpt);
     }
 
     @Transactional
     public PresentationUpdateSocketResponse createPresentation(PresentationCreateSocketRequest request,
-                                                               HttpCredentialsAdapter credentialsAdapter,
+                                                               Credential credential,
                                                                SessionMember member) {
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(()->new IllegalArgumentException("해당 방은 존재하지 않습니다"));
@@ -82,12 +84,10 @@ public class PresentationService {
             throw new IllegalArgumentException("발표자료 변경 권한이 없습니다");
         }
         String fileId;
-        Drive dservice = slidesFactory.createDriveService(credentialsAdapter);
+        Drive dservice = slidesFactory.createDriveServicePerUser(credential);
         File fileMetadata = new File();
         fileMetadata.setName(request.getPresentationName());
         fileMetadata.setMimeType("application/vnd.google-apps.presentation");
-        fileMetadata.setParents(Collections.singletonList(folderPath));
-
         // Drive에서 프레젠테이션 파일을 해당 폴더에 저장
         try {
             File file = dservice.files().create(fileMetadata)
@@ -98,14 +98,6 @@ public class PresentationService {
                     .setType("anyone")
                     .setRole("writer");
             dservice.permissions().create(fileId, permission).execute();
-            PermissionList permissions = dservice.permissions().list(fileId).execute();
-            if (!permissions.isEmpty()) {
-                for (Permission p : permissions.getPermissions()) {
-                    if ("user".equals(p.getType()) && "writer".equals(p.getRole())) {
-                        dservice.permissions().delete(fileId, p.getId()).execute();
-                    }
-                }
-            }
         }
         catch (IOException e) {
             throw new VerifyException(e.getMessage(),e.getCause());
@@ -114,6 +106,7 @@ public class PresentationService {
             Presentation presentation = presentationRepository.findByRoomId(room.getId())
                     .orElseThrow(() -> new IllegalArgumentException("발표자료를 들고 오던 중 에러 발생"));
             presentation.updatePath(fileId);
+            slideService.updateSlides(presentation.getId(),credential);
             return PresentationUpdateSocketResponse.of(presentation);
         }
         else {
@@ -122,15 +115,16 @@ public class PresentationService {
                     .presentationPath(fileId)
                     .build();
             presentationRepository.save(presentation);
+            slideService.updateSlides(presentation.getId(),credential);
             return PresentationUpdateSocketResponse.of(presentation);
         }
     }
 
-    public ByteArrayOutputStream exportPdf(HttpCredentialsAdapter credentialsAdapter, Long presentationId) {
+    public ByteArrayOutputStream exportPdf(Credential credential, Long presentationId) {
         Presentation presentation = presentationRepository.findById(presentationId)
                 .orElseThrow(()->new IllegalArgumentException("해당하는 발표자료가 없습니다"));
         String fileId = presentation.getPresentationPath();
-        Drive driveService = slidesFactory.createDriveService(credentialsAdapter);
+        Drive driveService = slidesFactory.createDriveServicePerUser(credential);
         OutputStream outputStream = new ByteArrayOutputStream();
         try {
             driveService.files().export(fileId, "application/pdf")
@@ -142,11 +136,11 @@ public class PresentationService {
         }
     }
 
-    public ByteArrayOutputStream exportPpt(HttpCredentialsAdapter credentialsAdapter, Long presentationId) {
+    public ByteArrayOutputStream exportPpt(Credential credential, Long presentationId) {
         Presentation presentation = presentationRepository.findById(presentationId)
                 .orElseThrow(()->new IllegalArgumentException("해당하는 발표자료가 없습니다"));
         String fileId = presentation.getPresentationPath();
-        Drive driveService = slidesFactory.createDriveService(credentialsAdapter);
+        Drive driveService = slidesFactory.createDriveServicePerUser(credential);
         OutputStream outputStream = new ByteArrayOutputStream();
         try {
             driveService.files().export(fileId, "application/vnd.openxmlformats-officedocument.presentationml.presentation")
