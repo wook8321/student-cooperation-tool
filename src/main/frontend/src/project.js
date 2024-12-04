@@ -511,7 +511,7 @@ const Project = () => {
                 {searchModal && (
                             <div className="add_project_container">
                                 <div className="modal_overlay" onClick={closeSearchModal}>
-                                    <div className="modal_content" onClick={(e)=> e.stopPropagation()}>
+                                    <div className="project_modal_content" onClick={(e)=> e.stopPropagation()}>
                                         <button className="close_button" onClick={() => closeSearchModal()}>
                                             X
                                         </button>

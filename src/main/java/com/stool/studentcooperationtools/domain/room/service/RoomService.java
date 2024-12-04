@@ -7,6 +7,7 @@ import com.stool.studentcooperationtools.domain.member.repository.MemberReposito
 import com.stool.studentcooperationtools.domain.part.repository.PartRepository;
 import com.stool.studentcooperationtools.domain.participation.Participation;
 import com.stool.studentcooperationtools.domain.participation.repository.ParticipationRepository;
+import com.stool.studentcooperationtools.domain.presentation.Presentation;
 import com.stool.studentcooperationtools.domain.presentation.repository.PresentationRepository;
 import com.stool.studentcooperationtools.domain.presentation.service.PresentationService;
 import com.stool.studentcooperationtools.domain.room.Room;
@@ -19,6 +20,8 @@ import com.stool.studentcooperationtools.domain.room.controller.response.RoomEnt
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomSearchResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomsFindResponse;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
+import com.stool.studentcooperationtools.domain.script.repository.ScriptRepository;
+import com.stool.studentcooperationtools.domain.slide.repository.SlideRepository;
 import com.stool.studentcooperationtools.domain.topic.repository.TopicRepository;
 import com.stool.studentcooperationtools.domain.vote.respository.VoteRepository;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
@@ -43,11 +46,12 @@ public class RoomService {
     private final MemberRepository memberRepository;
     private final TopicRepository topicRepository;
     private final ParticipationRepository participationRepository;
-    private final PresentationService presentationService;
+    private final SlideRepository slideRepository;
     private final ChatRepository chatRepository;
     private final PartRepository partRepository;
     private final PresentationRepository presentationRepository;
     private final VoteRepository voteRepository;
+    private final ScriptRepository scriptRepository;
 
     public RoomsFindResponse findRooms(SessionMember member, final int page) {
         Pageable pageable = PageRequest.of(page, PagingUtils.ROOM_PAGING_PARSE);
@@ -93,14 +97,22 @@ public class RoomService {
         Room room = roomRepository.findRoomWithPLock(request.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("방 id 오류"));
         if(Objects.equals(member.getMemberSeq(), room.getLeader().getId())){
-            presentationService.deletePresentation(request.getRoomId());
-            chatRepository.deleteByRoomId(room.getId());
-            partRepository.deleteByRoomId(room.getId());
-            removeVoteBy(request);
-            topicRepository.deleteByRoomId(room.getId());
-            presentationRepository.deleteByRoomId(room.getId());
-            participationRepository.deleteByRoomId(room.getId());
-            roomRepository.deleteById(room.getId());
+                chatRepository.deleteByRoomId(room.getId());
+                partRepository.deleteByRoomId(room.getId());
+                removeVoteBy(request);
+                if(room.getMainTopic() != null){
+                    room.updateTopic(null);
+                }
+                topicRepository.deleteByRoomId(room.getId());
+                if(presentationRepository.existsByRoomId(room.getId())){
+                    Presentation presentation = presentationRepository.findByRoomId(room.getId())
+                                    .orElseThrow(()->new IllegalArgumentException("방의 ppt가 없습니다"));
+                    slideRepository.deleteByPresentationId(presentation.getId());
+                    scriptRepository.deleteByPresentationId(presentation.getId());
+                }
+                presentationRepository.deleteByRoomId(room.getId());
+                participationRepository.deleteByRoomId(room.getId());
+                roomRepository.deleteById(room.getId());
         }
         else{
             Member teammate = memberRepository.findById(member.getMemberSeq())
