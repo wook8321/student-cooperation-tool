@@ -237,7 +237,7 @@ footer > a > img:hover {
     z-index: 100;
 }
 
-.modal_content {
+.project_modal_content {
     display: flex;
     flex-direction: column;
     background-color: #ffffff;
