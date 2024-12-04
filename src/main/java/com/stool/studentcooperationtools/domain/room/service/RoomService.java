@@ -7,7 +7,6 @@ import com.stool.studentcooperationtools.domain.member.repository.MemberReposito
 import com.stool.studentcooperationtools.domain.part.repository.PartRepository;
 import com.stool.studentcooperationtools.domain.participation.Participation;
 import com.stool.studentcooperationtools.domain.participation.repository.ParticipationRepository;
-import com.stool.studentcooperationtools.domain.presentation.Presentation;
 import com.stool.studentcooperationtools.domain.presentation.repository.PresentationRepository;
 import com.stool.studentcooperationtools.domain.presentation.service.PresentationService;
 import com.stool.studentcooperationtools.domain.room.Room;
@@ -20,9 +19,8 @@ import com.stool.studentcooperationtools.domain.room.controller.response.RoomEnt
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomSearchResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomsFindResponse;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
-import com.stool.studentcooperationtools.domain.script.repository.ScriptRepository;
-import com.stool.studentcooperationtools.domain.slide.repository.SlideRepository;
 import com.stool.studentcooperationtools.domain.topic.repository.TopicRepository;
+import com.stool.studentcooperationtools.domain.vote.respository.VoteRepository;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -49,8 +47,7 @@ public class RoomService {
     private final ChatRepository chatRepository;
     private final PartRepository partRepository;
     private final PresentationRepository presentationRepository;
-    private final SlideRepository slideRepository;
-    private final ScriptRepository scriptRepository;
+    private final VoteRepository voteRepository;
 
     public RoomsFindResponse findRooms(SessionMember member, final int page) {
         Pageable pageable = PageRequest.of(page, PagingUtils.ROOM_PAGING_PARSE);
@@ -98,6 +95,7 @@ public class RoomService {
         if(Objects.equals(member.getMemberSeq(), room.getLeader().getId())){
                 chatRepository.deleteByRoomId(room.getId());
                 partRepository.deleteByRoomId(room.getId());
+                removeVoteBy(request);
                 if(room.getMainTopic() != null){
                     room.updateTopic(null);
                 }
@@ -125,6 +123,12 @@ public class RoomService {
 
         }
         return true;
+    }
+
+    private void removeVoteBy(final RoomRemoveRequest request) {
+        //해당 방의 주제들의 id를 가져오고, 해당 주제 id를 외래키로 가지고 있는 vote들을 삭제한다.
+        List<Long> topicIds = topicRepository.findTopicIdByRoomId(request.getRoomId());
+        voteRepository.deleteAllByInTopicId(topicIds);
     }
 
     private void delParticipation(SessionMember member, Room room){

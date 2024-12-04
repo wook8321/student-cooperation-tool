@@ -502,14 +502,14 @@ const Part = () => {
                 )}
 
                 {fileUploadModal && (
-                    <div className="review-modal-overlay">
+                    <div className="review-modal-overlay" onClick={() => closeFileUploadModal()}>
                         <div className="review-modal-content" onClick={(e) => e.stopPropagation()}>
                             <button className="review-close-button" onClick={() => closeFileUploadModal()}> X </button>
                             <h2 className="review-modal-title">파일 올리기</h2>
                             <input id="file-upload" className="file-input" type="file"
                                    onChange={(e) => setUploadingFile(e.target.files[0])}/>
                             <div className="review-write-buttons">
-                                <button className="review-write-button" onClick={() => uploadFile()}>파일 업로드</button> : <></>
+                                <button className="review-write-button" onClick={() => uploadFile()}>파일 업로드</button>
                             </div>
                         </div>
                     </div>
@@ -553,7 +553,7 @@ const Part = () => {
                 )}
 
                 {reviewModal && (
-                    <div className="review-modal-overlay" onBlur={(e) => closeReviewModal(e)}>
+                    <div className="review-modal-overlay" onClick={() =>setReviewModal(false)}>
                         <div className="review-modal-content" onClick={(e) => e.stopPropagation()}>
                             <button className="review-close-button" onClick={() => setReviewModal(false)}> X </button>
                             <h2 className="review-modal-title">Review</h2>
