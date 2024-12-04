@@ -48,7 +48,7 @@ const FriendsList = () => {
                     </ul>
                 ) : <h1 style={{textAlign : "center", width: "1000px"}} id="notExistH">
                     <div>
-                        <img src={friendship} height="300" width="300"/>
+                        <img src={friendship} height="300" width="300" style={{marginTop: "20px"}}/>
                     </div>
                     아직 등록된 친구가 없네요. 친구들을 찾아 볼까요?
                 </h1>}
@@ -166,7 +166,7 @@ const Friend = () => {
                                                     </div>
                                                     <span className="friend-name">{friend.nickname}</span>
                                                     <button className="add_friend_button" onClick={() => handleAddFriend(friend.email,friend.profile,friend.nickname)}>
-                                                        친구 추가
+                                                        +
                                                     </button>
                                                 </div>
                                             </li>)
