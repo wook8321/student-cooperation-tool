@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface VoteRepository extends JpaRepository<Vote,Long> {
 
     @Modifying
@@ -18,4 +20,8 @@ public interface VoteRepository extends JpaRepository<Vote,Long> {
 
     @Query(value = "select v from Vote v where v.voter.id = :memberId and v.topic.id = :topicId")
     Vote findVoteByMemberIdAndTopicId(@Param("memberId") Long memberId, @Param("topicId") Long topicId);
+
+    @Modifying
+    @Query("delete from Vote v where v.topic.id in :topicIds")
+    void deleteAllByInTopicId(@Param("topicIds") List<Long> topicIds);
 }
