@@ -216,6 +216,22 @@
     justify-content: center;
 }
 
+/* 삭제 버튼 (포스트잇 안쪽 상단) */
+.topic-decision-btn {
+    position: absolute;
+    top: 20px; /* 포스트잇 상단에 위치 */
+    left: 10px; /* 포스트잇 왼쪽에 위치 */
+    background-color: transparent;
+    color: #000000;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* 삭제 버튼 호버 효과 */
 .delete-btn:hover {
     transform: rotate(-2deg) scale(0.95); /* 마우스 올렸을 때 약간 커지는 효과 */
