@@ -237,11 +237,19 @@
     transform: rotate(-2deg) scale(0.95); /* 마우스 올렸을 때 약간 커지는 효과 */
 }
 
+.thumbs-container {
+    position: absolute;
+    bottom: 10px; /* 포스트잇 하단에 위치 */
+    justify-content: center;
+    display: flex;
+    gap: 5px;
+    height: 30px; /* 엄지척 컨테이너 높이 고정 */
+    overflow-y: hidden; /* 넘치는 아이콘 숨김 */
+}
+
 /* 엄지척 스티커 */
 .thumbs-up {
-    position: absolute;
     font-size: 24px;
-    color: #28a745;
     animation: pop 0.3s ease forwards;
 }
 
