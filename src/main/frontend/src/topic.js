@@ -12,6 +12,7 @@ import mainlogo from "./images/mainlogo.png";
 import backlink from "./images/back.svg"
 import Online from "./online";
 import memo from "./images/memo.svg"
+import noPartImg from "./images/no-part.svg";
 
 const Topic = () => {
   const [topics, setTopics] = useState({num: 0, topics: []});
@@ -256,15 +257,25 @@ const Topic = () => {
                       </div>
                   ))
               ) : (
-                  <h2 id="notExistTopicH">
+                  <h1 id="notExistTopicH" className="no-part-title">
                     <img src={memo} height="300" width="300" style={{marginTop: "20px"}}/>
-                    새로운 주제를 추가하고 프로젝트의 주제를 선정해보세요!</h2>
+                    <div className="no-part-container">
+                                <span className="no-part-text">
+                                    새로운 주제를 추가하고 프로젝트의 주제를 선정해보세요!
+                                </span>
+                      <button onClick={() => setAddModal(true)} className="topic-add-btn">
+                        +
+                      </button>
+                    </div>
+                  </h1>
               )}
-              <div>
-                <button onClick={() => setAddModal(true)} className="add_topic">
-                  +
-                </button>
-              </div>
+              {topics.num > 0 ? (
+                <div>
+                  <button onClick={() => setAddModal(true)} className="add_topic">
+                    +
+                  </button>
+                </div>) : <></>
+              }
             </div>
           </div>
 
