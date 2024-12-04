@@ -10,7 +10,6 @@ const Main = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
 
     useEffect(() => {
-        alert("인증 요구!")
         axios
             .get("/api/login-info", {
                 withCredentials: true,
