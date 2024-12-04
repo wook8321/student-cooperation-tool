@@ -98,6 +98,9 @@ public class RoomService {
         if(Objects.equals(member.getMemberSeq(), room.getLeader().getId())){
                 chatRepository.deleteByRoomId(room.getId());
                 partRepository.deleteByRoomId(room.getId());
+                if(room.getMainTopic() != null){
+                    room.updateTopic(null);
+                }
                 topicRepository.deleteByRoomId(room.getId());
                 if(presentationRepository.existsByRoomId(room.getId())){
                     Presentation presentation = presentationRepository.findByRoomId(room.getId())
