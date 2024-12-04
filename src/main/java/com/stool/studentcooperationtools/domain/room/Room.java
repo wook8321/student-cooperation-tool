@@ -37,7 +37,7 @@ public class Room extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member leader;
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST, orphanRemoval = true)
     private Topic mainTopic;
 
     @Builder

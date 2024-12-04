@@ -93,14 +93,22 @@ public class RoomService {
         Room room = roomRepository.findRoomWithPLock(request.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("방 id 오류"));
         if(Objects.equals(member.getMemberSeq(), room.getLeader().getId())){
-            presentationService.deletePresentation(request.getRoomId());
-            chatRepository.deleteByRoomId(room.getId());
-            partRepository.deleteByRoomId(room.getId());
-            removeVoteBy(request);
-            topicRepository.deleteByRoomId(room.getId());
-            presentationRepository.deleteByRoomId(room.getId());
-            participationRepository.deleteByRoomId(room.getId());
-            roomRepository.deleteById(room.getId());
+                chatRepository.deleteByRoomId(room.getId());
+                partRepository.deleteByRoomId(room.getId());
+                removeVoteBy(request);
+                if(room.getMainTopic() != null){
+                    room.updateTopic(null);
+                }
+                topicRepository.deleteByRoomId(room.getId());
+                if(presentationRepository.existsByRoomId(room.getId())){
+                    Presentation presentation = presentationRepository.findByRoomId(room.getId())
+                                    .orElseThrow(()->new IllegalArgumentException("방의 ppt가 없습니다"));
+                    slideRepository.deleteByPresentationId(presentation.getId());
+                    scriptRepository.deleteByPresentationId(presentation.getId());
+                }
+                presentationRepository.deleteByRoomId(room.getId());
+                participationRepository.deleteByRoomId(room.getId());
+                roomRepository.deleteById(room.getId());
         }
         else{
             Member teammate = memberRepository.findById(member.getMemberSeq())
