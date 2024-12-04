@@ -11,6 +11,7 @@ import ChatPage from "./chatroom";
 import mainlogo from "./images/mainlogo.png";
 import backlink from "./images/back.svg"
 import Online from "./online";
+import memo from "./images/memo.svg"
 
 const Topic = () => {
   const [topics, setTopics] = useState({num: 0, topics: []});
@@ -255,7 +256,9 @@ const Topic = () => {
                       </div>
                   ))
               ) : (
-                  <h2 id="notExsistTopicH">해당 방의 주제가 없습니다.</h2>
+                  <h2 id="notExistTopicH">
+                    <img src={memo} height="300" width="300" style={{marginTop: "20px"}}/>
+                    새로운 주제를 추가하고 프로젝트의 주제를 선정해보세요!</h2>
               )}
               <div>
                 <button onClick={() => setAddModal(true)} className="add_topic">

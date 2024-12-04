@@ -14,6 +14,7 @@ import ChatPage from "./chatroom";
 import mainlogo from "./images/mainlogo.png";
 import backlink from "./images/back.svg";
 import Online from "./online";
+import partdata from "./images/partdata.svg";
 
 
 //
@@ -226,7 +227,7 @@ const Part = () => {
                     width="100%" height="600px"/>
             );
         } else {
-            return <span>미리 보여줄 수 없는 파일입니다.</span>;
+            return <span>미리 보기가 지원되지 않는 파일 형식입니다.</span>;
         }
     };
     //==============================================================================================================
@@ -641,7 +642,7 @@ const Part = () => {
                 <img src={backlink}/>
             </button>
             <div className="part-main">
-                {parts.parts.map((part) => (
+                {parts.num > 0 ? (parts.parts.map((part) => (
                     <div className="part-card" key={part.partId}>
                         <div className="part-header">
                             <img className="part-picture" src={part.profile} alt="프로필"/>
@@ -674,11 +675,17 @@ const Part = () => {
                                             </button>
                                         </div>
                                     </div>
-                                ))) : <span> 업로드한 파일이 없습니다.</span>
+                                ))) : <span> 아직 등록한 자료가 없습니다.</span>
                             }
                         </div>
                     </div>
-                ))}
+                ))): <h1 style={{textAlign : "center", width: "1000px"}} id="notExistH">
+                    <div>
+                        <img src={partdata} height="300" width="300" style={{marginTop: "20px"}}/>
+                    </div>
+                    각자 역할을 나누고 자료를 조사해보아요!
+                </h1>
+                }
                 <button className="role-add-btn" onClick={() => openAddModal()}>
                     +
                 </button>
