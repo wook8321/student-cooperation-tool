@@ -134,6 +134,31 @@ const Topic = () => {
     deleteTopic(topicId); // 부모 컴포넌트의 삭제 함수 호출
   };
 
+  const handleTopicDecisionClick = (e,topicId) =>{
+    // 클릭 이벤트 전파를 막아 주제 결정 버튼만 처리하도록 함
+    e.stopPropagation();
+    updateDecisionTopic(topicId);
+  }
+
+  const updateDecisionTopic = (topicId) => {
+    const data = {
+      roomId : roomId,
+      topicId : topicId
+    }
+    axios
+        .post("/api/v1/rooms/topics",data,{
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        .then((res) =>{
+          console.log(res)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+  }
+
   // ================================================ 토픽 생성 ======================================
 
   const updateTopicInScreen = (topic) => {
@@ -232,6 +257,11 @@ const Topic = () => {
               {topics.num > 0 ? (
                   topics.topics.map((topic) => (
                       <div className={`post-it post-it-${topic.topicId % 4}`} id={`topic${topic.topicId}`} onClick={() => toggleVote(topic.topicId)}>
+                        {userId === leaderId ?
+                            <button className="topic-decision-btn"  onClick={(e) => handleTopicDecisionClick(e,topic.topicId)}>
+                              결정
+                            </button> : <></>
+                        }
                         {userId === leaderId || userId === topic.memberId ?
                             <button className="delete-btn"  onClick={(e) => handleDeleteClick(e,topic.topicId)}>
                               X
