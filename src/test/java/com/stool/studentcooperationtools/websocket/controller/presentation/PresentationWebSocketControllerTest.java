@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.websocket.controller.presentation;
 
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.stool.studentcooperationtools.domain.presentation.service.PresentationService;
 import com.stool.studentcooperationtools.security.credential.GoogleCredentialProvider;
@@ -76,9 +77,8 @@ class PresentationWebSocketControllerTest extends WebsocketTestSupport {
                 .presentationId(1L)
                 .build();
         when(presentationService.createPresentation(any(PresentationCreateSocketRequest.class),
-                any(HttpCredentialsAdapter.class), any(SessionMember.class))).thenReturn(response);
-        doNothing().when(credentialProvider).initializeCredentialAdapter();
-        when(credentialProvider.getCredentialsAdapter()).thenReturn(Mockito.mock(HttpCredentialsAdapter.class));
+                any(Credential.class),any(SessionMember.class))).thenReturn(response);
+        when(credentialProvider.getCredential()).thenReturn(Mockito.mock(Credential.class));
         stompSession.subscribe(PresentationUpdateSubUrl,resultHandler);
         //when
         stompSession.send("/pub/presentation/create",request);

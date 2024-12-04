@@ -18,7 +18,6 @@ const FriendsList = () => {
         axios
             .get(domain + "/api/v1/friends")
             .then((res) => {
-                console.log(res.data);
                 setFriends(res.data.data);
             })
             .catch(() => {
@@ -49,7 +48,7 @@ const FriendsList = () => {
                     </ul>
                 ) : <h1 style={{textAlign : "center", width: "1000px"}} id="notExistH">
                     <div>
-                        <img src={friendship} height="300" width="300"/>
+                        <img src={friendship} height="300" width="300" style={{marginTop: "20px"}}/>
                     </div>
                     아직 등록된 친구가 없네요. 친구들을 찾아 볼까요?
                 </h1>}
@@ -65,7 +64,6 @@ const Friend = () => {
         axios
             .get(domain + `/api/v1/friends/search?relation=false&name=${searchText}`)
             .then((res) => {
-                console.log(res.data.data);
                 setFriendData(res.data.data);
                 setModalOpen(true);
             })
@@ -81,7 +79,6 @@ const Friend = () => {
                 email
             },  { "Content-Type": "application/json"},)
             .then((res) => {
-                console.log("Friend added:", res.data);
                 createFriendDiv(email,profile, nickname);
 
                 setFriendData((prevData) => ({
@@ -152,7 +149,7 @@ const Friend = () => {
             {modalOpen && (
 
                 <div className="modal_overlay" onClick={handleCloseModal}>
-                    <div className="modal_content" onClick={(e) => e.stopPropagation()} >
+                    <div className="friend_modal_content" onClick={(e) => e.stopPropagation()} >
 
                         <h3>검색 결과</h3>
                         <button className="close_button" onClick={handleCloseModal}>
@@ -163,13 +160,13 @@ const Friend = () => {
                                     <ul>
                                         {friendData.members.map(friend => (
                                             <li key={friend.email}>
-                                                <div className = "profile">
+                                                <div className = "friend_profile">
                                                     <div className="profile-icon">
                                                         <img src={friend.profile} alt="프로필"/>
                                                     </div>
                                                     <span className="friend-name">{friend.nickname}</span>
                                                     <button className="add_friend_button" onClick={() => handleAddFriend(friend.email,friend.profile,friend.nickname)}>
-                                                        친구 추가
+                                                        +
                                                     </button>
                                                 </div>
                                             </li>)

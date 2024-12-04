@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.websocket.controller.presentation;
 
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.stool.studentcooperationtools.domain.presentation.service.PresentationService;
 import com.stool.studentcooperationtools.security.credential.GoogleCredentialProvider;
@@ -40,16 +41,12 @@ public class PresentationWebSocketController {
 
     @MessageMapping("presentation/create")
     public void createPresentation(@Valid @RequestBody PresentationCreateSocketRequest request, SessionMember member) {
-        try {
-            credentialProvider.initializeCredentialAdapter();
-            HttpCredentialsAdapter credentialsAdapter = credentialProvider.getCredentialsAdapter();
-            PresentationUpdateSocketResponse response = presentationService.createPresentation(request, credentialsAdapter, member);
-            sendingUtils.convertAndSend(
-                    sendingUtils.createPresentationManageSubUrl(request.getRoomId()),
-                    WebsocketResponse.of(PRESENTATION_CREATE, response)
-            );
-        }catch(IOException e) {
-            throw new IllegalStateException(e.getMessage(), e.getCause());
-        }
+        Credential credential = credentialProvider.getCredential();
+        PresentationUpdateSocketResponse response = presentationService.createPresentation(request, credential, member);
+        sendingUtils.convertAndSend(
+                sendingUtils.createPresentationManageSubUrl(request.getRoomId()),
+                WebsocketResponse.of(PRESENTATION_CREATE, response)
+        );
+
     }
 }

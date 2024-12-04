@@ -199,4 +199,51 @@ class TopicRepositoryTest extends IntegrationTest {
         assertThat(topics).hasSize(1);
         assertThat(updatedData).isEqualTo(0);
     }
+
+    @DisplayName("방 id를 참조하는 주제들의 id를 조회한다.")
+    @Test
+    void findTopicIdByRoomId(){
+        //given
+        Member leader = Member.builder()
+                .email("방장이메일")
+                .nickName("방장")
+                .profile("방장프로필")
+                .role(Role.USER)
+                .build();
+        memberRepository.save(leader);
+        Room room = Room.builder()
+                .password("password")
+                .title("제목")
+                .leader(leader)
+                .participationNum(0)
+                .build();
+
+        Member owner = Member.builder()
+                .email("팀원이메일")
+                .nickName("팀원")
+                .profile("팀원프로필")
+                .role(Role.USER)
+                .build();
+        Topic topic1 =Topic.builder()
+                .topic("주제")
+                .member(owner)
+                .room(room)
+                .build();
+        Topic topic2 =Topic.builder()
+                .topic("주제")
+                .member(owner)
+                .room(room)
+                .build();
+        roomRepository.save(room);
+        memberRepository.save(owner);
+        topicRepository.saveAll(List.of(topic2,topic1));
+
+        //when
+        List<Long> topicIds = topicRepository.findTopicIdByRoomId(room.getId());
+
+        //then
+        assertThat(topicIds).hasSize(2);
+        assertThat(topicIds.contains(topic1.getId())).isTrue();
+        assertThat(topicIds.contains(topic2.getId())).isTrue();
+    }
 }

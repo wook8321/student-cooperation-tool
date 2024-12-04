@@ -8,7 +8,8 @@ import chatImage from './images/chat.svg';
 import {domain} from "./domain";
 import { useWebSocket } from './WebsocketContext';
 import mainlogo from "./images/mainlogo.png";
-import backlink from "./images/back.svg"; // WebSocketProvider의 훅 사용
+import backlink from "./images/back.svg";
+import Online from "./online"; // WebSocketProvider의 훅 사용
 
 
 const Script = () => {
@@ -16,19 +17,21 @@ const Script = () => {
   const [newScript, setNewScript] = useState(""); // 새로 입력된 스크립트
   const [chatModal, setChatModal] = useState(false); 
   const [error, setError] = useState(null);
-  const {stompClient, isConnected, roomId, userId, leaderId, presentationId} = useWebSocket();
+  const {stompClient, isConnected, roomId, userId, leaderId, presentationId, online} = useWebSocket();
   const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
   const navigate = useNavigate();
   const [pptPath, setPptPath] = useState('');
   const [newScripts, setNewScripts] = useState({});
   const [currentPage, setCurrentPage] = useState(0);
-
+  const [test, setTest] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
     // 발표자료의 슬라이드를 가져오는 함수
     const fetchSlides = () => {
         axios.get(`${domain}/api/v1/presentation/${presentationId}/slides`)
             .then((res) => {
                 setSlides(res.data.data.slides);
+                setIsLoading(false);
             })
             .catch((e) => {
                 alert("슬라이드를 가져오는 데 실패하였습니다!")
@@ -46,7 +49,6 @@ const Script = () => {
         const frame = JSON.parse(message.body)
         if (frame.messageType === "SCRIPT_UPDATE") {
             updateScriptInScreen(frame.data)
-            console.log("message received");
         } else {
             console.log("Not Supported Message Type")
         }
@@ -64,7 +66,7 @@ const Script = () => {
             fetchSlides();
         }
         subscriptions.current = stompClient.current.subscribe(
-            `/sub/room/${roomId}/scripts`,
+            `/sub/rooms/${roomId}/scripts`,
             receiveMessage,
             receiveError
         );
@@ -89,7 +91,7 @@ const Script = () => {
         }
     }, [isConnected]); //isConnected 상태가 바뀌면 실행된다.
     //===============================================================================
-   //===================================스크립트 추가===================================
+   //===================================스크립트 등록===================================
   const addScript = (scriptId, script) => {
       const data = {
           roomId,
@@ -100,14 +102,16 @@ const Script = () => {
           destination: '/pub/scripts/update',
           body: JSON.stringify(data)
       });
-      setNewScripts((prevScripts) => ({
-          ...prevScripts,
-          [scriptId]: "", // 저장 후 해당 슬라이드 입력값 초기화
-      }));
+      setSlides((prevSlides) =>
+          prevSlides.map((slide) =>
+              slide.scriptId === scriptId
+                  ? { ...slide, script } // 업데이트된 스크립트 반영
+                  : slide
+          )
+      );
   };
 
   const updateScriptInScreen = (frame) => {
-      console.log('frame : ',frame);
       setSlides(prevSlides =>
           prevSlides.map(slide =>
               slide.scriptId === frame.scriptId
@@ -115,7 +119,9 @@ const Script = () => {
                   : slide
           )
       );
+
   }
+
 
     const handleScriptChange = (slideId, value) => {
         setNewScripts((prevScripts) => ({
@@ -123,26 +129,15 @@ const Script = () => {
             [slideId]: value, // slideId에 해당하는 상태만 업데이트
         }));
   };
-
-  //==================================================기타 기능==============================
-  const ErrorModal = ({ error, closeErrorModal }) => {
-    if (!error) return null; // 에러가 없을 때
-
-    return (
-        <div className="error-modal-overlay">
-          <h2>오류 발생</h2>
-          <button className="close-error-button" onClick={closeErrorModal}>
-            X
-          </button>
-            <div className="error-modal" onClick={(e) => e.stopPropagation()}>
-                <p>{error.message || "알 수 없는 에러가 발생했습니다."}</p>
-            </div>
-        </div>
-    );
-  };
-
-  const closeErrorModal = () => { setError(null) };
-
+  //========================================슬라이드 새로고침======================================
+    const refreshSlides = () => {
+        setIsLoading(true);
+        axios.post(`${domain}/api/v1/presentation/${presentationId}/slides-compare`)
+            .then(()=>{
+                fetchSlides();
+            })
+    }
+  //===========================================기타 기능===========================================
     const goSection = (path, subUrl) => {
         const state = {
             roomId,
@@ -199,6 +194,7 @@ const Script = () => {
 
   return (
       <div className="background">
+          <Online online={online}/>
           <img src={mainlogo} className="upper-logo"/>
           <button onClick={goBack} className="back_link">
               <img src={backlink}/>
@@ -220,7 +216,7 @@ const Script = () => {
                                   style={{cursor: "pointer"}}
                               >
                                   <img
-                                      src={slides[currentPage].thumbnailUrl}
+                                      src={`${domain}/proxy/thumbnail?url=${encodeURIComponent(slides[currentPage].thumbnailUrl)}`}
                                       alt={`Slide ${slides[currentPage].slideId}`}
                                   />
                               </div>
@@ -230,7 +226,8 @@ const Script = () => {
                                   <h4>슬라이드 {currentPage + 1}</h4>
                                   <textarea
                                       className="script-textarea"
-                                      value={newScripts[slides[currentPage].slideId] || ""}
+                                      value={newScripts[slides[currentPage].slideId] ??
+                                          slides[currentPage].script ?? ""}
                                       onChange={(e) =>
                                           handleScriptChange(
                                               slides[currentPage].slideId,
@@ -238,7 +235,7 @@ const Script = () => {
                                           )
                                       }
                                       placeholder={
-                                          slides[currentPage].script || "스크립트를 입력하세요"
+                                         "스크립트를 입력하세요"
                                       }
                                       rows="5"
                                   />
@@ -290,7 +287,7 @@ const Script = () => {
                           </button>
                       </div>
                       {/* 새로고침 버튼 */}
-                      <button className="refresh-btn">🔄</button>
+                      {presentationId && <button className="refresh-btn" onClick={refreshSlides}>🔄</button>}
                   </div>
               </div>
           </div>
@@ -318,6 +315,12 @@ const Script = () => {
                   발표 준비
               </div>
           </div>
+          {isLoading && (
+              <div className="loading-overlay">
+                  <div className="spinner"></div>
+                  <p>Loading...</p>
+              </div>
+          )}
       </div>
   );
 };

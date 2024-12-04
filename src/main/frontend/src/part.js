@@ -13,6 +13,8 @@ import chatImage from "./images/chat.svg";
 import ChatPage from "./chatroom";
 import mainlogo from "./images/mainlogo.png";
 import backlink from "./images/back.svg";
+import noPartImg from "./images/no-part.svg"
+import Online from "./online";
 
 
 //
@@ -22,7 +24,7 @@ const Part = () => {
     const [partName, setPartName] = useState("")
     const [selectedMemberId, setSelectedMemberId] = useState(null);
     const [participation, setParticipation] = useState({ num: 0, participation: [] });
-    const {stompClient, isConnected, roomId, userId, leaderId, presentationId} = useWebSocket(); // WebSocket 연결 관리
+    const {stompClient, isConnected, roomId, userId, leaderId, presentationId, online} = useWebSocket(); // WebSocket 연결 관리
     const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
     const navigate = useNavigate();
     const [filePreviewModal, setFilePreviewModal] = useState(false)
@@ -501,14 +503,14 @@ const Part = () => {
                 )}
 
                 {fileUploadModal && (
-                    <div className="review-modal-overlay">
+                    <div className="review-modal-overlay" onClick={() => closeFileUploadModal()}>
                         <div className="review-modal-content" onClick={(e) => e.stopPropagation()}>
                             <button className="review-close-button" onClick={() => closeFileUploadModal()}> X </button>
                             <h2 className="review-modal-title">파일 올리기</h2>
                             <input id="file-upload" className="file-input" type="file"
                                    onChange={(e) => setUploadingFile(e.target.files[0])}/>
                             <div className="review-write-buttons">
-                                <button className="review-write-button" onClick={() => uploadFile()}>파일 업로드</button> : <></>
+                                <button className="review-write-button" onClick={() => uploadFile()}>파일 업로드</button>
                             </div>
                         </div>
                     </div>
@@ -552,7 +554,7 @@ const Part = () => {
                 )}
 
                 {reviewModal && (
-                    <div className="review-modal-overlay" onBlur={(e) => closeReviewModal(e)}>
+                    <div className="review-modal-overlay" onClick={() =>setReviewModal(false)}>
                         <div className="review-modal-content" onClick={(e) => e.stopPropagation()}>
                             <button className="review-close-button" onClick={() => setReviewModal(false)}> X </button>
                             <h2 className="review-modal-title">Review</h2>
@@ -633,52 +635,68 @@ const Part = () => {
     return (
     <>
         <div className="part-background">
+            {/*온라인 상태인 유저 보기창*/}
+            <Online online={online}/>
             <img src={mainlogo} className="upper-logo"/>
             <button onClick={goBack} className="back_link">
                 <img src={backlink}/>
             </button>
             <div className="part-main">
-                {parts.parts.map((part) => (
-                    <div className="part-card" key={part.partId}>
-                        <div className="part-header">
-                            <img className="part-picture" src={part.profile} alt="프로필"/>
-                            <div className="part-nickname">
-                                {part.nickName}
-                                <Dropdown part={part}/>
+                {parts.parts?.length > 0 ?
+                    (parts.parts.map((part) => (
+                        <div className="part-card" key={part.partId}>
+                            <div className="part-header">
+                                <img className="part-picture" src={part.profile} alt="프로필"/>
+                                <div className="part-nickname">
+                                    {part.nickName}
+                                    <Dropdown part={part}/>
+                                </div>
                             </div>
-                        </div>
-                        <div className="part-title">{part.partName}</div>
+                            <div className="part-title">{part.partName}</div>
 
-                        <div className="file-list-container">
-                            {part.files?.length > 0 ? (
-                                part.files.map((file) => (
-                                    <div className="file-item" key={file.fileId}>
-                                        {file.originalName}
-                                        <div className="file-buttons">
-                                            {userId === leaderId || userId === part.memberId ?
+                            <div className="file-list-container">
+                                {part.files?.length > 0 ? (
+                                    part.files.map((file) => (
+                                        <div className="file-item" key={file.fileId}>
+                                            {file.originalName}
+                                            <div className="file-buttons">
+                                                {userId === leaderId || userId === part.memberId ?
+                                                    <button className="preview-button"
+                                                            onClick={() => deleteFile(file.fileName, file.fileId,part.partId)}>
+                                                        X
+                                                    </button> : <></>
+                                                }
                                                 <button className="preview-button"
-                                                        onClick={() => deleteFile(file.fileName, file.fileId,part.partId)}>
-                                                    X
-                                                </button> : <></>
-                                            }
-                                            <button className="preview-button"
-                                                    onClick={() => openFilePreviewModal(file.fileUrl, file.fileType)}>
-                                                🔍
-                                            </button>
-                                            <button className="download-button"
-                                                    onClick={() => downloadFile(file.fileName, file.originalName)}>
-                                                ⬇️
-                                            </button>
+                                                        onClick={() => openFilePreviewModal(file.fileUrl, file.fileType)}>
+                                                    🔍
+                                                </button>
+                                                <button className="download-button"
+                                                        onClick={() => downloadFile(file.fileName, file.originalName)}>
+                                                    ⬇️
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))) : <span> 업로드한 파일이 없습니다.</span>
-                            }
+                                    ))) : <span> 업로드한 파일이 없습니다.</span>
+                                }
+                            </div>
+                            <button className="role-add-btn" onClick={() => openAddModal()}>
+                                +
+                            </button>
                         </div>
-                    </div>
-                ))}
-                <button className="role-add-btn" onClick={() => openAddModal()}>
-                    +
-                </button>
+                    ))) : (
+                        <h1 className="no-part-title">
+                            <img src={noPartImg} alt="No part image"/>
+                            <div className="no-part-container">
+                                <span className="no-part-text">
+                                    아직 추가한 역할이 없네요.
+                                </span>
+                                <button className="role-add-btn" onClick={() => openAddModal()}>
+                                    +
+                                </button>
+                            </div>
+                        </h1>
+                    )
+                }
             </div>
             <div>
                 <button className="chat-button" onClick={toggleChatModal}>

@@ -10,12 +10,34 @@
     background-color: #e0ffe0;
 }
 
+.no-part-title {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.no-part-container {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.no-part-text {
+    margin-right: 10px;
+}
+
 .role-add-btn {
     width: 40px;
     height: 40px;
     font-size: 24px;
     background-color: #4caf50;
-    padding : 10px;
+    padding: 10px;
     color: white;
     border: none;
     border-radius: 50%;
@@ -24,6 +46,7 @@
     align-items: center;
     justify-content: center;
 }
+
 
 .role-add-btn:hover {
     background-color: #45a049;

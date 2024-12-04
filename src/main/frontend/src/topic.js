@@ -4,17 +4,21 @@ import axios from "axios";
 import { useWebSocket } from './WebsocketContext'; // WebSocketProvider의 훅 사용
 import { Link } from 'react-router-dom';
 import './topic.css';
+import "./online.css"
 import chatImage from './images/chat.svg';
 import {domain} from "./domain";
 import ChatPage from "./chatroom";
 import mainlogo from "./images/mainlogo.png";
 import backlink from "./images/back.svg"
+import Online from "./online";
+import memo from "./images/memo.svg"
+import noPartImg from "./images/no-part.svg";
 
 const Topic = () => {
   const [topics, setTopics] = useState({num: 0, topics: []});
   const [addModal, setAddModal] = useState(false);
   const [chatModal, setChatModal] = useState(false);
-  const {stompClient, isConnected, roomId, userId, leaderId, presentationId} = useWebSocket(); // WebSocket 연결 관리
+  const {stompClient, isConnected, roomId, userId, leaderId, presentationId, online} = useWebSocket(); // WebSocket 연결 관리
   const navigate = useNavigate();
   const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
 
@@ -28,6 +32,7 @@ const Topic = () => {
             alert('주제를 불러오는데 실패 했습니다.');
           });
   }
+
   //=============================================웹소켓========================================================
   const receiveMessage = (message) => {
     //3-1 구독한 url에서 온 메세지를 받았을 때
@@ -131,6 +136,31 @@ const Topic = () => {
     deleteTopic(topicId); // 부모 컴포넌트의 삭제 함수 호출
   };
 
+  const handleTopicDecisionClick = (e,topicId) =>{
+    // 클릭 이벤트 전파를 막아 주제 결정 버튼만 처리하도록 함
+    e.stopPropagation();
+    updateDecisionTopic(topicId);
+  }
+
+  const updateDecisionTopic = (topicId) => {
+    const data = {
+      roomId : roomId,
+      topicId : topicId
+    }
+    axios
+        .post("/api/v1/rooms/topics",data,{
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        .then((res) =>{
+          alert("주제가 변경되었습니다.")
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+  }
+
   // ================================================ 토픽 생성 ======================================
 
   const updateTopicInScreen = (topic) => {
@@ -160,25 +190,6 @@ const Topic = () => {
     setChatModal((prevState) => !prevState);
   };
   // ============================================포스트 잇 엄지================================================
-
-  const ThumbUp = ({ thumbsCount }) => {
-    const thumbs = Array.from({ length: thumbsCount }, (_, index) => ({
-      id: index + 1,
-      x: Math.random() * 80 + 10, // 10% ~ 90%
-      y: Math.random() * 80 + 10, // 10% ~ 90%
-    }));
-
-    return (
-          thumbs.map((thumb) => (
-              <span
-                  key={thumb.id}
-                  className="thumbs-up"
-                  style={{ left: `${thumb.x}%`, top: `${thumb.y}%` }}>
-          👍
-        </span>
-          ))
-    );
-  };
 
 
   const goSection = (path, subUrl) => {
@@ -218,6 +229,8 @@ const Topic = () => {
   return (
       <>
         <div className="background">
+          {/*온라인 중인 유저를 보는 컴포넌트*/}
+          <Online online={online}/>
           <img src={mainlogo} className="upper-logo"/>
           <button onClick={goBack} className="back_link">
             <img src={backlink}/>
@@ -226,24 +239,43 @@ const Topic = () => {
             <div className="card-container" id="topicsDiv">
               {topics.num > 0 ? (
                   topics.topics.map((topic) => (
-                      <div className={`post-it post-it-${topic.topicId%4}`} id={`topic${topic.topicId}`} onClick={() => toggleVote(topic.topicId)}>
+                      <div className={`post-it post-it-${topic.topicId % 4}`} id={`topic${topic.topicId}`} onClick={() => toggleVote(topic.topicId)}>
+                        {userId === leaderId ?
+                            <button className="topic-decision-btn"  onClick={(e) => handleTopicDecisionClick(e,topic.topicId)}>
+                              결정
+                            </button> : <></>
+                        }
                         {userId === leaderId || userId === topic.memberId ?
                             <button className="delete-btn"  onClick={(e) => handleDeleteClick(e,topic.topicId)}>
                               X
                             </button> : <></>
                         }
                         {topic.topic}
-                        <ThumbUp thumbsCount={topic.voteNum === undefined ? 0 : topic.voteNum}/>
+                        <div className="thumbs-container">
+                          <div key={topic.topicId} className="thumb-icon">👍 : {topic.voteNum !== undefined ? topic.voteNum : 0}</div>
+                        </div>
                       </div>
                   ))
               ) : (
-                  <h2 id="notExsistTopicH">해당 방의 주제가 없습니다.</h2>
+                  <h1 id="notExistTopicH" className="no-part-title">
+                    <img src={memo} height="300" width="300" style={{marginTop: "20px"}}/>
+                    <div className="no-part-container">
+                                <span className="no-part-text">
+                                    새로운 주제를 추가하고 프로젝트의 주제를 선정해보세요!
+                                </span>
+                      <button onClick={() => setAddModal(true)} className="topic-add-btn">
+                        +
+                      </button>
+                    </div>
+                  </h1>
               )}
-              <div>
-                <button onClick={() => setAddModal(true)} className="add_topic">
-                  +
-                </button>
-              </div>
+              {topics.num > 0 ? (
+                <div>
+                  <button onClick={() => setAddModal(true)} className="add_topic">
+                    +
+                  </button>
+                </div>) : <></>
+              }
             </div>
           </div>
 

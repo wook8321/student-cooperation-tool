@@ -81,37 +81,31 @@
 
 .chat-button {
     position: fixed;
-    bottom: 50px;
-    right: 30px;
+    bottom: 80px;
+    left: 20px;
     z-index: 100;
-    background-color: #e0e0e0;
-    color: #333;
     border: none;
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    background: #a8c6a1;
+    width: 60px;
+    height: 60px;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s;
-}
-
-.chat-button:hover {
-    background-color: #c7c7c7;
 }
 
 
-.chat-button .chat_image {
-    width: 30px;
-    height: 30px;
+.chat_image {
+    width: 90%;
+    height: 90%;
+    object-fit: contain;
 }
 
 .chat-modal {
     position: fixed;
-    bottom: 90px;
-    right: 80px;
+    bottom: 125px;
+    left: 75px;
     width: 350px;
     height: 400px;
     border-radius: 10px;
@@ -119,6 +113,7 @@
     background-color: #f0f0f0;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     display: none;
+    z-index:100;
 }
 
 .chat-modal.open {
@@ -157,8 +152,8 @@
 
 /* 포스트잇 스타일 */
 .post-it {
-    width: 300px;
-    height: 300px;
+    width: 200px;
+    height: 200px;
     background-color: #fdfd96; /* 기본 포스트잇 색상 */
     border: 1px solid #f5d442;
     border-radius: 8px;
@@ -222,16 +217,40 @@
     justify-content: center;
 }
 
+/* 삭제 버튼 (포스트잇 안쪽 상단) */
+.topic-decision-btn {
+    position: absolute;
+    top: 20px; /* 포스트잇 상단에 위치 */
+    left: 10px; /* 포스트잇 왼쪽에 위치 */
+    background-color: transparent;
+    color: #000000;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* 삭제 버튼 호버 효과 */
 .delete-btn:hover {
     transform: rotate(-2deg) scale(0.95); /* 마우스 올렸을 때 약간 커지는 효과 */
 }
 
+.thumbs-container {
+    position: absolute;
+    bottom: 10px; /* 포스트잇 하단에 위치 */
+    justify-content: center;
+    display: flex;
+    gap: 5px;
+    height: 30px; /* 엄지척 컨테이너 높이 고정 */
+    overflow-y: hidden; /* 넘치는 아이콘 숨김 */
+}
+
 /* 엄지척 스티커 */
 .thumbs-up {
-    position: absolute;
     font-size: 24px;
-    color: #28a745;
     animation: pop 0.3s ease forwards;
 }
 
@@ -338,4 +357,57 @@
 
 .topic-write-button:hover {
     background: #4fb1c0;
+}
+
+
+#notExistTopicH {
+    margin-top: 50px;
+    text-align: center;
+    padding: 20px;
+}
+
+.no-topic-title {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.no-topic-container {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.no-topic-text {
+    margin-right: 10px;
+}
+
+.no-topic-text {
+    margin-right: 10px;
+}
+
+.topic-add-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    background-color: #4caf50;
+    padding: 10px;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.role-add-btn:hover {
+    background-color: #45a049;
 }

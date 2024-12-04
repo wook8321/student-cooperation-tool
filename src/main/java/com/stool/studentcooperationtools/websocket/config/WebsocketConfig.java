@@ -19,6 +19,7 @@ import java.util.List;
 @EnableWebSocketMessageBroker
 @RequiredArgsConstructor
 public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
+    public static final String ROOM_PARTICIPATION_URL_FORMAT = "/sub/rooms/%d/online";
     public static final String TOPIC_DECISION_URL_FORMAT = "/sub/rooms/%d/topics";
     public static final String PRESENTATION_MANAGE_URL_FORMAT = "/sub/rooms/%d/presentation";
     public static final String CHAT_ROOM_URL_FORMAT = "/sub/rooms/%d/chat";
