@@ -23,4 +23,8 @@ public interface TopicRepository extends JpaRepository<Topic,Long> {
     @Modifying
     @Query("delete from Topic t where t.room.id =:roomId")
     void deleteByRoomId(@Param("roomId") Long roomId);
+
+    @Query("select t.id from Topic t where t.room.id = :roomId")
+    List<Long> findTopicIdByRoomId(@Param("roomId") Long roomId);
+
 }
