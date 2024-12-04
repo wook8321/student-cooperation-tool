@@ -152,7 +152,7 @@ const Topic = () => {
           },
         })
         .then((res) =>{
-          console.log(res)
+          alert("주제가 변경되었습니다.")
         })
         .catch((error) => {
           console.log(error)
@@ -188,25 +188,6 @@ const Topic = () => {
     setChatModal((prevState) => !prevState);
   };
   // ============================================포스트 잇 엄지================================================
-
-  const ThumbUp = ({ thumbsCount }) => {
-    const thumbs = Array.from({ length: thumbsCount }, (_, index) => ({
-      id: index + 1,
-      x: Math.random() * 80 + 10, // 10% ~ 90%
-      y: Math.random() * 80 + 10, // 10% ~ 90%
-    }));
-
-    return (
-        thumbs.map((thumb) => (
-            <span
-                key={thumb.id}
-                className="thumbs-up"
-                style={{ left: `${thumb.x}%`, top: `${thumb.y}%` }}>
-          👍
-        </span>
-        ))
-    );
-  };
 
 
   const goSection = (path, subUrl) => {
@@ -268,7 +249,9 @@ const Topic = () => {
                             </button> : <></>
                         }
                         {topic.topic}
-                        <ThumbUp thumbsCount={topic.voteNum === undefined ? 0 : topic.voteNum}/>
+                        <div className="thumbs-container">
+                          <div key={topic.topicId} className="thumb-icon">👍 : {topic.voteNum !== undefined ? topic.voteNum : 0}</div>
+                        </div>
                       </div>
                   ))
               ) : (
