@@ -149,7 +149,7 @@ const Friend = () => {
             {modalOpen && (
 
                 <div className="modal_overlay" onClick={handleCloseModal}>
-                    <div className="modal_content" onClick={(e) => e.stopPropagation()} >
+                    <div className="friend_modal_content" onClick={(e) => e.stopPropagation()} >
 
                         <h3>검색 결과</h3>
                         <button className="close_button" onClick={handleCloseModal}>
@@ -160,7 +160,7 @@ const Friend = () => {
                                     <ul>
                                         {friendData.members.map(friend => (
                                             <li key={friend.email}>
-                                                <div className = "profile">
+                                                <div className = "friend_profile">
                                                     <div className="profile-icon">
                                                         <img src={friend.profile} alt="프로필"/>
                                                     </div>
