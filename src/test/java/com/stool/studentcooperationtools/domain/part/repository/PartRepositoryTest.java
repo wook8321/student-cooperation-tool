@@ -165,4 +165,44 @@ class PartRepositoryTest extends IntegrationTest {
         //then
         assertThat(result).hasSize(0);
     }
+
+    @DisplayName("방의 id를 받아 part의 id들을 조회한다.")
+    @Test
+    void findPartIdsByRoomId(){
+        //given
+        Member member = Member.builder()
+                .email("email")
+                .nickName("닉네임")
+                .profile("profile")
+                .role(Role.USER)
+                .build();
+        memberRepository.save(member);
+        Room room = Room.builder()
+                .password("password")
+                .title("제목")
+                .leader(member)
+                .participationNum(1)
+                .build();
+        roomRepository.save(room);
+
+        String content = "조사할 부분";
+        Part part1 = Part.builder()
+                .partName(content)
+                .room(room)
+                .member(member)
+                .build();
+        Part part2 = Part.builder()
+                .partName(content)
+                .room(room)
+                .member(member)
+                .build();
+        partRepository.saveAll(List.of(part1,part2));
+
+        //when
+        List<Long> partIdsByRoomId = partRepository.findPartIdsByRoomId(room.getId());
+        //then
+        assertThat(partIdsByRoomId).hasSize(2)
+                .contains(part1.getId(),part2.getId());
+
+    }
 }
