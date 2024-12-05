@@ -634,7 +634,7 @@ const Project = () => {
                     <button className="close_button" onClick={() => closeFriendModal()}>
                         X
                     </button>
-                <div className="friend_list">
+                <div className="search_friend_list">
                     {result.num > 0 ? (
                         result.members.map((member) => (
                             <div key={member.email} className="friend_card">

@@ -397,18 +397,18 @@
     width: 40px;
     height: 40px;
     font-size: 24px;
-    background-color: #4caf50;
-    padding: 10px;
-    color: white;
-    border: none;
-    border-radius: 50%;
+    padding: 0; /* 패딩 제거 */
+    color: #4caf50; /* 텍스트 색상 */
+    border: 2px solid #4caf50; /* 테두리 추가 */
+    border-radius: 50%; /* 원형 버튼 */
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: background-color 0.3s, color 0.3s; /* 효과 추가 */
 }
 
-
-.role-add-btn:hover {
-    background-color: #45a049;
+.topic-add-btn:hover {
+    background-color: #4caf50; /* 호버 시 배경 추가 */
+    color: white; /* 호버 시 텍스트 색상 변경 */
 }
