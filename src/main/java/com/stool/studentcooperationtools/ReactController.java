@@ -12,7 +12,7 @@ import java.io.IOException;
 @RestController
 public class ReactController {
 
-    @GetMapping(value = {"/{x:^(?!api$|oauth$|static).*}"})
+    @GetMapping(value = {"/{x:^(?!api$|oauth$|static|manifest\\.json$|favicon\\.ico$).*}"})
     public ResponseEntity<Object> serveReactApp(@PathVariable String x) {
         try {
             ClassPathResource indexHtml = new ClassPathResource("static/index.html");
