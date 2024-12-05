@@ -133,8 +133,6 @@ const Part = () => {
     }
 
     const addPart = () => {
-        closeAddModal()
-
         const data = {
             roomId : roomId,
             partName : partName,
@@ -145,6 +143,7 @@ const Part = () => {
             destination: '/pub/parts/add',
             body: JSON.stringify(data)
         })
+        closeAddModal()
     };
 
     // ========================================== 파일 업로드 ============================================
@@ -239,7 +238,7 @@ const Part = () => {
     //==============================================================================================================
 
     const closeAddModal = () => {
-        setSelectedMemberId(0)
+        setSelectedMemberId(null)
         setAddModal(false)
     }
 
@@ -551,6 +550,7 @@ const Part = () => {
                                                 <img className="part-picture" src={p.profile} alt={`${p.nickname}'s profile`} />
                                                 {p.nickName}
                                                 <input type="radio" value={p.memberId}
+                                                       name="selectedMember"
                                                        checked={updatedMemberId === p.memberId}
                                                        onChange={() => setUpdatedMemberId(p.memberId)}
                                                 />
@@ -755,7 +755,7 @@ const Part = () => {
                                                  alt={`${p.nickname}'s profile`}/>
                                             {p.nickName}
                                             <input type="radio" value={p.memberId}
-                                                   checked={selectedMemberId === p.memberId}
+                                                   name="selectedMember"
                                                    onChange={() => setSelectedMemberId(p.memberId)}
                                             />
                                         </div>
