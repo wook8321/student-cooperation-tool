@@ -215,6 +215,11 @@ const Topic = () => {
     navigate("/project", {state}); // "/project" 경로로 이동
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      addTopic();
+    }
+  };
 
   if (!isConnected) {
     // 연결 중인 상태일 때는 로딩 상태로
@@ -282,11 +287,11 @@ const Topic = () => {
           {addModal && (
               <div className="topic-modal-overlay">
                 <div className="topic-modal-content" onClick={(e) => e.stopPropagation()}>
-                  <button className="topic-close-button" onClick={() => setAddModal(false)}> X</button>
+                  <button className="close-btn" onClick={() => setAddModal(false)}> X</button>
                   <h2 className="topic-modal-title">주제 등록하기</h2>
                   <input className="topic-write-input" id="topicTitleInput" type="text"/>
                   <div className="topic-write-buttons">
-                    <button className="topic-write-button" onClick={() => addTopic()}>
+                    <button className="review-write-button" onKeyPress={handleKeyPress} onClick={() => addTopic()}>
                       등록하기
                     </button>
                   </div>

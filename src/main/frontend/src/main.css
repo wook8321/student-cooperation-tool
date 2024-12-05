@@ -61,9 +61,11 @@ main {
 }
 
 .text-wrapper{
-    position: absolute;
+    display: flex;
+    flex-direction: column;
     margin-top: 50px;
-    justify-items: center;
+    justify-content: center;
+    align-items: center;
 }
 
 .under-logo{
@@ -121,7 +123,9 @@ main {
 .gradient-button {
     background: linear-gradient(90deg, #ff7e5f, #feb47b);
     color: white;
+    width: 30%;
     padding: 15px 30px;
+    margin: 0 auto;
     border: none;
     border-radius: 30px;
     font-size: 1.2rem;
