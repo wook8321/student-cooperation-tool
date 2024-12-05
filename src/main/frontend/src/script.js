@@ -14,17 +14,15 @@ import Online from "./online"; // WebSocketProvider의 훅 사용
 
 const Script = () => {
   const [slides, setSlides] = useState([]);
-  const [newScript, setNewScript] = useState(""); // 새로 입력된 스크립트
-  const [chatModal, setChatModal] = useState(false); 
-  const [error, setError] = useState(null);
+  const [chatModal, setChatModal] = useState(false);
   const {stompClient, isConnected, roomId, userId, leaderId, presentationId, online} = useWebSocket();
   const subscriptions = useRef([]); // 구독후 반환하는 객체로, 해당 객체로 구독을 취소해야 한다.
   const navigate = useNavigate();
   const [pptPath, setPptPath] = useState('');
   const [newScripts, setNewScripts] = useState({});
   const [currentPage, setCurrentPage] = useState(0);
-  const [test, setTest] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [checkSave, setCheckSave] = useState(false);
 
     // 발표자료의 슬라이드를 가져오는 함수
     const fetchSlides = () => {
@@ -109,6 +107,12 @@ const Script = () => {
                   : slide
           )
       );
+      setCheckSave(true);
+      console.log('checked');
+      setTimeout(() => {
+          console.log('check out');
+          setCheckSave(false);
+      }, 2000);
   };
 
   const updateScriptInScreen = (frame) => {
@@ -249,6 +253,10 @@ const Script = () => {
                                       className="save-btn"
                                   >
                                       저장
+                                  {checkSave && (
+                                      <div className="save-toast">
+                                          저장 완료!
+                                      </div>)}
                                   </button>
                               </div>
                           </div>
