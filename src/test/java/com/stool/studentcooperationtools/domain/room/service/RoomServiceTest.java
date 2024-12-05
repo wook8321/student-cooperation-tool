@@ -9,7 +9,6 @@ import com.stool.studentcooperationtools.domain.participation.repository.Partici
 import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomEnterRequest;
-import com.stool.studentcooperationtools.domain.room.controller.request.RoomRemoveRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomTopicUpdateRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomAddResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomSearchDto;
@@ -186,41 +185,6 @@ class RoomServiceTest extends IntegrationTest {
         List<RoomSearchDto> rooms = roomSearchResponse.getRooms();
         //then
         assertThat(rooms.size()).isEqualTo(0);
-    }
-
-    @Test
-    @DisplayName("소속되지 않은 방에 대해 삭제 요청 시 에러")
-    void removeNotBelongingRoom() {
-        //given
-        Member user = Member.builder()
-                .role(Role.USER)
-                .email("email")
-                .profile("profile")
-                .nickName("nickName")
-                .build();
-        memberRepository.save(user);
-        SessionMember member = SessionMember.of(user);
-        Member leader = Member.builder()
-                .role(Role.USER)
-                .email("email")
-                .profile("profile")
-                .nickName("nickName")
-                .build();
-        memberRepository.save(leader);
-        Room room = Room.builder()
-                .title("room")
-                .participationNum(1)
-                .leader(leader)
-                .password("password")
-                .build();
-        roomRepository.save(room);
-        participationRepository.save(Participation.of(leader, room));
-        RoomRemoveRequest roomRemoveRequest = RoomRemoveRequest.builder()
-                .roomId(room.getId())
-                .build();
-        //when
-        //then
-        assertThrows(IllegalArgumentException.class, () -> roomService.removeRoom(member, roomRemoveRequest));
     }
 
     @Test

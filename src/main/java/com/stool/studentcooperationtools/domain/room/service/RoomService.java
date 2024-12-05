@@ -1,29 +1,20 @@
 package com.stool.studentcooperationtools.domain.room.service;
 
 import com.stool.studentcooperationtools.domain.PagingUtils;
-import com.stool.studentcooperationtools.domain.chat.repository.ChatRepository;
 import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.member.repository.MemberRepository;
-import com.stool.studentcooperationtools.domain.part.repository.PartRepository;
 import com.stool.studentcooperationtools.domain.participation.Participation;
 import com.stool.studentcooperationtools.domain.participation.repository.ParticipationRepository;
-import com.stool.studentcooperationtools.domain.presentation.Presentation;
-import com.stool.studentcooperationtools.domain.presentation.repository.PresentationRepository;
-import com.stool.studentcooperationtools.domain.presentation.service.PresentationService;
 import com.stool.studentcooperationtools.domain.room.Room;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomAddRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomEnterRequest;
-import com.stool.studentcooperationtools.domain.room.controller.request.RoomRemoveRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomTopicUpdateRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomAddResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomEnterResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomSearchResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomsFindResponse;
 import com.stool.studentcooperationtools.domain.room.repository.RoomRepository;
-import com.stool.studentcooperationtools.domain.script.repository.ScriptRepository;
-import com.stool.studentcooperationtools.domain.slide.repository.SlideRepository;
 import com.stool.studentcooperationtools.domain.topic.repository.TopicRepository;
-import com.stool.studentcooperationtools.domain.vote.respository.VoteRepository;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -46,12 +37,6 @@ public class RoomService {
     private final MemberRepository memberRepository;
     private final TopicRepository topicRepository;
     private final ParticipationRepository participationRepository;
-    private final SlideRepository slideRepository;
-    private final ChatRepository chatRepository;
-    private final PartRepository partRepository;
-    private final PresentationRepository presentationRepository;
-    private final VoteRepository voteRepository;
-    private final ScriptRepository scriptRepository;
 
     public RoomsFindResponse findRooms(SessionMember member, final int page) {
         Pageable pageable = PageRequest.of(page, PagingUtils.ROOM_PAGING_PARSE);
@@ -90,56 +75,6 @@ public class RoomService {
         Pageable pageable = PageRequest.of(page, PagingUtils.ROOM_PAGING_PARSE);
         Page<Room> rooms = roomRepository.findRoomsByTitleWithPage(title, pageable);
         return RoomSearchResponse.of(rooms.isLast(),rooms.getContent());
-    }
-
-    @Transactional
-    public Boolean removeRoom(SessionMember member, final RoomRemoveRequest request) {
-        Room room = roomRepository.findRoomWithPLock(request.getRoomId())
-                .orElseThrow(() -> new IllegalArgumentException("방 id 오류"));
-        if(Objects.equals(member.getMemberSeq(), room.getLeader().getId())){
-                chatRepository.deleteByRoomId(room.getId());
-                partRepository.deleteByRoomId(room.getId());
-                removeVoteBy(request);
-                if(room.getMainTopic() != null){
-                    room.updateTopic(null);
-                }
-                topicRepository.deleteByRoomId(room.getId());
-                if(presentationRepository.existsByRoomId(room.getId())){
-                    Presentation presentation = presentationRepository.findByRoomId(room.getId())
-                                    .orElseThrow(()->new IllegalArgumentException("방의 ppt가 없습니다"));
-                    slideRepository.deleteByPresentationId(presentation.getId());
-                    scriptRepository.deleteByPresentationId(presentation.getId());
-                }
-                presentationRepository.deleteByRoomId(room.getId());
-                participationRepository.deleteByRoomId(room.getId());
-                roomRepository.deleteById(room.getId());
-        }
-        else{
-            Member teammate = memberRepository.findById(member.getMemberSeq())
-                    .orElseThrow(() -> new IllegalArgumentException("유저 정보가 올바르지 않습니다"));
-            if(participationRepository.existsByMemberIdAndRoomId(teammate.getId(), room.getId())){
-                delParticipation(member, room);
-                participationRepository.deleteByMemberIdAndRoomId(teammate.getId(), room.getId());
-            }
-            else{
-                throw new IllegalArgumentException("참여 정보가 없는 유저입니다");
-            }
-
-        }
-        return true;
-    }
-
-    private void removeVoteBy(final RoomRemoveRequest request) {
-        //해당 방의 주제들의 id를 가져오고, 해당 주제 id를 외래키로 가지고 있는 vote들을 삭제한다.
-        List<Long> topicIds = topicRepository.findTopicIdByRoomId(request.getRoomId());
-        voteRepository.deleteAllByInTopicId(topicIds);
-    }
-
-    private void delParticipation(SessionMember member, Room room){
-        Member user = memberRepository.findById(member.getMemberSeq())
-                .orElseThrow(() -> new IllegalArgumentException("유저 정보가 올바르지 않습니다"));
-        Participation participation = participationRepository.findByMemberIdAndRoomId(user.getId(), room.getId());
-        room.deleteParticipation(participation);
     }
 
     @Transactional
