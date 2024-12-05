@@ -37,7 +37,7 @@ public class PartService {
 
     @Transactional
     public PartAddWebsocketResponse addPart(final PartAddWebsocketRequest request, final SessionMember sessionMember) {
-        Member member = memberRepository.findById(sessionMember.getMemberSeq())
+        Member member = memberRepository.findById(request.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("역할을 추가하는 것을 실패했습니다."));
 
         Room room = roomRepository.findById(request.getRoomId())

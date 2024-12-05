@@ -31,6 +31,14 @@ const Part = () => {
     const [fileUrl, setFileUrl] = useState("")
     const [fileType, setFileType] = useState("")
     const [chatModal, setChatModal] = useState(false);
+    const ALLOWED_FILE_TYPES = ["image/png",
+        "image/jpeg",
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "image/jpg",
+        "image/jpeg"
+    ];
 
     const PartsList = () => {
         axios.get(`${domain}/api/v1/rooms/${roomId}/parts`)
@@ -125,8 +133,6 @@ const Part = () => {
     }
 
     const addPart = () => {
-        closeAddModal()
-
         const data = {
             roomId : roomId,
             partName : partName,
@@ -137,13 +143,12 @@ const Part = () => {
             destination: '/pub/parts/add',
             body: JSON.stringify(data)
         })
+        closeAddModal()
     };
 
     // ========================================== 파일 업로드 ============================================
 
     const uploadFileInScreen = (file) => {
-        console.log(file);  // 업로드한 파일 정보 확인
-
         // 파트를 업데이트하고 해당 파트의 파일 목록을 수정
         setParts((preParts) => ({
             ...preParts,
@@ -233,7 +238,7 @@ const Part = () => {
     //==============================================================================================================
 
     const closeAddModal = () => {
-        setSelectedMemberId(0)
+        setSelectedMemberId(null)
         setAddModal(false)
     }
 
@@ -288,6 +293,7 @@ const Part = () => {
         const [reviewTextArea, setTextArea] = useState("")
         const [fileUploadModal, setFileUploadModal] = useState(false)
         const [uploadingFile, setUploadingFile] = useState(null);
+        const [isUploading, setIsUploading] = useState(false)
         const MAX_FILE_SIZE = 7 * 1024 * 1024; // 5MB 제한
 
         // 드롭다운 열기/닫기
@@ -426,7 +432,6 @@ const Part = () => {
                 fileType: file.fileType,
                 fileName: file.fileName,
             }
-            console.log(data)
             stompClient.current.publish({
                 destination:"/pub/file/upload",
                 body : JSON.stringify(data)
@@ -440,9 +445,13 @@ const Part = () => {
                     alert("파일 크기가 너무 큽니다. 업로드 제한은 7MB입니다.");
                     return;
                 }
+                // 파일 타입 검사
+                if (!ALLOWED_FILE_TYPES.includes(uploadingFile.type)) {
+                    alert("지원하지 않는 파일 형식입니다. 업로드 가능한 파일 형식: PNG, JPEG, JPG, PDF,Xlsx,Xls, Docx");
+                    return;
+                }
 
-                // 파일 이름 출력
-                console.log("파일 이름: " + uploadingFile.name);
+                setIsUploading(true);
                 // FileReader로 파일 읽기
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -452,14 +461,14 @@ const Part = () => {
                         fileName : uploadingFile.name,
                         fileCode: e.target.result
                     }
-                    console.log("파일 내용:", data);
                     axios
                         .post("/api/v1/files",data)
                         .then((res) =>{
+                            setIsUploading(false);
                             uploadFileWebsocket(res.data.data.files[0])
                         })
                         .catch((error) =>{
-                            console.error(error)
+                            alert("파일 업로드를 실패 했습니다.")
                         })
                 }
                 reader.readAsDataURL(uploadingFile);
@@ -503,14 +512,17 @@ const Part = () => {
                 )}
 
                 {fileUploadModal && (
-                    <div className="review-modal-overlay" onClick={() => closeFileUploadModal()}>
+                    <div className="review-modal-overlay">
                         <div className="review-modal-content" onClick={(e) => e.stopPropagation()}>
                             <button className="review-close-button" onClick={() => closeFileUploadModal()}> X </button>
                             <h2 className="review-modal-title">파일 올리기</h2>
                             <input id="file-upload" className="file-input" type="file"
                                    onChange={(e) => setUploadingFile(e.target.files[0])}/>
                             <div className="review-write-buttons">
-                                <button className="review-write-button" onClick={() => uploadFile()}>파일 업로드</button>
+                                {isUploading ?
+                                    <div className="uploading-spinner"></div>
+                                    : <button className="review-write-button" onClick={() => uploadFile()}>파일 업로드</button>
+                                }
                             </div>
                         </div>
                     </div>
@@ -538,6 +550,7 @@ const Part = () => {
                                                 <img className="part-picture" src={p.profile} alt={`${p.nickname}'s profile`} />
                                                 {p.nickName}
                                                 <input type="radio" value={p.memberId}
+                                                       name="selectedMember"
                                                        checked={updatedMemberId === p.memberId}
                                                        onChange={() => setUpdatedMemberId(p.memberId)}
                                                 />
@@ -742,7 +755,7 @@ const Part = () => {
                                                  alt={`${p.nickname}'s profile`}/>
                                             {p.nickName}
                                             <input type="radio" value={p.memberId}
-                                                   checked={selectedMemberId === p.memberId}
+                                                   name="selectedMember"
                                                    onChange={() => setSelectedMemberId(p.memberId)}
                                             />
                                         </div>
