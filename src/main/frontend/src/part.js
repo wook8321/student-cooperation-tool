@@ -679,9 +679,6 @@ const Part = () => {
                                     ))) : <span> 업로드한 파일이 없습니다.</span>
                                 }
                             </div>
-                            <button className="role-add-btn" onClick={() => openAddModal()}>
-                                +
-                            </button>
                         </div>
                     ))) : (
                         <h1 className="no-part-title">
@@ -697,7 +694,13 @@ const Part = () => {
                         </h1>
                     )
                 }
+                {parts.parts?.length > 0 ?
+                    <button className="role-add-btn" onClick={() => openAddModal()}>
+                        +
+                    </button> : <></>
+                }
             </div>
+
             <div>
                 <button className="chat-button" onClick={toggleChatModal}>
                     <img className="chat_image" src={chatImage} alt="채팅창 이미지"/>
