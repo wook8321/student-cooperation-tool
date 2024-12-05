@@ -12,6 +12,9 @@ import java.util.Optional;
 @Repository
 public interface PresentationRepository extends JpaRepository<Presentation, Long> {
 
+    @Query("select p.id from Presentation p where p.room.id = :roomId")
+    Long findPresentationIdByRoomId(@Param("roomId") Long roomId);
+
     Optional<Presentation> findByRoomId(Long roomId);
 
     Boolean existsByRoomId(Long roomId);
