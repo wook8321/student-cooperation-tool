@@ -79,4 +79,60 @@ class FileRepositoryTest extends IntegrationTest {
         //then
         assertThat(files).isEmpty();
     }
+
+    @DisplayName("part의 id들을 받아서 해당 id들을 참조하는 File을 삭제한다.")
+    @Test
+    void deleteAllByInPartId(){
+        //given
+        Member member = Member.builder()
+                .email("email")
+                .nickName("닉네임")
+                .profile("profile")
+                .role(Role.USER)
+                .build();
+        memberRepository.save(member);
+        Room room = Room.builder()
+                .password("password")
+                .title("제목")
+                .leader(member)
+                .participationNum(1)
+                .build();
+        roomRepository.save(room);
+
+        String content = "조사할 부분";
+        Part part1 = Part.builder()
+                .partName(content)
+                .room(room)
+                .member(member)
+                .build();
+        Part part2 = Part.builder()
+                .partName(content)
+                .room(room)
+                .member(member)
+                .build();
+
+        String originalName = "originalFileName";
+        String fileName = UUID.randomUUID().toString();
+        File file1 = File.builder()
+                .part(part1)
+                .originalName(originalName)
+                .fileName(fileName)
+                .fileType(FileType.DOCX)
+                .build();
+        File file2 = File.builder()
+                .part(part2)
+                .originalName(originalName)
+                .fileName(fileName)
+                .fileType(FileType.DOCX)
+                .build();
+        part1.addFile(file1);
+        part2.addFile(file2);
+        partRepository.saveAll(List.of(part1,part2));
+        fileRepository.saveAll(List.of(file1,file2));
+        //when
+        fileRepository.deleteAllByInPartId(List.of(part1.getId(),part2.getId()));
+        List<File> files = fileRepository.findAll();
+        //then
+        assertThat(files).isEmpty();
+    }
 }
