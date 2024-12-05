@@ -90,6 +90,7 @@ class PartServiceTest extends IntegrationTest {
         String partName = "조사할 부분";
         PartAddWebsocketRequest request = PartAddWebsocketRequest.builder()
                 .roomId(invalidRoomId)
+                .memberId(invalidMemberId)
                 .partName(partName)
                 .build();
 
@@ -123,6 +124,7 @@ class PartServiceTest extends IntegrationTest {
         Long invalidRoomId = 1L;
         PartAddWebsocketRequest request = PartAddWebsocketRequest.builder()
                 .roomId(invalidRoomId)
+                .memberId(member.getId())
                 .partName(partName)
                 .build();
 
@@ -160,6 +162,7 @@ class PartServiceTest extends IntegrationTest {
         String partName = "조사할 부분";
         PartAddWebsocketRequest request = PartAddWebsocketRequest.builder()
                 .roomId(room.getId())
+                .memberId(member.getId())
                 .partName(partName)
                 .build();
 
