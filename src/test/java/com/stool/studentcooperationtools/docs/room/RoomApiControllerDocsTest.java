@@ -7,6 +7,7 @@ import com.stool.studentcooperationtools.domain.room.controller.request.RoomEnte
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomRemoveRequest;
 import com.stool.studentcooperationtools.domain.room.controller.request.RoomTopicUpdateRequest;
 import com.stool.studentcooperationtools.domain.room.controller.response.*;
+import com.stool.studentcooperationtools.domain.room.service.RoomDeleteService;
 import com.stool.studentcooperationtools.domain.room.service.RoomService;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import org.junit.jupiter.api.Test;
@@ -30,10 +31,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class RoomApiControllerDocsTest extends RestDocsSupport {
 
     private final RoomService roomService = mock(RoomService.class);
+    private final RoomDeleteService roomDeleteService = mock(RoomDeleteService.class);
 
     @Override
     protected Object initController() {
-        return new RoomApiController(roomService);
+        return new RoomApiController(roomService,roomDeleteService);
     }
 
     @Test
@@ -221,7 +223,7 @@ public class RoomApiControllerDocsTest extends RestDocsSupport {
 
         String content = objectMapper.writeValueAsString(request);
 
-        Mockito.when(roomService.removeRoom(any(SessionMember.class), any(RoomRemoveRequest.class)))
+        Mockito.when(roomDeleteService.removeRoom(any(SessionMember.class), any(RoomRemoveRequest.class)))
                 .thenReturn(true);
 
         //when
