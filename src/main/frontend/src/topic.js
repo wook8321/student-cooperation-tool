@@ -271,7 +271,7 @@ const Topic = () => {
               )}
               {topics.num > 0 ? (
                 <div>
-                  <button onClick={() => setAddModal(true)} className="add_topic">
+                  <button onClick={() => setAddModal(true)} className="topic-add-btn">
                     +
                   </button>
                 </div>) : <></>
