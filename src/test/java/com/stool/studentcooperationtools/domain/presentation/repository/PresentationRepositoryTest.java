@@ -96,4 +96,26 @@ class PresentationRepositoryTest extends IntegrationTest {
         assertThat(presentationRepository.existsByRoomId(room.getId())).isFalse();
     }
 
+    @DisplayName("방의 id를 받아 presentaion id를 조회한다.")
+    @Test
+    void findPresentationIdByRoomId(){
+        //given
+        Room room = Room.builder()
+                .participationNum(1)
+                .password("password")
+                .title("title")
+                .build();
+        roomRepository.save(room);
+        Presentation presentation = Presentation.builder()
+                .presentationPath("path")
+                .room(room)
+                .build();
+        presentationRepository.save(presentation);
+
+        //when
+        Long result = presentationRepository.findPresentationIdByRoomId(room.getId());
+        //then
+        assertThat(presentation.getId()).isEqualTo(result);
+    }
+
 }
