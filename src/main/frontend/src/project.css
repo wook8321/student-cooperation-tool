@@ -406,7 +406,7 @@ footer > a > img:hover {
     cursor: pointer;
 }
 
-.friend_list {
+.search_friend_list {
     width: 330px;
     margin-top: 20px;
     justify-content: center;
