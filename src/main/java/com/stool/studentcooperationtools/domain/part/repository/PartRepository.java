@@ -20,7 +20,9 @@ public interface PartRepository extends JpaRepository<Part,Long> {
     int deletePartByLeaderOrOwner(@Param("partId")Long partId,@Param("deleterId")Long deleterId);
 
     @Modifying
-    @Query("delete from Part p where p.room.id =:roomId")
+    @Query("delete from Part p where p.room.id = :roomId")
     void deleteByRoomId(@Param("roomId") Long roomId);
 
+    @Query("select p.id from Part p where p.room.id in :roomId")
+    List<Long> findPartIdsByRoomId(@Param("roomId") Long roomId);
 }

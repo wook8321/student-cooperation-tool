@@ -154,4 +154,49 @@ class ReviewRepositoryTest extends IntegrationTest {
         assertThat(reviews).isEmpty();
     }
 
+    @DisplayName("part의 id들을 받아서 해당 part id를 참조하는 Review를 모두 제거한다.")
+    @Test
+    void deleteAllByInPartId(){
+        //given
+        Member member = Member.builder()
+                .email("email")
+                .nickName("닉네임")
+                .profile("profile")
+                .role(Role.USER)
+                .build();
+
+        Member owner = Member.builder()
+                .email("평가자 이메일")
+                .nickName("평가자")
+                .profile("평가자 프로필")
+                .role(Role.USER)
+                .build();
+
+        memberRepository.saveAll(List.of(owner,member));
+        Room room = Room.builder()
+                .password("password")
+                .title("제목")
+                .leader(member)
+                .participationNum(2)
+                .build();
+        roomRepository.save(room);
+
+        String content = "조사할 부분";
+        Part part1 = Part.builder()
+                .partName(content)
+                .room(room)
+                .member(member)
+                .build();
+        Part part2 = Part.builder()
+                .partName(content)
+                .room(room)
+                .member(member)
+                .build();
+        partRepository.saveAll(List.of(part1,part2));
+        //when
+        reviewRepository.deleteAllByInPartId(List.of(part1.getId(),part2.getId()));
+        List<Review> reviews = reviewRepository.findAll();
+        //then
+        assertThat(reviews).isEmpty();
+    }
 }

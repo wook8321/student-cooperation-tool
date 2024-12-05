@@ -9,6 +9,7 @@ import com.stool.studentcooperationtools.domain.room.controller.response.RoomAdd
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomEnterResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomSearchResponse;
 import com.stool.studentcooperationtools.domain.room.controller.response.RoomsFindResponse;
+import com.stool.studentcooperationtools.domain.room.service.RoomDeleteService;
 import com.stool.studentcooperationtools.domain.room.service.RoomService;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
 import jakarta.validation.Valid;
@@ -16,14 +17,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-
 @RestController
 @RequiredArgsConstructor
 public class RoomApiController {
 
     private final RoomService roomService;
+    private final RoomDeleteService roomDeleteService;
 
     @GetMapping("/api/v1/rooms")
     public ApiResponse<RoomsFindResponse> findRooms(SessionMember member, @RequestParam("page") int page){
@@ -47,7 +46,7 @@ public class RoomApiController {
 
     @DeleteMapping("/api/v1/rooms")
     public ApiResponse<Boolean> removeRoom(SessionMember member, @Valid @RequestBody RoomRemoveRequest request) {
-        Boolean result = roomService.removeRoom(member, request);
+        Boolean result = roomDeleteService.removeRoom(member, request);
         return ApiResponse.of(HttpStatus.OK,result);
     }
 
