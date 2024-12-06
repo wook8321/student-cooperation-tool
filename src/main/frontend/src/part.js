@@ -133,6 +133,13 @@ const Part = () => {
     }
 
     const addPart = () => {
+        if(selectedMemberId === null || partName === null || partName === "" || partName === " "){
+            const addPartErrorDiv = document.getElementById("addPartErrorDiv");
+            addPartErrorDiv.textContent = "역할 이름 혹은 담담자는 필수 항목입니다.";
+            addPartErrorDiv.style.color = "red"
+            return
+        }
+
         const data = {
             roomId : roomId,
             partName : partName,
@@ -354,13 +361,20 @@ const Part = () => {
         }
 
         const updatePart = () => {
-            setUpdateModal(false)
+            if(updatedPartName === " " || updatedPartName === "" ||
+                updatedPartName === null || updatedMemberId === null){
+                const updateModalErrorDiv = document.getElementById("updateModalErrorDiv")
+                updateModalErrorDiv.textContent = "수정할 역할 이름과 담당자를 입력해주세요"
+                updateModalErrorDiv.style.color = "red"
+                return
+            }
             const data = {
                 roomId: roomId,
                 partId: part.partId,
                 partName : updatedPartName,
                 memberId : updatedMemberId
             }
+            setUpdateModal(false)
             stompClient.current.publish({
                 destination : "/pub/parts/update",
                 body : JSON.stringify(data)
@@ -404,6 +418,7 @@ const Part = () => {
                 partId : part.partId,
                 content : reviewTextArea
             }
+            setTextArea(null);
             axios
                 .post("/api/v1/parts/review",data)
                 .then(() => {
@@ -412,7 +427,7 @@ const Part = () => {
                     openReviewModal()
                 })
                 .catch((error) =>{
-                    console.error(error)
+
                 })
         }
 
@@ -468,6 +483,7 @@ const Part = () => {
                             uploadFileWebsocket(res.data.data.files[0])
                         })
                         .catch((error) =>{
+                            setIsUploading(false);
                             alert("파일 업로드를 실패 했습니다.")
                         })
                 }
@@ -490,7 +506,7 @@ const Part = () => {
                             }
                         </li>
                         <li>
-                            {userId === leaderId || userId === part.memberId ?
+                            {userId === leaderId ?
                                 <button className="dropdown-item" onClick={() => openUpdateModal()}>
                                     역할 수정하기
                                 </button> : <></>
@@ -533,6 +549,7 @@ const Part = () => {
                         <div className="part-add-modal">
                             <button className="close-btn" onClick={() => closeUpdateModal()}>x</button>
                             <span className="modal-title" style={{textAlign : "center"}}>역할 추가</span>
+                            <div id="updateModalErrorDiv"></div>
                             <div className="part-add-modal-content">
                                 <div className="part-header">
                                     <label className="modal_label" htmlFor="partName">역할 이름</label>
@@ -570,7 +587,8 @@ const Part = () => {
                     <div className="review-modal-overlay" onClick={() =>setReviewModal(false)}>
                         <div className="review-modal-content" onClick={(e) => e.stopPropagation()}>
                             <button className="review-close-button" onClick={() => setReviewModal(false)}> X </button>
-                            <h2 className="review-modal-title">Review</h2>
+                            <h2 className="review-modal-title">리뷰 작성</h2>
+                            <div id="reviewModalErrorDiv"></div>
                             {reviews.reviews.map((review) => (
                                 <div key={review.reviewId} className="review-card">
                                     <img src={review.profile} alt={`${review.nickName} 프로필`} className="review-card-profile"/>
@@ -591,6 +609,7 @@ const Part = () => {
                     <div className="review-modal-overlay">
                         <div className="review-modal-content">
                             <h2 className="review-modal-title">리뷰 작성</h2>
+                            <div id="reviewErrorDiv"></div>
                             <div className="review-cart">
                                 <textarea id="review" className="review-write-textarea" placeholder="리뷰를 작성해주세요"
                                           onChange={(e) => setTextArea(e.target.value)}>
@@ -739,6 +758,7 @@ const Part = () => {
                     <div className="part-add-modal">
                         <button className="close-btn" onClick={() => closeAddModal()}>x</button>
                         <span className="modal-title" style={{textAlign: "center"}}>역할 추가</span>
+                        <div id="addPartErrorDiv"></div>
                         <div className="part-add-modal-content">
                             <div className="part-header">
                                 <label className="modal_label" htmlFor="partName">역할 이름</label>

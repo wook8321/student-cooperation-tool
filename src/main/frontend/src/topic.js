@@ -173,8 +173,13 @@ const Topic = () => {
 
   // 주제 추가 함수
   const addTopic = () => {
-    setAddModal(false)
     const topic = document.getElementById("topicTitleInput").value;
+    if(topic === null || topic === "" || topic === " "){
+      const addTopicErrorDiv = document.getElementById("addTopicErrorDiv")
+      addTopicErrorDiv.innerHtml = '<span style="{{color : red}}">주제를 입력해주세요.</span>'
+      return
+    }
+    setAddModal(false)
     const data = {
         topic : topic,
         roomId : roomId
@@ -289,6 +294,7 @@ const Topic = () => {
                 <div className="topic-modal-content" onClick={(e) => e.stopPropagation()}>
                   <button className="close-btn" onClick={() => setAddModal(false)}> X</button>
                   <h2 className="topic-modal-title">주제 등록하기</h2>
+                  <div id="addTopicErrorDiv"></div>
                   <input className="topic-write-input" id="topicTitleInput" type="text"/>
                   <div className="topic-write-buttons">
                     <button className="review-write-button" onKeyPress={handleKeyPress} onClick={() => addTopic()}>
