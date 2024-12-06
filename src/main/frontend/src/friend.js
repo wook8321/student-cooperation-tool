@@ -25,6 +25,17 @@ const FriendsList = () => {
             });
     }, []);
 
+    const handleDeleteFriend = (email) => {
+        axios.delete(domain + "/api/v1/friends", {data: {email}})
+            .then(()=>{
+                setFriends(prev => (
+                    {num: prev.num-1, members: prev.members.filter(member => member.email !== email)}))
+            })
+            .catch(()=>{
+                console.log("failed to delete friend")
+            })
+    }
+
     return (
             <div className="friend_list">
                 <div id="newFriendDiv" className="newFriend-container"></div>
@@ -33,7 +44,7 @@ const FriendsList = () => {
                 {friends.num > 0 ? (
                     <ul>
                         <div className="friends-li">
-                        <h2>친구 목록</h2>
+                        <h2>친구 목록 ({friends.num})</h2>
                         <div className="friends-card">
                         {friends.members.map(friend => (
                             <li key={friend.email}>
@@ -41,14 +52,18 @@ const FriendsList = () => {
                                     <img src={friend.profile} alt="프로필"/>
                                 </div>
                                 <span className="friend-name">{friend.nickname}</span>
+                                <button className="card-red-button"
+                                        onClick={() => handleDeleteFriend(friend.email)}>
+                                    삭제
+                                </button>
                             </li>)
                         )}
                         </div>
                         </div>
                     </ul>
-                ) : <h1 style={{textAlign : "center", width: "1000px"}} id="notExistH">
+                ) : <h1 style={{textAlign: "center", width: "1000px"}} id="notExistH">
                     <div>
-                        <img src={friendship} height="300" width="300" style={{marginTop: "20px"}}/>
+                    <img src={friendship} height="300" width="300" style={{marginTop: "20px"}}/>
                     </div>
                     아직 등록된 친구가 없네요. 친구들을 찾아 볼까요?
                 </h1>}
@@ -60,6 +75,7 @@ const Friend = () => {
     const [searchText, setSearchText] = useState("");
     const [modalOpen, setModalOpen] = useState(false);
     const [friendData, setFriendData] = useState({num:0, members:[]})
+    const [excludeList, setExcludeList] = useState([]);
     const handleSearchClick = () => {
         axios
             .get(domain + `/api/v1/friends/search?relation=false&name=${searchText}`)
@@ -109,16 +125,63 @@ const Friend = () => {
             barDiv.setAttribute("class","divider-bar")
         }
         // 새롭게 생긴 친구를 삽입
-        newFriendDiv.innerHTML +=
-            `
-            <li key=${email}>
-              <div class="profile-icon">
-                <img src = ${profile} alt="프로필"/>
-              </div>
-              <span class="friend-name">${nickname}</span>
-            </li>
-          `
+        // 새 친구 요소 생성
+        const listItem = document.createElement('li');
+        listItem.setAttribute('key', email);
+
+        // 프로필 div 생성
+        const profileDiv = document.createElement('div');
+        profileDiv.className = 'profile-icon';
+
+        const profileImg = document.createElement('img');
+        profileImg.src = profile;
+        profileImg.alt = "프로필";
+        profileDiv.appendChild(profileImg);
+
+        // 닉네임 span 생성
+        const nicknameSpan = document.createElement('span');
+        nicknameSpan.className = 'friend-name';
+        nicknameSpan.textContent = nickname;
+
+        // 삭제 버튼 생성
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'card-red-button';
+        deleteButton.textContent = "삭제";
+        deleteButton.onclick = () => handleDeleteFriend(email); // 이벤트 리스너 연결
+
+        // 요소 조립
+        listItem.appendChild(profileDiv);
+        listItem.appendChild(nicknameSpan);
+        listItem.appendChild(deleteButton);
+
+        // 새 친구 추가
+        newFriendDiv.appendChild(listItem);
     }
+
+    const handleDeleteFriend = (email) => {
+        axios.delete(domain + "/api/v1/friends", {data: {email}})
+            .then(()=>{
+                removeFriendDiv(email);
+            })
+            .catch(()=>{
+                console.log("failed to delete friend")
+            })
+    }
+
+    function removeFriendDiv(email){
+        const newFriendDiv = document.getElementById('newFriendDiv');
+        const friendToRemove = newFriendDiv.querySelector(`li[key="${email}"]`)
+        friendToRemove.remove();
+
+        const remainingFriends = newFriendDiv.querySelectorAll(`li`);
+        if(remainingFriends.length === 0){
+            const title = newFriendDiv.querySelector(`h2`);
+            if(title){
+                newFriendDiv.removeChild(title);
+            }
+        }
+    }
+
 
     const handleCloseModal = () => {
         setModalOpen(false);
