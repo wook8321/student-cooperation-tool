@@ -15,8 +15,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
-@SpringBootTest
-class FriendshipRepositoryTest {
+class FriendshipRepositoryTest extends IntegrationTest{
 
     @Autowired
     MemberRepository memberRepository;
