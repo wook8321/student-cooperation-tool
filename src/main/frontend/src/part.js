@@ -265,7 +265,7 @@ const Part = () => {
             parts: preParts.parts.map((part) =>
                 part.partId === updatedPart.partId
                     ? { ...part, partName: updatedPart.partName,
-                        nickname: updatedPart.nickname,
+                        nickName: updatedPart.nickName,
                         profile: updatedPart.profile,
                         memberId: updatedPart.memberId
                       }
@@ -327,7 +327,6 @@ const Part = () => {
                 roomId: roomId,
                 partId: partId
             }
-
             stompClient.current.publish({
                 destination: "/pub/parts/delete",
                 body: JSON.stringify(data)
