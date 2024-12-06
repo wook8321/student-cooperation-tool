@@ -52,7 +52,7 @@ const FriendsList = () => {
                                     <img src={friend.profile} alt="프로필"/>
                                 </div>
                                 <span className="friend-name">{friend.nickname}</span>
-                                <button className="card-red-button"
+                                <button className="delete-friend-button"
                                         onClick={() => handleDeleteFriend(friend.email)}>
                                     삭제
                                 </button>
@@ -145,7 +145,7 @@ const Friend = () => {
 
         // 삭제 버튼 생성
         const deleteButton = document.createElement('button');
-        deleteButton.className = 'card-red-button';
+        deleteButton.className = 'delete-friend-button';
         deleteButton.textContent = "삭제";
         deleteButton.onclick = () => handleDeleteFriend(email); // 이벤트 리스너 연결
 
