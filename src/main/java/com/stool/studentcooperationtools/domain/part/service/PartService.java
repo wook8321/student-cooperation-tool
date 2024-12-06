@@ -1,5 +1,6 @@
 package com.stool.studentcooperationtools.domain.part.service;
 
+import com.stool.studentcooperationtools.domain.file.repository.FileRepository;
 import com.stool.studentcooperationtools.domain.member.Member;
 import com.stool.studentcooperationtools.domain.member.repository.MemberRepository;
 import com.stool.studentcooperationtools.domain.part.Part;
@@ -29,6 +30,7 @@ public class PartService {
     private final PartRepository partRepository;
     private final MemberRepository memberRepository;
     private final RoomRepository roomRepository;
+    private final FileRepository fileRepository;
 
     public PartFindResponse findParts(final Long roomId) {
         List<Part> parts = partRepository.findAllByRoomId(roomId);
@@ -53,6 +55,7 @@ public class PartService {
 
     @Transactional(rollbackFor = AccessDeniedException.class)
     public PartDeleteWebsocketResponse deletePart(final PartDeleteWebsocketRequest request, final SessionMember member) {
+        fileRepository.deleteAllByInPartId(List.of(request.getPartId()));
         int result = partRepository.deletePartByLeaderOrOwner(request.getPartId(), member.getMemberSeq());
         if(result == 0){
             throw new AccessDeniedException("역할을 삭제할 권한이 없습니다.");
@@ -76,6 +79,7 @@ public class PartService {
             part.changeMember(newMember);
         }
         part.update(request.getPartName());
+
         return PartUpdateWebsocketResponse.of(part);
     }
 
