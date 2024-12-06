@@ -57,7 +57,7 @@ public class MemberService {
     public Boolean removeFriend(SessionMember member, final FriendRemoveRequest request){
         Member user = memberRepository.findById(member.getMemberSeq())
                 .orElseThrow(()->new IllegalArgumentException("등록되지 않은 유저 정보입니다."));
-        Member friend = memberRepository.findById(request.getMemberId())
+        Member friend = memberRepository.findMemberByEmail(request.getEmail())
                 .orElseThrow(()->new IllegalArgumentException("등록되지 않은 친구 정보입니다."));
         friendshipRepository.deleteByFriendId(user.getId(), friend.getId());
         return true;

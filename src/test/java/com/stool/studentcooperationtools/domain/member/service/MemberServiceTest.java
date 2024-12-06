@@ -279,7 +279,7 @@ class MemberServiceTest extends IntegrationTest {
         memberRepository.save(friend);
         friendshipRepository.save(Friendship.of(user, friend));
         FriendRemoveRequest request = FriendRemoveRequest.builder()
-                .memberId(friend.getId())
+                .email(friend.getEmail())
                 .build();
         //when
         memberService.removeFriend(SessionMember.of(user), request);
