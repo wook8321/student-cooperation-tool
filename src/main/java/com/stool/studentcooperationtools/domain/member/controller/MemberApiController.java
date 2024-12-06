@@ -2,10 +2,12 @@ package com.stool.studentcooperationtools.domain.member.controller;
 
 import com.stool.studentcooperationtools.domain.api.ApiResponse;
 import com.stool.studentcooperationtools.domain.member.controller.request.MemberAddRequest;
+import com.stool.studentcooperationtools.domain.member.controller.request.FriendRemoveRequest;
 import com.stool.studentcooperationtools.domain.member.controller.response.MemberFindResponse;
 import com.stool.studentcooperationtools.domain.member.controller.response.MemberSearchResponse;
 import com.stool.studentcooperationtools.domain.member.service.MemberService;
 import com.stool.studentcooperationtools.security.oauth2.dto.SessionMember;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +36,12 @@ public class MemberApiController {
     @PostMapping("/api/v1/friends")
     public ApiResponse<Boolean> addFriend(SessionMember member, @RequestBody MemberAddRequest request){
         Boolean result = memberService.addFriend(member, request);
+        return ApiResponse.of(HttpStatus.OK,result);
+    }
+
+    @DeleteMapping("/api/v1/friends")
+    public ApiResponse<Boolean> removeFriend(SessionMember member, @Valid @RequestBody FriendRemoveRequest request) {
+        Boolean result = memberService.removeFriend(member, request);
         return ApiResponse.of(HttpStatus.OK,result);
     }
 }
